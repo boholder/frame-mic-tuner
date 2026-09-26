@@ -1,0 +1,20 @@
+[Unit]
+Description=Frame Mic Tuner (mic filter switch panel for Steam Frame)
+# OpenVR のオーバーレイなので SteamVR が動いている間だけ動かす
+After=steamvr.service
+PartOf=steamvr.service
+
+[Service]
+# 設定は ~/.config/frame-mic-tuner/config.json（無ければ既定値）
+ExecStart=%h/.local/bin/frame-mic-tuner
+# SteamVR だけ再起動したとき（steamvr.service は動いたまま）も戻ってくるよう、正常終了でも再起動する。
+# steamvr.service が止まるときは PartOf で一緒に止まるので再起動はされない
+Restart=always
+RestartSec=5
+# パネルの「アプリを終了」・アイコンの「閉じる」で終わったとき、すでに別の常駐がいたときは終了コード 3 になる。
+# 起動し直さない。失敗（failed）扱いにもしない
+RestartPreventExitStatus=3
+SuccessExitStatus=3
+
+[Install]
+WantedBy=steamvr.service

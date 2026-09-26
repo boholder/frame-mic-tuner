@@ -1,0 +1,112 @@
+// 画面に出す文言の表（日本語・英語）。描画コードの中に文言を書かず、ここから引く。
+// ログや --print の出力は日本語のまま（ここには入れない）。
+#pragma once
+
+#include <string>
+
+/** 表示の言語。 */
+enum class Language { Ja, En };
+
+/**
+ * Frame のシステム言語（設定ファイルに language が無いときの既定値）。
+ * Steam の言語設定（~/.steam/registry.vdf の "language"、読むだけ）が日本語なら日本語、
+ * 読めなければ LC_ALL / LC_MESSAGES / LANG を見て、どれでもなければ英語。結果は最初の 1 回だけ調べて覚えておく。
+ * @return 言語
+ */
+Language systemLanguage();
+
+/**
+ * パネルの文言一式。
+ */
+struct UiText {
+    const char* title;             ///< パネルの見出し
+    const char* micInUse;          ///< マイク使用中（バッジ）
+    const char* micIdle;           ///< マイク未使用（バッジ）
+    const char* loading;           ///< まだ読んでいない
+    const char* earphone;          ///< イヤホン
+    const char* speaker;           ///< スピーカー
+    const char* earphoneHint;      ///< イヤホンのカードの効果（1 行）
+    const char* speakerHint;       ///< スピーカーのカードの効果（1 行）
+    const char* rowEcho;           ///< エコー除去
+    const char* echoHint;          ///< エコー除去の説明
+    const char* rowNs;             ///< ノイズ除去
+    const char* nsHint;            ///< ノイズ除去の説明
+    const char* on;
+    const char* off;
+    const char* rowChain;          ///< つながり
+    const char* stageMic;          ///< 通り道の最初（マイク）
+    const char* stageEq;           ///< EQ（音質補正）
+    const char* stageEcho;         ///< エコー除去
+    const char* stageNs;           ///< ノイズ除去
+    const char* stageOut;          ///< 通り道の最後（アプリへ）
+    const char* chainIdle;         ///< 使っていないときの説明
+    const char* chainUnknown;      ///< つながりを読めない
+    const char* voiceTitle;        ///< 声のチェック
+    const char* voiceHint;         ///< 声のチェックの説明
+    const char* record;            ///< 録音（ボタン）
+    const char* stop;              ///< 停止（ボタン）
+    const char* recording;         ///< 録音中
+    const char* seconds;           ///< 秒の単位（前に数字）
+    const char* elapsedFormat;     ///< 録音中の経過と残り（printf 形式。%.1f が 2 つ）
+    const char* voiceIdle;         ///< 録音していないときのメーターの場所の説明
+    const char* noClips;           ///< 履歴が空
+    const char* withNs;            ///< ＋ノイズ除去（履歴の設定の表示）
+    const char* unknownSetting;    ///< 録ったときの設定が分からない
+    const char* rowLanguage;       ///< 言語
+    const char* rowAutostart;      ///< SteamVR と一緒に起動
+    const char* autostartMissing;  ///< ユニットファイルが無いときの説明
+    const char* autostartUnknown;  ///< 状態を読めないときの説明
+    const char* quit;              ///< 終了
+    const char* quitConfirm;       ///< もう一度押すと終了
+    const char* footer;            ///< 押すとすぐ反映される旨
+    const char* errReadSettings;   ///< 設定を読めない（wpctl）
+    const char* errNotInstalled;   ///< 切り替えの仕組みが入っていない
+    const char* errReadLinks;      ///< つながりを読めない（pw-link）
+    const char* errWriteSettings;  ///< 切り替えに失敗（wpctl）
+    const char* errWriteAutostart; ///< 自動起動の切り替えに失敗（systemctl）
+    const char* errRecord;         ///< 録音を始められない（PipeWire）
+    const char* errPlay;           ///< 再生できない（PipeWire）
+    const char* nsVad;             ///< 判定の厳しさ（VAD しきい値のバー）
+    const char* nsVadHint;         ///< 判定の厳しさの説明
+    const char* nsGrace;           ///< 余韻（VAD の猶予のバー）
+    const char* nsGraceHint;       ///< 余韻の説明
+    const char* nsInactive;        ///< ノイズ除去がオフの間の説明
+    const char* nsReset;           ///< 標準に戻す
+    const char* errWriteNsParams;  ///< ノイズ除去の強さを変えられない（pw-cli）
+    const char* presetTitle;       ///< プリセットの見出し（どこで音を聞いてる？）
+    const char* presetHint;        ///< プリセットの見出しの右の説明（選ぶとおすすめの設定になります）
+    const char* earphoneCard;      ///< イヤホンのカードの名前（イヤホン・ヘッドホン）
+    const char* speakerCard;       ///< スピーカーのカードの名前（Frame のスピーカー）
+    const char* chipEchoOff;       ///< イヤホンのカードのチップ（エコー除去 オフ）
+    const char* chipEchoOn;        ///< スピーカーのカードのチップ（エコー除去 オン）
+    const char* fineTune;          ///< 個別の設定の区切りの見出し（細かく調整）
+    const char* presetCustom;      ///< どちらのプリセットとも一致しないときの見出しの右の文
+    const char* chipNsOff;         ///< 両方のカードのチップ（ノイズ除去 オフ）
+    const char* errWriteEcho;      ///< プリセットのうち、エコー除去の切り替えに失敗（wpctl）
+    const char* errWriteNs;        ///< プリセットのうち、ノイズ除去の切り替えに失敗（wpctl）
+    const char* tabQuick;          ///< 「かんたん」のタブ（「細かく調整」のタブは fineTune）
+    const char* goFine;            ///< かんたんのタブから細かく調整のタブへ移るボタン
+    const char* nsDefaultNote;     ///< 「標準に戻す」の左の説明（標準の値）
+};
+
+/**
+ * 言語の文言の表を返す。
+ * @param language 言語
+ * @return 文言の表（プログラムの終わりまで有効）
+ */
+const UiText& uiText(Language language);
+
+/**
+ * 設定ファイルに書く言語の名前。
+ * @param language 言語
+ * @return "ja" / "en"
+ */
+const char* languageCode(Language language);
+
+/**
+ * 設定ファイルの言語の名前を読む。
+ * @param code "ja" / "en"
+ * @param language 読めたときの書き込み先
+ * @return 知っている名前なら true
+ */
+bool parseLanguage(const std::string& code, Language& language);

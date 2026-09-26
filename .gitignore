@@ -1,0 +1,5 @@
+build/
+out/
+*.log
+# Internal notes (legal pre-check); not part of the published repository.
+LEGAL-RISK-REPORT_*.md
