@@ -96,11 +96,11 @@ struct UiText {
     const char* updateAvailableFormat;  ///< 新しい版あり（%s は版）
     const char* updateButton;           ///< 「更新する」ボタン
     const char* updateManual;           ///< ここからは入れられない版（手で更新してね）
-    const char* updateReleasePage;      ///< 「リリースページ:」（今は URL を出していないので未使用）
-    const char* updateConfirmFormat;    ///< 確認の文言（%s は版。今は行の文言をこれに差し替えるだけで使う）
-    const char* updateConfirmHint;      ///< 確認の補足（今は未使用。行が 1 行しかないため）
+    const char* updateReleasePage;      ///< 「リリースページ:」（手で更新するときの 2 行目で URL の前に出す）
+    const char* updateConfirmFormat;    ///< 確認の文言（%s は版。帯の 1 行目）
+    const char* updateConfirmHint;      ///< 確認の補足（帯の 2 行目）
     const char* updateConfirmYes;       ///< 確認の実行（updateButton と同じ文言）
-    const char* updateConfirmNo;        ///< 確認のやめる（今は別ボタンを出していないので未使用。ほかを押すか待つと取り消し）
+    const char* updateConfirmNo;        ///< 確認の「やめる」ボタン（ほかを押すか待っても取り消し）
     const char* updateInstallingFormat; ///< 更新中（%s は手順）
     const char* updateInstalledFormat;  ///< 入れ終わった（%s は版）
     const char* updateInstallFailed;    ///< 更新失敗の見出し（あとに理由が続く）
@@ -109,6 +109,7 @@ struct UiText {
     const char* updateRetry;            ///< 「もう一度」ボタン（更新失敗のあと）
     const char* updateDismiss;          ///< 「閉じる」ボタン
     const char* updateLogHint;          ///< 失敗の補足（今は未使用）
+    const char* updateInstallingHint;   ///< 更新中の帯の右に出す補足（strings.md に無い。見本の更新の帯から）
     // 更新中の手順（UpdateStatus::step）
     const char* updateStepStart;
     const char* updateStepDownload;

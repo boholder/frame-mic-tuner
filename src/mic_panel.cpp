@@ -14,9 +14,9 @@
 
 namespace {
 
-// 横長の 2 カラム: 左 = 切り替え、右 = 声のチェック、下 = 版の行、その下 = 全幅の 1 行（言語・自動起動・終了）と注意書き
+// 横長の 2 カラム: 左 = 切り替え、右 = 声のチェック、下 = 更新の帯、その下 = 全幅の 1 行（言語・自動起動・終了）と注意書き
 constexpr int kWidth = 1200;
-constexpr int kHeight = 758;
+constexpr int kHeight = 788;
 constexpr double kPad = 28;                  // パネルの外側の余白
 constexpr double kCardPad = 20;              // カードの中の余白
 constexpr double kLeftX = kPad;              // 左のカラム
@@ -46,8 +46,9 @@ constexpr double kPipelineH = 116;
 constexpr double kVoiceY = 26;       // 声のチェックのカード
 constexpr double kVoiceH = 548;
 constexpr double kRowStep = 74;      // 履歴の 1 行
-constexpr double kUpdateRowY = 594;  // 版・新しい版の確認と更新の行
-constexpr double kFooterY = 652;     // 下の 1 行（言語・自動起動・終了）
+constexpr double kUpdateRowY = 594;  // 更新の帯（全幅のカード。今の版・新しい版の確認と更新）
+constexpr double kUpdateRowH = 70;
+constexpr double kFooterY = 682;     // 下の 1 行（言語・自動起動・終了）
 
 /**
  * 収まる幅になるまで文字を小さくした大きさを返す。
@@ -431,13 +432,13 @@ PanelHit MicPanel::pointerDown(double x, double y, double now) {
         return {};
     }
     if (pressed_.action == PanelAction::UpdateInstall) {
-        // 終了と同じく、1 回目は確認の表示にするだけ（行の文言が updateConfirmFormat に変わる）
+        // 終了と同じく、1 回目は確認の表示にするだけ（帯が updateConfirmFormat と「やめる」「更新する」に変わる）
         if (updateArmed_ && now <= updateArmedUntil_) return pressed_;
         updateArmed_ = true;
         updateArmedUntil_ = now + kQuitConfirmSec;
         return {};
     }
-    quitArmed_ = false;    // 別のボタンを押したら確認は取り消す
+    quitArmed_ = false;    // 別のボタン（更新の「やめる」も）を押したら確認は取り消す
     updateArmed_ = false;
     return pressed_;
 }
@@ -1117,26 +1118,26 @@ void MicPanel::drawVoice(const Pen& pen, const UiText& t, const VoiceView& voice
 void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_updater::UpdateStatus& update, double y) {
     using frame_updater::UpdateState;
     cairo_t* cr = pen.cr;
-    const double h = 40;
-    const double buttonH = 36;
+    const double x = kPad;
+    const double w = kRight - kPad;
+    const double h = kUpdateRowH;
+    const double buttonH = 50;  // 下の行のボタンと同じ高さ
     const double buttonY = y + (h - buttonH) / 2;
+    const double buttonSize = 19;
+    const double textX = x + kCardPad;
 
-    // 右端に積むボタン 1 個（押している・乗っている見た目とボタン自身の当たり判定はここでまとめて描く）
-    const auto pillButton = [&](PanelAction action, double x, double w, const std::string& label, bool danger) {
-        const int pointer = pointerState(action);
-        pen.color(danger ? kDanger : (pointer > 0 ? kControlHover : kControl));
-        pen.roundedRect(x, buttonY, w, buttonH, buttonH / 2);
-        cairo_fill(cr);
-        if (!danger) strokeRounded(pen, x, buttonY, w, buttonH, buttonH / 2, kBorder, 1.5);
-        const Color textColor = danger ? kOnAccent : kText;
-        const double s = fitSize(pen, label, 16, 12, w - 16, true);
-        textCentered(pen, x + w / 2, centerBaseline(buttonY, buttonH, s), label, s, textColor, true);
-        addButton(action, 0, x, buttonY, w, buttonH);
-    };
-
-    // 行の文言: checking 中はほかの状態より優先して「確かめています…」を出す（前の答えは裏でそのまま残る）
+    // 帯の文: checking 中はほかの状態より優先して「確かめています…」を出す（前の答えは裏でそのまま残る）。
+    // 1 行目（message）と、あれば 2 行目の補足（hint）。枠は普段はほかのカードと同じ飾りの線、
+    // 新しい版・確認・入れ終わりはアクセント、更新の失敗は赤で囲む（色だけでなく文でも伝える）
+    const bool confirming = !update.checking && update.state == UpdateState::Available && update.installable &&
+                            updateArmed_;
     std::string message;
-    Color color = kTextMuted;
+    std::string hint;
+    std::string sideHint;  // 右寄せの補足（更新中。ボタンの代わりに右に出す）
+    Color color = kText;
+    bool bold = false;
+    Color border = kDivider;
+    double borderWidth = 1;
     char buf[256];
     if (update.checking) {
         message = t.updateChecking;
@@ -1144,18 +1145,27 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
         switch (update.state) {
             case UpdateState::Unknown:
                 message = "v" + update.current;
+                color = kTextMuted;
                 break;
             case UpdateState::UpToDate:
                 std::snprintf(buf, sizeof(buf), t.updateUpToDateFormat, update.current.c_str());
                 message = buf;
                 break;
             case UpdateState::Available:
-                std::snprintf(buf, sizeof(buf),
-                              (updateArmed_ && update.installable) ? t.updateConfirmFormat : t.updateAvailableFormat,
+                std::snprintf(buf, sizeof(buf), confirming ? t.updateConfirmFormat : t.updateAvailableFormat,
                               update.latest.c_str());
                 message = buf;
-                color = kAccent;
-                if (!update.installable) message += std::string("  ") + t.updateManual;
+                color = confirming ? kText : kAccent;
+                bold = true;
+                border = kAccent;
+                borderWidth = 2;
+                if (confirming) hint = t.updateConfirmHint;
+                if (!update.installable) {
+                    // 手で更新: 2 行目に理由と、入るならリリースページの URL
+                    hint = t.updateManual;
+                    const std::string withUrl = hint + "  " + t.updateReleasePage + update.url;
+                    if (!update.url.empty() && pen.measure(withUrl, 13) <= w - kCardPad * 2) hint = withUrl;
+                }
                 break;
             case UpdateState::Installing: {
                 const char* step = t.updateStepStart;
@@ -1165,57 +1175,98 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
                 else if (update.step == "install") step = t.updateStepInstall;
                 std::snprintf(buf, sizeof(buf), t.updateInstallingFormat, step);
                 message = buf;
+                sideHint = t.updateInstallingHint;
                 break;
             }
             case UpdateState::Installed:
                 std::snprintf(buf, sizeof(buf), t.updateInstalledFormat, update.version.c_str());
                 message = buf;
                 color = kAccent;
+                bold = true;
+                border = kAccent;
+                borderWidth = 2;
                 break;
             case UpdateState::CheckFailed:
+                // 確かめられなかっただけで今の版はそのまま動くので、枠は普段のまま（文だけ赤）
                 message = std::string(t.updateCheckFailed) + " " + updateErrorText(update.error, t);
                 color = kDanger;
                 break;
             case UpdateState::InstallFailed:
                 message = std::string(t.updateInstallFailed) + " " + updateErrorText(update.error, t);
                 color = kDanger;
+                bold = true;
+                border = kDanger;
+                borderWidth = 2;
                 break;
         }
     }
+    drawCard(pen, x, y, w, h, 20, kCard, border, borderWidth);
 
-    // ボタン: 確かめている間は出さない（連打を避ける）。ほかは状態ごとに 0〜2 個、右端から積む
-    double buttonsLeft = kRight;
+    // ボタン 1 個を右端から積む（押している・乗っている見た目とボタン自身の当たり判定はここでまとめて描く）。
+    // primary = 「更新する」: アクセントの塗り。ほかは下の行のボタンと同じ地・枠
+    double buttonsLeft = x + w - (h - buttonH) / 2;
+    const auto button = [&](PanelAction action, const std::string& label, bool primary) {
+        const double bw = std::max(120.0, pen.measure(label, buttonSize, true) + 56);
+        const double bx = buttonsLeft - bw;
+        buttonsLeft = bx - 10;
+        const int pointer = pointerState(action);
+        if (primary) {
+            pen.color(pointer == 2 ? kAccentPressed : kAccent);
+            pen.roundedRect(bx, buttonY, bw, buttonH, buttonH / 2);
+            cairo_fill(cr);
+        } else {
+            pen.color(pointer > 0 ? kControlHover : kControl);
+            pen.roundedRect(bx, buttonY, bw, buttonH, buttonH / 2);
+            cairo_fill(cr);
+            strokeRounded(pen, bx, buttonY, bw, buttonH, buttonH / 2, kBorder, 2);
+        }
+        textCentered(pen, bx + bw / 2, centerBaseline(buttonY, buttonH, buttonSize), label, buttonSize,
+                     primary ? kOnAccent : kText, true);
+        addButton(action, 0, bx, buttonY, bw, buttonH);
+    };
+
+    // ボタン: 確かめている間は出さない（連打を避ける）。ほかは状態ごとに 0〜2 個。2 個のときは右が進む側
     if (!update.checking) {
         switch (update.state) {
             case UpdateState::Unknown:
             case UpdateState::UpToDate:
             case UpdateState::CheckFailed:
-                buttonsLeft = kRight - 110;
-                pillButton(PanelAction::UpdateCheckNow, buttonsLeft, 110, t.updateCheckNow, false);
+                button(PanelAction::UpdateCheckNow, t.updateCheckNow, false);
                 break;
             case UpdateState::Available:
-                if (update.installable) {
-                    buttonsLeft = kRight - 130;
-                    pillButton(PanelAction::UpdateInstall, buttonsLeft, 130,
-                               updateArmed_ ? t.updateConfirmYes : t.updateButton, updateArmed_);
+                if (confirming) {
+                    button(PanelAction::UpdateInstall, t.updateConfirmYes, true);
+                    button(PanelAction::UpdateCancel, t.updateConfirmNo, false);
+                } else if (update.installable) {
+                    button(PanelAction::UpdateInstall, t.updateButton, true);
                 }
                 break;
             case UpdateState::Installed:
-                buttonsLeft = kRight - 110;
-                pillButton(PanelAction::UpdateDismiss, buttonsLeft, 110, t.updateDismiss, false);
+                button(PanelAction::UpdateDismiss, t.updateDismiss, false);
                 break;
             case UpdateState::InstallFailed:
-                buttonsLeft = kRight - 110;
-                pillButton(PanelAction::UpdateDismiss, buttonsLeft, 110, t.updateDismiss, false);
-                buttonsLeft -= 14 + 120;
-                pillButton(PanelAction::UpdateRetry, buttonsLeft, 120, t.updateRetry, false);
+                button(PanelAction::UpdateDismiss, t.updateDismiss, false);
+                button(PanelAction::UpdateRetry, t.updateRetry, false);
                 break;
             case UpdateState::Installing: break;  // 更新中はボタンなし
         }
     }
 
-    const double textMax = buttonsLeft - kPad - 16;
-    pen.text(kPad, centerBaseline(y, h, 16), message, fitSize(pen, message, 16, 12, textMax, false), color);
+    // 右寄せの補足（ボタンの無い更新中だけ）
+    double textRight = buttonsLeft - 6;
+    if (!sideHint.empty()) {
+        const double sideW = pen.measure(sideHint, 15);
+        pen.text(x + w - kCardPad - sideW, centerBaseline(y, h, 15), sideHint, 15, kTextMuted);
+        textRight = x + w - kCardPad - sideW - 24;
+    }
+    const double textMax = textRight - textX;
+    const double size = fitSize(pen, message, 19, 14, textMax, bold);
+    if (hint.empty()) {
+        pen.text(textX, centerBaseline(y, h, size), message, size, color, bold);
+    } else {
+        pen.text(textX, y + 30, message, size, color, bold);
+        pen.text(textX, y + 54, hint, fitSize(pen, hint, 15, 12, textMax, false), kTextMuted);
+    }
 }
 
 void MicPanel::drawFooter(const Pen& pen, const UiText& t, const MicState& state, Language language, double y) {
@@ -1321,6 +1372,16 @@ bool MicPanel::trackCenter(PanelAction action, double& x, double& y) const {
         if (track.action != action) continue;
         x = (track.x0 + track.x1) / 2;
         y = track.cy;
+        return true;
+    }
+    return false;
+}
+
+bool MicPanel::buttonCenter(PanelAction action, double& x, double& y) const {
+    for (const auto& b : buttons_) {
+        if (b.hit.action != action || b.hit.index != 0) continue;
+        x = b.x + b.w / 2;
+        y = b.y + b.h / 2;
         return true;
     }
     return false;

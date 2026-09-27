@@ -615,6 +615,7 @@ frame_updater::UpdateStatus fakeUpdateStatus(const Options& options) {
     } else if (state == "manual") {
         status.state = UpdateState::Available;
         status.latest = "9.9.9";
+        status.url = "https://github.com/" + std::string(kUpdateRepo) + "/releases/tag/v9.9.9";
         status.installable = false;
         status.reason = "no-checksums";
     } else if (state == "installing") {
@@ -916,6 +917,43 @@ int runSelfTest() {
         expect("タブ: かんたんのタブではバーを描かない", !panel.trackCenter(PanelAction::NsVadSlider, qx, qy));
     }
 
+    // 更新の帯: 「更新する」の 1 回目は確認の表示（「やめる」が出る）だけ、「やめる」で元に戻る。確認中の 2 回目で更新する
+    {
+        FontSet fonts;
+        fonts.load(kFontPath, kBoldFontPath);
+        MicPanel panel(fonts);
+        const Config config;
+        const MicState state;
+        frame_updater::UpdateStatus update;
+        update.state = frame_updater::UpdateState::Available;
+        update.current = "0.2.0";
+        update.latest = "9.9.9";
+        update.installable = true;
+        double x = 0.0;
+        double y = 0.0;
+        panel.render(config, state, VoiceView(), update);
+        const bool noCancelFirst = !panel.buttonCenter(PanelAction::UpdateCancel, x, y);
+        panel.buttonCenter(PanelAction::UpdateInstall, x, y);
+        const PanelHit first = panel.pointerDown(x, y, 0.0);
+        panel.pointerUp();
+        panel.render(config, state, VoiceView(), update);
+        const bool cancelShown = panel.buttonCenter(PanelAction::UpdateCancel, x, y);
+        const PanelHit cancel = panel.pointerDown(x, y, 0.1);
+        panel.pointerUp();
+        panel.render(config, state, VoiceView(), update);
+        const bool cancelGone = !panel.buttonCenter(PanelAction::UpdateCancel, x, y);
+        expect("更新の帯: 「更新する」の 1 回目は何も返さず「やめる」を出す",
+               noCancelFirst && first.action == PanelAction::None && cancelShown);
+        expect("更新の帯: 「やめる」を押すと確認が消える", cancel.action == PanelAction::UpdateCancel && cancelGone);
+        panel.buttonCenter(PanelAction::UpdateInstall, x, y);
+        panel.pointerDown(x, y, 0.2);
+        panel.pointerUp();
+        panel.render(config, state, VoiceView(), update);
+        panel.buttonCenter(PanelAction::UpdateInstall, x, y);
+        const PanelHit second = panel.pointerDown(x, y, 0.3);
+        expect("更新の帯: 確認中にもう一度「更新する」を押すと更新する", second.action == PanelAction::UpdateInstall);
+    }
+
     std::printf("%d 件中 %d 件が不合格\n", total, failures);
     return failures == 0 ? 0 : 1;
 }
@@ -1080,6 +1118,7 @@ void handleAction(PanelHit hit, Config& config, const std::string& configPath, M
         case PanelAction::UpdateInstall:
         case PanelAction::UpdateRetry:
         case PanelAction::UpdateDismiss:
+        case PanelAction::UpdateCancel:    // 「やめる」はパネルの中で確認を取り消すだけ
         case PanelAction::None: break;
     }
 }

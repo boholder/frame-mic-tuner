@@ -137,6 +137,21 @@ const std::vector<ContrastPair>& contrastPairs() {
         {"ノイズ除去オフのときのバーの塗り・つまみ・値", kTextDisabled, kBg, ContrastKind::Disabled},
         {"− / ＋ / 標準に戻すの文字", kText, kControl, ContrastKind::Text},
         {"再生中の ■（アクセントの塗り）", kOnAccent, kAccent, ContrastKind::Ui},
+        // 更新の帯（カード。枠は外がパネルの地、内がカード）
+        {"更新の帯の文（最新・確認中・更新中・確認）", kText, kCard, ContrastKind::Text},
+        {"更新の帯の補足（版だけ・2 行目・更新中の右）", kTextMuted, kCard, ContrastKind::Text},
+        {"更新の帯の新しい版・入れ終わりの文", kAccent, kCard, ContrastKind::Text},
+        {"更新の帯の失敗の文", kDanger, kCard, ContrastKind::Text},
+        {"更新の帯のアクセントの枠（パネルの地）", kAccent, kBg, ContrastKind::Ui},
+        {"更新の帯のアクセントの枠（カード）", kAccent, kCard, ContrastKind::Ui},
+        {"更新の帯の赤い枠（パネルの地）", kDanger, kBg, ContrastKind::Ui},
+        {"更新の帯の赤い枠（カード）", kDanger, kCard, ContrastKind::Ui},
+        {"更新の帯のボタンの文字", kText, kControl, ContrastKind::Text},
+        {"更新の帯のボタンの文字（乗っている・押している）", kText, kControlHover, ContrastKind::Text},
+        {"更新の帯のボタンの枠（カード）", kBorder, kCard, ContrastKind::Ui},
+        {"更新の帯の「更新する」の文字（アクセントの塗り）", kOnAccent, kAccent, ContrastKind::Text},
+        {"更新の帯の「更新する」の文字（押している間）", kOnAccent, kAccentPressed, ContrastKind::Text},
+        {"更新の帯の「更新する」の塗り（カード）", kAccent, kCard, ContrastKind::Ui},
     };
     return pairs;
 }

@@ -43,10 +43,11 @@ enum class PanelAction {
     NsReset,       ///< 標準（SteamOS の既定 23% / 500ms）に戻す
     TabQuick,      ///< 「かんたん」のタブ
     TabFine,       ///< 「細かく調整」のタブ（かんたんのタブの「細かく調整を見る →」も。そちらは index = 1）
-    UpdateCheckNow,  ///< 版の行の「確認」（24 時間のキャッシュを無視してその場で確認。update_check が false でも押せる）
-    UpdateInstall,   ///< 版の行の「更新する」（1 回目は確認の表示にするだけ。kQuitConfirmSec 以内の 2 回目で返る）
+    UpdateCheckNow,  ///< 更新の帯の「今すぐ確かめる」（24 時間のキャッシュを無視してその場で確認。update_check が false でも押せる）
+    UpdateInstall,   ///< 更新の帯の「更新する」（1 回目は確認の表示にするだけ。kQuitConfirmSec 以内の 2 回目で返る）
     UpdateRetry,     ///< 更新に失敗したあとの「もう一度」（確認なしでもう一度 install を頼む）
     UpdateDismiss,   ///< 「入れました」「更新できませんでした」の表示を閉じる
+    UpdateCancel,    ///< 確認の表示の「やめる」（パネルの中で確認を取り消すだけ。呼び出し側は何もしない）
 };
 
 /** 押されたボタン（操作と、履歴なら何件目か）。 */
@@ -206,6 +207,15 @@ public:
      */
     bool trackCenter(PanelAction action, double& x, double& y) const;
 
+    /**
+     * 確認用（--self-test）: 最後に描いたときのボタンの真ん中の座標。
+     * @param action ボタンの操作（index 0 のもの）
+     * @param x 左端からの px の書き込み先
+     * @param y 上端からの px の書き込み先
+     * @return 描いていれば true
+     */
+    bool buttonCenter(PanelAction action, double& x, double& y) const;
+
     /** @return 画像の幅（px） */
     int width() const;
     /** @return 画像の高さ（px） */
@@ -300,7 +310,10 @@ private:
     void drawVoice(const Pen& pen, const UiText& t, const VoiceView& voice, double y);
     /** 下の 1 行（言語・自動起動・終了）と最下行の説明・失敗。 */
     void drawFooter(const Pen& pen, const UiText& t, const MicState& state, Language language, double y);
-    /** 今の版・新しい版の確認と更新の行（vendor/frame-updater の状態を表示する）。 */
+    /**
+     * 更新の帯（カード。左に状態の文、右にボタン。新しい版・確認・入れ終わりはアクセントの枠、更新の失敗は赤い枠）。
+     * vendor/frame-updater の状態を表示する。
+     */
     void drawUpdateRow(const Pen& pen, const UiText& t, const frame_updater::UpdateStatus& update, double y);
 
     /**
