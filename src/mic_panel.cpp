@@ -1180,6 +1180,7 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
             case UpdateState::Installed:
                 std::snprintf(buf, sizeof(buf), t.updateInstalledFormat, update.version.c_str());
                 message = buf;
+                hint = t.updateInstalledHint;
                 color = kAccent;
                 bold = true;
                 border = kAccent;

@@ -98,17 +98,18 @@ struct UiText {
     const char* updateManual;           ///< ここからは入れられない版（手で更新してね）
     const char* updateReleasePage;      ///< 「リリースページ:」（手で更新するときの 2 行目で URL の前に出す）
     const char* updateConfirmFormat;    ///< 確認の文言（%s は版。帯の 1 行目）
-    const char* updateConfirmHint;      ///< 確認の補足（帯の 2 行目。更新中の 2 行目にも出す）
+    const char* updateConfirmHint;      ///< 確認の補足（帯の 2 行目。更新中の 2 行目にも出す。strings.md から変えている）
     const char* updateConfirmYes;       ///< 確認の実行（updateButton と同じ文言）
     const char* updateConfirmNo;        ///< 確認の「やめる」ボタン（ほかを押すか待っても取り消し）
     const char* updateInstallingFormat; ///< 更新中（%s は手順）
-    const char* updateInstalledFormat;  ///< 入れ終わった（%s は版）
+    const char* updateInstalledFormat;  ///< 入れ終わった（%s は版。strings.md から変えている: 終了して起動し直す）
     const char* updateInstallFailed;    ///< 更新失敗の見出し（あとに理由が続く）
     const char* updateCheckFailed;      ///< 確認失敗の見出し（あとに理由が続く）
     const char* updateCheckNow;         ///< 「確認」ボタン（いつも出る行のボタン）
     const char* updateRetry;            ///< 「もう一度」ボタン（更新失敗のあと）
     const char* updateDismiss;          ///< 「閉じる」ボタン
     const char* updateLogHint;          ///< 失敗の補足（今は未使用）
+    const char* updateInstalledHint;    ///< 入れ終わりの 2 行目（WirePlumber が変わったらヘッドセットの再起動。このアプリだけ）
     // 更新中の手順（UpdateStatus::step）
     const char* updateStepStart;
     const char* updateStepDownload;
