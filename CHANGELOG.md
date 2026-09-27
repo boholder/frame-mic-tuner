@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0 (2026-09-27)
 
 First release with a prebuilt package (`frame-mic-tuner-<version>.tar.gz` + `SHA256SUMS`, built by `scripts/package.sh`); `install.sh` now installs either from that tarball or, as before, by building from a source checkout.
 

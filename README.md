@@ -6,7 +6,7 @@ A SteamVR dashboard panel for the Steam Frame that switches the headset micropho
 
 | Quick (presets) | Fine-tune |
 |---|---|
-| ![The Quick tab](docs/v9-en-quick-speaker_2026-09-27_12-50-04.png) | ![The Fine-tune tab](docs/v9-en-fine_2026-09-27_13-27-56.png) |
+| ![The Quick tab](docs/v10-en-quick-speaker_2026-09-27_19-30-27.png) | ![The Fine-tune tab](docs/v10-en-fine_2026-09-27_19-30-27.png) |
 
 ### Demo video (with sound)
 
@@ -57,7 +57,7 @@ cd frame-mic-tuner
 
 Then **restart the headset** once, so WirePlumber loads the switch script. Don't restart PipeWire or WirePlumber by hand while playing: SteamVR and Steam Link lose their sound. If that happens anyway, restart SteamVR on the headset (or reconnect Steam Link) and the sound comes back.
 
-No sudo is needed. `install.sh` puts everything into your home directory (`~/.local/bin`, `~/.local/share`, `~/.config`), so SteamOS updates don't remove it. To update by hand: download the new release and run its `install.sh` again (or, in a source checkout, `git pull && ./install.sh`) — or just press **Update** on the panel's update card once it shows a newer version is available.
+No sudo is needed. `install.sh` puts everything into your home directory (`~/.local/bin`, `~/.local/share`, `~/.config`), so SteamOS updates don't remove it. To update by hand: download the new release and run its `install.sh` again (or, in a source checkout, `git pull && ./install.sh`) — or just press **Update** on the panel's update card once it shows a newer version is available. Version 0.1.0 has no update card, so going from 0.1.0 to 0.2.0 has to be done by hand this once.
 
 What gets installed:
 
@@ -156,11 +156,13 @@ The update mechanism (`vendor/frame-updater/`) is copied from a shared, private 
 
 ### Releasing
 
-`scripts/package.sh` runs `vendor/frame-updater/verify.sh`, builds a Release binary, and writes `dist/frame-mic-tuner-<version>.tar.gz` and `dist/SHA256SUMS` (required for the panel's **Update** button to accept the release). It prints the command to attach both to a GitHub release, which needs a tag and release notes first:
+`scripts/package.sh` runs `vendor/frame-updater/verify.sh`, builds a Release binary, and writes `dist/frame-mic-tuner-<version>.tar.gz` and `dist/SHA256SUMS` (required for the panel's **Update** button to accept the release). It prints the command that creates the GitHub release (and its tag) with both files attached; write the release notes in a file outside the repository first:
 
 ```sh
-gh release create v<version> dist/frame-mic-tuner-<version>.tar.gz dist/SHA256SUMS --title v<version> --notes-file notes.md
+gh release create v<version> dist/frame-mic-tuner-<version>.tar.gz dist/SHA256SUMS --title v<version> --notes-file <release-notes-file>
 ```
+
+Don't make it a draft or a prerelease: the panel looks at GitHub's latest release, which skips both.
 
 ## License
 

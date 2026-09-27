@@ -6,7 +6,7 @@ Steam Frame を被ったまま、ヘッドセットのマイクのエコー除�
 
 | かんたん（プリセット） | 細かく調整 |
 |---|---|
-| ![かんたんのタブ](docs/v9-ja-quick-speaker_2026-09-27_12-50-04.png) | ![細かく調整のタブ](docs/v9-ja-fine_2026-09-27_13-27-56.png) |
+| ![かんたんのタブ](docs/v10-ja-quick-speaker_2026-09-27_19-30-27.png) | ![細かく調整のタブ](docs/v10-ja-fine_2026-09-27_19-30-27.png) |
 
 ### デモ動画（音が出ます）
 
@@ -57,7 +57,7 @@ cd frame-mic-tuner
 
 そのあと、切り替えのスクリプトを WirePlumber に読み込ませるため、**ヘッドセットを 1 回再起動**してください。遊んでいる最中に PipeWire や WirePlumber を手で再起動しないでください。SteamVR と Steam Link の音が出なくなります。もしそうなったら、ヘッドセットで SteamVR を再起動すれば（または Steam Link をつなぎ直せば）音は戻ります。
 
-sudo は要りません。`install.sh` が全部ホームフォルダ（`~/.local/bin`、`~/.local/share`、`~/.config`）に入れるので、SteamOS を更新しても消えません。手で更新するときは、新しいリリースをダウンロードしてその `install.sh` をもう一度実行します（ソースからのときは `git pull && ./install.sh`）。パネルの更新の帯に新しい版があると出たら **更新する** を押すだけでも更新できます。
+sudo は要りません。`install.sh` が全部ホームフォルダ（`~/.local/bin`、`~/.local/share`、`~/.config`）に入れるので、SteamOS を更新しても消えません。手で更新するときは、新しいリリースをダウンロードしてその `install.sh` をもう一度実行します（ソースからのときは `git pull && ./install.sh`）。パネルの更新の帯に新しい版があると出たら **更新する** を押すだけでも更新できます。0.1.0 には更新の帯が無いので、0.1.0 から 0.2.0 へはこの 1 回だけ手で更新してください。
 
 入るもの:
 
@@ -156,11 +156,13 @@ SteamVR なしで使える確認用のオプション: `--print`、`--set-ns-vad
 
 ### リリースの作り方
 
-`scripts/package.sh` は `vendor/frame-updater/verify.sh` を実行し、Release でビルドして `dist/frame-mic-tuner-<バージョン>.tar.gz` と `dist/SHA256SUMS`（パネルの「更新する」がそのリリースを受け付けるために必須）を作ります。最後に、GitHub のリリースへ添付するコマンドを表示します（先にタグとリリースノートが要ります）:
+`scripts/package.sh` は `vendor/frame-updater/verify.sh` を実行し、Release でビルドして `dist/frame-mic-tuner-<バージョン>.tar.gz` と `dist/SHA256SUMS`（パネルの「更新する」がそのリリースを受け付けるために必須）を作ります。最後に、2 つのファイルを添付して GitHub のリリース（とタグ）を作るコマンドを表示します。リリースノートは先にリポジトリの外のファイルに書いておいてください:
 
 ```sh
-gh release create v<バージョン> dist/frame-mic-tuner-<バージョン>.tar.gz dist/SHA256SUMS --title v<バージョン> --notes-file notes.md
+gh release create v<バージョン> dist/frame-mic-tuner-<バージョン>.tar.gz dist/SHA256SUMS --title v<バージョン> --notes-file <リリースノートのファイル>
 ```
+
+下書き・プレリリースにはしないでください。パネルは GitHub の最新のリリースを見るので、どちらも見つけられません。
 
 ## ライセンス
 

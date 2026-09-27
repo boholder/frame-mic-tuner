@@ -54,5 +54,7 @@ tar -tzvf "$out"
 echo
 cat dist/SHA256SUMS
 echo
-echo "リリースにする（先にタグと GitHub の下書きを作ってから。SHA256SUMS が無いと更新ボタンから入れられません）:"
-echo "  gh release create v$version $out dist/SHA256SUMS --title v$version --notes-file notes.md"
+echo "リリースにする（タグ v$version は gh release create が作る。リリースノートはリポジトリの外のファイルに書いて渡す）:"
+echo "  gh release create v$version $out dist/SHA256SUMS --title v$version --notes-file <リリースノートのファイル>"
+echo "下書き（--draft）・プレリリース（--prerelease）にはしない: パネルの更新は /releases/latest を見るので、見つけられなくなる。"
+echo "SHA256SUMS も必ず添付する（無いと更新ボタンから入れられず、手で更新してもらうことになる）。"

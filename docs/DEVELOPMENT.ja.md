@@ -85,7 +85,7 @@ SteamVR のダッシュボードの下の並びに「Mic」のアイコン（マ
   - 未使用のときの `pw-link -l` は、マイクから `alsa_loopback_stream...` へ直接つながる形（「マイク → アプリへ」と「使っていないので処理はお休み中」）
 - パネルがダッシュボードで**開いている間だけ** 1 秒ごとに読み直す（外から `wpctl settings --save ...` で変えられても、1 秒以内に表示が合う）。自動起動の状態（`systemctl --user is-enabled`）はめったに変わらないので、開いた直後と 5 秒おき
 - ボタンを押したら、書く → すぐ読み直す → 表示に反映。書いた値は読み返して確かめ、違えば失敗として赤く出す
-- スクリーンショット: `docs/v9-*-quick-speaker_*.png`（`--dump-png --tab quick --fake --fake-echo on --fake-ns off --fake-history 5 --fake-playing 1` で書き出したもの）と `docs/v9-*-fine_*.png`（`--dump-png --tab fine --fake --fake-echo on --fake-ns on --fake-ns-vad 10 --fake-ns-grace 800 --fake-history 5 --fake-playing 2`）。`--tab quick|fine` で描くタブを選べる
+- スクリーンショット: `docs/v10-*-quick-speaker_*.png`（`--dump-png --tab quick --fake --fake-echo on --fake-ns off --fake-history 5 --fake-playing 1 --fake-update uptodate` で書き出したもの）と `docs/v10-*-fine_*.png`（`--dump-png --tab fine --fake --fake-echo on --fake-ns on --fake-ns-vad 10 --fake-ns-grace 800 --fake-history 5 --fake-playing 2 --fake-update uptodate`）。どちらも `--language ja|en` で日英を撮る。`--tab quick|fine` で描くタブを選べる。更新の帯は `--fake-update` を付けないと「v0.2.0」（未確認）になるので、スクリーンショットでは `uptodate`（最新版です）にそろえる
 
 ## ノイズ除去の強さ
 
