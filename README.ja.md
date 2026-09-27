@@ -21,6 +21,7 @@ https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
 - **ノイズ除去の強さ**: 2 本のバーで、その場で調整できます。**判定の厳しさ**（どれだけ声らしい音なら通すか。低いほど声以外の音も通る）と、**余韻**（話し終わってから音を通し続ける時間）です
 - **つながり**: マイクを使っているアプリがいるか、音が実際にどのフィルターを通っているか（マイク → 音質補正 → エコー除去 → ノイズ除去 → アプリへ）を、PipeWire のつながりから読んで表示します
 - **声のチェック**: アプリに届く最終の音を最大 10 秒録って、5 件まで残し、Frame のスピーカーかイヤホンで再生します。録った時刻・長さ・録ったときの設定・小さな波形が並びます
+- **更新**: 今動いている版を表示する行がいつも出ます。起動時と 1 日 1 回、GitHub に新しい版がないか確かめます（設定ファイルの `update_check: false` で切れます）。**確認** はその場ですぐ確かめ、これはオフの間でも押せます。新しい版があれば **更新する** に変わり、押して 1 回確認すると、ダウンロードして入れ替えます
 - 日本語と英語。文字とボタンは WCAG 2.x AA のコントラストを満たしています
 
 なぜ要るのか: アプリがマイクを使っている間、SteamOS はマイクの音に音質補正・エコー除去・ノイズ除去をかけます。エコー除去は小さな音を大きく削り、ノイズ除去は声らしくない音を無音にします。イヤホンのときは消すべきスピーカーの音がないので、エコー除去を切ると声がよりそのまま届きます。
@@ -28,11 +29,25 @@ https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
 ## 必要なもの
 
 - 開発者モードを有効にして SSH で入れる Steam Frame（設定 → システム → 開発者モードを有効化、開発者の項目でパスワードを設定）。SSH を有効にすると、同じネットワークにいてパスワードを知っている人は誰でもヘッドセットに入れるので、推測されにくいパスワードにしてください
-- ヘッドセット上の SteamVR。`install.sh` が使うビルドの道具（cmake、ninja、g++、pkg-config）とライブラリ（cairo、FreeType、PipeWire、Vulkan）は SteamOS に最初から入っています
+- ヘッドセット上の SteamVR。ソースからビルドする場合（下を参照）は cmake・ninja・g++・pkg-config と、cairo・FreeType・PipeWire・Vulkan の開発用ファイルが要ります（SteamOS に最初から入っています）。ダウンロードした版はどれも要りません
 
 ## インストール
 
-ヘッドセット上で（`ssh steamos@<ヘッドセットのIP>`）:
+[リリースのページ](https://github.com/sasaken1102r/frame-mic-tuner/releases)から `frame-mic-tuner-<バージョン>.tar.gz` をダウンロードして、ヘッドセットにコピーします（例: PC から）:
+
+```sh
+scp frame-mic-tuner-*.tar.gz steamos@<ヘッドセットのIP>:
+```
+
+そのあと、ヘッドセット上で（`ssh steamos@<ヘッドセットのIP>`）:
+
+```sh
+tar xzf frame-mic-tuner-*.tar.gz
+cd frame-mic-tuner
+./install.sh
+```
+
+または、ソースからビルドすることもできます（これもヘッドセット上で）:
 
 ```sh
 git clone https://github.com/sasaken1102r/frame-mic-tuner.git
@@ -42,13 +57,14 @@ cd frame-mic-tuner
 
 そのあと、切り替えのスクリプトを WirePlumber に読み込ませるため、**ヘッドセットを 1 回再起動**してください。遊んでいる最中に PipeWire や WirePlumber を手で再起動しないでください。SteamVR と Steam Link の音が出なくなります。もしそうなったら、ヘッドセットで SteamVR を再起動すれば（または Steam Link をつなぎ直せば）音は戻ります。
 
-sudo は要りません。`install.sh` がアプリをビルドして、全部ホームフォルダ（`~/.local/bin`、`~/.local/share`、`~/.config`）に入れるので、SteamOS を更新しても消えません。更新するときは `git pull` のあと、もう一度 `./install.sh` を実行します。
+sudo は要りません。`install.sh` が全部ホームフォルダ（`~/.local/bin`、`~/.local/share`、`~/.config`）に入れるので、SteamOS を更新しても消えません。手で更新するときは、新しいリリースをダウンロードしてその `install.sh` をもう一度実行します（ソースからのときは `git pull && ./install.sh`）。パネルに新しい版があると出たら **更新する** を押すだけでも更新できます。
 
 入るもの:
 
 - アプリ本体、ダッシュボードの **＋**（プログラムを起動）の一覧に出すための項目、アイコン
 - SteamVR と一緒に起動するための systemd のユーザーユニット（自分でオンにするまで有効にはしません。下を参照）
 - WirePlumber のスクリプトと設定（`contrib/wireplumber/`）。SteamOS のマイクの tracker を、エコー除去とノイズ除去を切り替えられるものに置き換えます。それ以外の動きは元と同じです
+- 共通の更新スクリプト（`~/.local/share/frame-mic-tuner/frame-update.sh`。`vendor/frame-updater/` から）。パネルの版の行が使います
 
 削除は `./install.sh --uninstall` のあとヘッドセットを再起動すると、SteamOS の元のマイクの動きに戻ります。`--purge` を付けると、アプリの設定と保存した切り替えの値も消します。
 
@@ -62,6 +78,7 @@ sudo は要りません。`install.sh` がアプリをビルドして、全部�
 4. **SteamVR と一緒に起動**（下の行）: オンにすると、次から SteamVR と一緒に自動で起動します。`./install.sh --autostart` でも有効にできます
 5. **言語**: 最初は Steam Frame の言語に合わせます（Steam が日本語なら日本語、それ以外は英語）。左下の **日本語 / English** で変えると、その言語が保存されます
 6. **終了**: 2 回押します。ダッシュボードの Mic のアイコンにポインターを合わせて「閉じる」でも終わります
+7. **更新**: 上の行に今動いている版が出ます。**確認** はその場ですぐ確かめます（1 日 1 回の自動確認がオフでも押せます）。新しい版があれば **更新する** に変わるので、押して 1 回確認すると、ダウンロードして入れ替えます（途中でパネルが閉じて開き直すことがあります）
 
 SSH からも切り替えられます:
 
@@ -95,6 +112,7 @@ wpctl settings --save frame-mic.noise-suppression true   # ノイズ除去オン
 - **＋の一覧に Frame Mic Tuner が出ない**: インストールのあと、ヘッドセットを 1 回再起動してください
 - **アプリは動いているのに、ダッシュボードに Mic のアイコンが出ない**: ダッシュボード自体が起動し直したときなどに、SteamVR からアプリのパネルが消えることがあります。アプリが 3 秒おきに確かめて自分で作り直すので、数秒待ってからダッシュボードを開き直してください。＋からもう一度起動しても、確かめて作り直してからパネルを開きます。それでも戻らないときは、ログ（サービスで動いているときは `journalctl --user -u frame-mic-tuner -f`）の「自己修復」の行に理由が出ます。アプリを終了して起動し直しても直ります
 - ログ: サービスで動いているときは `journalctl --user -u frame-mic-tuner -f`。手で動かしたときのログを見るには、アプリを終了してから SSH で `~/.local/bin/frame-mic-tuner` を起動してください
+- **新しい版の確認が失敗する・「更新する」を押しても何も起きない**: `~/.cache/frame-mic-tuner/update.log` にくわしい経過が、`~/.cache/frame-mic-tuner/update-check.json` / `update-state.json` に最後の生の答えが残っています。設定ファイルの `update_check: false` は 1 日 1 回の自動確認だけを止めます（版の行や **確認** / **更新する** ボタンは消えません）
 
 ## プライバシー
 
@@ -102,13 +120,14 @@ wpctl settings --save frame-mic.noise-suppression true   # ノイズ除去オン
 - 録音中はパネルに「● 録音中」と出ます。パネルを閉じると、録音はすぐ止まります
 - まわりの人の声が入ることがあります。録る前に気をつけてください
 - 最初の言語を決めるために、起動時に 1 回だけ Steam の `~/.steam/registry.vdf` の `language` の行を読みます（読むだけ）
-- テレメトリはなく、ネットワークも使いません。書き込むファイルは、画面の言語・最後に開いていたタブ・ノイズ除去の強さを保存する `~/.config/frame-mic-tuner/config.json` と、二重起動を防ぐためのロックファイル（`$XDG_RUNTIME_DIR` の中、中身はプロセス ID だけ）だけです
+- テレメトリはありません。ネットワークは、新しい版がないか起動時と 1 日 1 回確かめるために `api.github.com` にだけ（**更新する** を押したときは、リリースを取ってくる `github.com` / `*.githubusercontent.com` にも）つなぎます。設定ファイルの `update_check: false` で自動確認は止められます（**確認** ボタンは押したときだけ動きます）。書き込むファイルは、画面の言語・最後に開いていたタブ・ノイズ除去の強さ・新しい版の自動確認の設定を保存する `~/.config/frame-mic-tuner/config.json`、直前の `./install.sh` のオプションを覚えておく `~/.config/frame-mic-tuner/install-args`（更新のときに同じオプションで入れ直すため）、新しい版の確認の答え・ログ・インストール中の状態を置く `~/.cache/frame-mic-tuner/`、二重起動を防ぐためのロックファイル（`$XDG_RUNTIME_DIR` の中、中身はプロセス ID だけ）です
 
 ## 免責事項
 
 - 自己責任でお使いください。このプロジェクトは AI（Claude Opus 5.5）を使って作りました。自分の Steam Frame で動作は確かめていますが、あなたの環境で何か起きても責任は取れません。使う前にコードを自分の目で確認してください。本ソフトウェアは無保証です（[LICENSE](LICENSE) を参照）
 - 変更するのは、`wpctl settings` の 2 項目（`frame-mic.echo-cancel` と `frame-mic.noise-suppression`）、ノイズ除去の動いている値 2 つ（「VAD Threshold (%)」と「VAD Grace Period (ms)」。`pw-cli set-param` で変え、SteamOS の音声が起動し直すと標準に戻る）、ホームフォルダの WirePlumber の設定（SteamOS のマイクの tracker を自作のスクリプトに置き換える）だけです。そのほかには、頼まれたときに自分の systemd のユーザーユニットを有効・無効にするだけです
 - PipeWire・WirePlumber の再起動、ALSA のミキサー（amixer）への書き込み、`/etc` の変更はしません。root 権限も使いません
+- **更新する**: リリースの `.tar.gz` と `SHA256SUMS` を GitHub から HTTPS でダウンロードし、ハッシュを確かめてから展開して `install.sh` を（前回と同じオプションで）実行します。`SHA256SUMS` が無い・ハッシュが合わない・アーカイブに絶対パスや `..` が入っているときは、そこで止めて何も変えません。詳しい手順は [frame-update.sh の説明](vendor/frame-updater/frame-update.sh) を参照してください
 - SteamOS の更新で、マイクのフィルターの作りが変わる可能性があります。そのときは、このプロジェクトが対応するまで切り替えが効かなくなるかもしれません。切り替えのスクリプトは WirePlumber の必須の部品なので、読み込めなくなるとヘッドセットの音が全部出なくなることもあります（「うまく動かないとき」を参照）。`./install.sh --uninstall` のあと再起動すれば、SteamOS の元の動きに戻ります
 - 非公式のプロジェクトで、Valve Corporation とは関係なく、承認も受けていません。Steam、Steam Frame、SteamVR、Steam Link は、米国およびその他の国における Valve Corporation の商標または登録商標です。対応製品を示す目的でのみ名前を使っています
 
@@ -119,9 +138,20 @@ wpctl settings --save frame-mic.noise-suppression true   # ノイズ除去オン
 ```sh
 cmake -G Ninja -S . -B build && ninja -C build
 ./build/frame-mic-tuner --help
+scripts/package.sh   # リリースビルド: dist/frame-mic-tuner-<バージョン>.tar.gz, dist/SHA256SUMS
 ```
 
-SteamVR なしで使える確認用のオプション: `--print`、`--set-ns-vad N` / `--set-ns-grace N`（ノイズ除去の強さをその場でかける。保存はしない）、`--dump-png パス`（パネルを PNG に描く。スクリーンショット用に `--fake-*` で状態を作れる）、`--test-record 3`（3 秒録って再生する）、`--contrast-report`（色の組み合わせごとの WCAG のコントラスト比）、`--version`。作りの詳しいメモ、切り替えのスクリプトの仕組み、確かめた結果は [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) にあります。
+SteamVR なしで使える確認用のオプション: `--print`、`--set-ns-vad N` / `--set-ns-grace N`（ノイズ除去の強さをその場でかける。保存はしない）、`--dump-png パス`（パネルを PNG に描く。スクリーンショット用に `--fake-*` で状態を作れる。版の行は `--fake-update STATE` と `--preview-update-confirm`）、`--test-record 3`（3 秒録って再生する）、`--contrast-report`（色の組み合わせごとの WCAG のコントラスト比）、`--version`。作りの詳しいメモ、切り替えのスクリプトの仕組み、確かめた結果は [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) にあります。
+
+更新の仕組み（`vendor/frame-updater/`）は、非公開の共通リポジトリからのコピーです。手で書き換えないでください。`sh vendor/frame-updater/verify.sh`（`scripts/package.sh` が実行）が書き換えられていないか確かめます。
+
+### リリースの作り方
+
+`scripts/package.sh` は `vendor/frame-updater/verify.sh` を実行し、Release でビルドして `dist/frame-mic-tuner-<バージョン>.tar.gz` と `dist/SHA256SUMS`（パネルの「更新する」がそのリリースを受け付けるために必須）を作ります。最後に、GitHub のリリースへ添付するコマンドを表示します（先にタグとリリースノートが要ります）:
+
+```sh
+gh release create v<バージョン> dist/frame-mic-tuner-<バージョン>.tar.gz dist/SHA256SUMS --title v<バージョン> --notes-file notes.md
+```
 
 ## ライセンス
 

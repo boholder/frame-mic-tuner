@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 (unreleased)
+
+First release with a prebuilt package (`frame-mic-tuner-<version>.tar.gz` + `SHA256SUMS`, built by `scripts/package.sh`); `install.sh` now installs either from that tarball or, as before, by building from a source checkout.
+
+- Updates: a row above the language/autostart/quit row always shows the running version. It checks GitHub for a newer release at startup and once a day (`update_check` setting, on by default), and **Check** looks right away regardless, even with automatic checking off. When a newer version is available, **Update** downloads and installs it after you confirm once (checksum-verified against the release's `SHA256SUMS`; nothing changes if that check fails). Shared with the other Frame apps via `vendor/frame-updater/`.
+- `install.sh` now writes `~/.config/frame-mic-tuner/install-args` with the options your last install used (currently just `--autostart`, when passed), so an update started from the panel reinstalls the same way.
+
 ## 0.1.0 (2026-09-27)
 
 First release.
