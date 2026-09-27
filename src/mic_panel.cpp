@@ -1133,7 +1133,6 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
                             updateArmed_;
     std::string message;
     std::string hint;
-    std::string sideHint;  // 右寄せの補足（更新中。ボタンの代わりに右に出す）
     Color color = kText;
     bool bold = false;
     Color border = kDivider;
@@ -1175,7 +1174,7 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
                 else if (update.step == "install") step = t.updateStepInstall;
                 std::snprintf(buf, sizeof(buf), t.updateInstallingFormat, step);
                 message = buf;
-                sideHint = t.updateInstallingHint;
+                hint = t.updateConfirmHint;  // 確認のときと同じ補足（途中で閉じて開き直すことがある）
                 break;
             }
             case UpdateState::Installed:
@@ -1252,14 +1251,7 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
         }
     }
 
-    // 右寄せの補足（ボタンの無い更新中だけ）
-    double textRight = buttonsLeft - 6;
-    if (!sideHint.empty()) {
-        const double sideW = pen.measure(sideHint, 15);
-        pen.text(x + w - kCardPad - sideW, centerBaseline(y, h, 15), sideHint, 15, kTextMuted);
-        textRight = x + w - kCardPad - sideW - 24;
-    }
-    const double textMax = textRight - textX;
+    const double textMax = buttonsLeft - 6 - textX;
     const double size = fitSize(pen, message, 19, 14, textMax, bold);
     if (hint.empty()) {
         pen.text(textX, centerBaseline(y, h, size), message, size, color, bold);

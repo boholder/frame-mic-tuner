@@ -98,7 +98,7 @@ struct UiText {
     const char* updateManual;           ///< ここからは入れられない版（手で更新してね）
     const char* updateReleasePage;      ///< 「リリースページ:」（手で更新するときの 2 行目で URL の前に出す）
     const char* updateConfirmFormat;    ///< 確認の文言（%s は版。帯の 1 行目）
-    const char* updateConfirmHint;      ///< 確認の補足（帯の 2 行目）
+    const char* updateConfirmHint;      ///< 確認の補足（帯の 2 行目。更新中の 2 行目にも出す）
     const char* updateConfirmYes;       ///< 確認の実行（updateButton と同じ文言）
     const char* updateConfirmNo;        ///< 確認の「やめる」ボタン（ほかを押すか待っても取り消し）
     const char* updateInstallingFormat; ///< 更新中（%s は手順）
@@ -109,7 +109,6 @@ struct UiText {
     const char* updateRetry;            ///< 「もう一度」ボタン（更新失敗のあと）
     const char* updateDismiss;          ///< 「閉じる」ボタン
     const char* updateLogHint;          ///< 失敗の補足（今は未使用）
-    const char* updateInstallingHint;   ///< 更新中の帯の右に出す補足（strings.md に無い。見本の更新の帯から）
     // 更新中の手順（UpdateStatus::step）
     const char* updateStepStart;
     const char* updateStepDownload;
