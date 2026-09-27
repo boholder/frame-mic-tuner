@@ -8,6 +8,12 @@ A SteamVR dashboard panel for the Steam Frame that switches the headset micropho
 |---|---|
 | ![The Quick tab](docs/v9-en-quick-speaker_2026-09-27_12-50-04.png) | ![The Fine-tune tab](docs/v9-en-fine_2026-09-27_13-27-56.png) |
 
+### Demo video (with sound)
+
+The Frame's speakers play a blizzard sound while the voice check records, and the two recordings are played back. 1st clip: noise suppression off (Speaker preset). 2nd clip: echo cancellation off too (Earphones preset). With echo cancellation off, the blizzard from the speakers leaks into the mic. The panel in the video is in Japanese.
+
+https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
+
 ## What it does
 
 - **Two tabs**: **Quick** has the presets, **Fine-tune** has the individual switches and sliders. The panel opens on the tab you used last.
