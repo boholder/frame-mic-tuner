@@ -11,6 +11,8 @@
 #include "voice_check.h"
 #include "vr_overlay.h"
 
+#include "update_check.h"
+
 #include <fcntl.h>
 #include <signal.h>
 #include <sys/file.h>
@@ -47,6 +49,11 @@ constexpr double kPanelPollSec = 0.033;     ///< パネルが見えている間�
 constexpr double kClosedPollSec = 0.25;     ///< パネルが見えていない間のイベント確認の間隔
 constexpr double kVoiceFrameSec = 1.0 / 15; ///< 録音中・再生中の描き直しの間隔
 constexpr double kOverlayCheckSec = 3.0;    ///< 自己修復: 自分のオーバーレイがまだあるかを確かめる間隔（閉じている間も）
+
+// 新しい版の確認・更新（vendor/frame-updater）。frame-update.sh は install.sh が置く場所を読む
+constexpr const char* kUpdateAppName = "frame-mic-tuner";
+constexpr const char* kUpdateRepo = "sasaken1102r/frame-mic-tuner";
+constexpr const char* kUpdateAssetPattern = "frame-mic-tuner-{version}.tar.gz";
 
 /** コマンドラインの内容。 */
 struct Options {
@@ -87,6 +94,9 @@ struct Options {
     PanelAction previewDrag = PanelAction::None;
     double previewDragValue = 0.0;
     std::string tab;  ///< 空でなければ PNG の書き出しで設定のタブの代わりに使う（quick / fine）
+    // 版の行のダミー（--dump-png 用）
+    std::string fakeUpdate;         ///< unknown/uptodate/checking/available/manual/installing/installed/checkfailed/installfailed
+    bool previewUpdateConfirm = false;  ///< 「更新する」の確認の表示にする（available と組み合わせる）
 };
 
 /**
@@ -171,6 +181,9 @@ void printUsage() {
         "      --fake-history N  ダミーの履歴を N 件（0〜5）\n"
         "      --fake-playing I  履歴の I 件目（0 が最新）を再生中にする\n"
         "      --fake-voice-error record|play  声のチェックの失敗の表示\n"
+        "      --fake-update STATE  版の行のダミー（unknown/uptodate/checking/available/manual/installing/\n"
+        "                        installed/checkfailed/installfailed）\n"
+        "      --preview-update-confirm  「更新する」を確認の表示にする（--fake-update available と組み合わせる）\n"
         "      --preview-pressed earphone|speaker|record  押している間の見た目\n"
         "      --fake-ns-vad N / --fake-ns-grace N  ダミーのノイズ除去の強さ（既定 23 / 500）\n"
         "      --preview-drag-vad N / --preview-drag-grace N  そのバーを N までドラッグしている見た目\n"
@@ -329,6 +342,22 @@ bool parseOptions(int argc, char** argv, Options& options) {
                 return false;
             }
             options.fakeVoiceError = kind == "record" ? VoiceError::Record : VoiceError::Play;
+        } else if (arg == "--fake-update" && hasNext) {
+            options.fakeUpdate = argv[++i];
+            static const char* kKnown[] = {"unknown",  "uptodate",     "checking",     "available",
+                                           "manual",   "installing",   "installed",    "checkfailed",
+                                           "installfailed"};
+            bool known = false;
+            for (const char* name : kKnown) known |= options.fakeUpdate == name;
+            if (!known) {
+                std::fprintf(stderr,
+                             "--fake-update は unknown/uptodate/checking/available/manual/installing/installed/"
+                             "checkfailed/installfailed です: %s\n",
+                             options.fakeUpdate.c_str());
+                return false;
+            }
+        } else if (arg == "--preview-update-confirm") {
+            options.previewUpdateConfirm = true;
         } else if (arg == "--preview-pressed" && hasNext) {
             options.previewPressed = argv[++i];
         } else if (arg == "--test-record") {
@@ -564,6 +593,50 @@ VoiceView fakeVoiceView(const Options& options) {
 }
 
 /**
+ * 見た目の確認用のダミーの更新の状態を作る（--dump-png 用）。
+ * @param options コマンドライン（--fake-update）
+ * @return 状態
+ */
+frame_updater::UpdateStatus fakeUpdateStatus(const Options& options) {
+    using frame_updater::UpdateState;
+    frame_updater::UpdateStatus status;
+    status.current = FRAME_MIC_TUNER_VERSION;
+    const std::string& state = options.fakeUpdate;
+    if (state == "uptodate") {
+        status.state = UpdateState::UpToDate;
+    } else if (state == "checking") {
+        status.state = UpdateState::UpToDate;
+        status.checking = true;
+    } else if (state == "available") {
+        status.state = UpdateState::Available;
+        status.latest = "9.9.9";
+        status.url = "https://github.com/" + std::string(kUpdateRepo) + "/releases/tag/v9.9.9";
+        status.installable = true;
+    } else if (state == "manual") {
+        status.state = UpdateState::Available;
+        status.latest = "9.9.9";
+        status.installable = false;
+        status.reason = "no-checksums";
+    } else if (state == "installing") {
+        status.state = UpdateState::Installing;
+        status.step = "download";
+        status.version = "9.9.9";
+    } else if (state == "installed") {
+        status.state = UpdateState::Installed;
+        status.version = "9.9.9";
+    } else if (state == "checkfailed") {
+        status.state = UpdateState::CheckFailed;
+        status.error = "network";
+    } else if (state == "installfailed") {
+        status.state = UpdateState::InstallFailed;
+        status.error = "checksum-mismatch";
+    } else {
+        status.state = UpdateState::Unknown;  // "unknown" か、指定なし
+    }
+    return status;
+}
+
+/**
  * --dump-png / --thumbnail-png: OpenVR なしでパネル（とサムネイル）を描いて PNG に書き出す。
  * @param options コマンドライン
  * @return 終了コード
@@ -586,7 +659,8 @@ int runDumpPng(const Options& options) {
             panel.setPointerForPreview(hit, hit);
         }
         if (options.previewDrag != PanelAction::None) panel.setDragForPreview(options.previewDrag, options.previewDragValue);
-        panel.render(config, state, fakeVoiceView(options));
+        if (options.previewUpdateConfirm) panel.armUpdateForPreview();
+        panel.render(config, state, fakeVoiceView(options), fakeUpdateStatus(options));
         if (!panel.writePng(options.pngPath)) {
             std::fprintf(stderr, "PNG を書き出せませんでした: %s\n", options.pngPath.c_str());
             return 1;
@@ -847,6 +921,22 @@ int runSelfTest() {
 }
 
 /**
+ * install.sh が frame-update.sh を置いた場所（$XDG_DATA_HOME か ~/.local/share の下）。
+ * @return パス
+ */
+std::string updateScriptPath() {
+    const char* xdg = std::getenv("XDG_DATA_HOME");
+    std::string base;
+    if (xdg != nullptr && xdg[0] == '/') {
+        base = xdg;
+    } else {
+        const char* home = std::getenv("HOME");
+        base = std::string(home != nullptr ? home : ".") + "/.local/share";
+    }
+    return base + "/" + kUpdateAppName + "/frame-update.sh";
+}
+
+/**
  * 常駐のロックファイルのパス（$XDG_RUNTIME_DIR の下）。
  * @return パス
  */
@@ -985,7 +1075,11 @@ void handleAction(PanelHit hit, Config& config, const std::string& configPath, M
         case PanelAction::NsGraceMinus:
         case PanelAction::NsGracePlus:
         case PanelAction::NsReset:
-        case PanelAction::Quit:  // 終了は呼び出し側で扱う
+        case PanelAction::Quit:            // 終了は呼び出し側で扱う
+        case PanelAction::UpdateCheckNow:  // 更新の操作も呼び出し側で扱う（UpdateChecker を持っているため）
+        case PanelAction::UpdateInstall:
+        case PanelAction::UpdateRetry:
+        case PanelAction::UpdateDismiss:
         case PanelAction::None: break;
     }
 }
@@ -1028,6 +1122,38 @@ int runOverlay(const Options& options) {
     VoiceCheck voice;
     VrOverlay vr;
 
+    // 新しい版の確認・更新（vendor/frame-updater）。古い版から来て install-args が無いときの既定はオプションなし
+    frame_updater::UpdaterConfig updaterConfig;
+    updaterConfig.script = updateScriptPath();
+    updaterConfig.app = kUpdateAppName;
+    updaterConfig.repo = kUpdateRepo;
+    updaterConfig.currentVersion = FRAME_MIC_TUNER_VERSION;
+    updaterConfig.assetPattern = kUpdateAssetPattern;
+    frame_updater::UpdateChecker updater(updaterConfig);
+    uint64_t drawnUpdateRevision = updater.revision();
+    /**
+     * 版の行のボタンを扱う（UpdateChecker を持っているのでここで扱う）。
+     * @param action 押されたボタン
+     */
+    const auto handleUpdateAction = [&](PanelAction action) {
+        switch (action) {
+            case PanelAction::UpdateCheckNow:
+                std::fprintf(stderr, "[更新] 確認します\n");
+                updater.checkNow();
+                return;
+            case PanelAction::UpdateInstall:
+            case PanelAction::UpdateRetry:
+                std::fprintf(stderr, "[更新] 更新を始めます\n");
+                if (!updater.install()) std::fprintf(stderr, "[更新] 始められませんでした\n");
+                return;
+            case PanelAction::UpdateDismiss:
+                updater.dismiss();
+                return;
+            default:
+                return;
+        }
+    };
+
     // SteamVR を待つ
     std::string lastMessage;
     while (!gStopRequested) {
@@ -1061,7 +1187,7 @@ int runOverlay(const Options& options) {
         renderThumbnail(fonts, kThumbnailSize, thumbnail);
         vr.submitThumbnail(thumbnail.data(), kThumbnailSize);
         // パネルにも最初の 1 枚（読み込み中）を入れておく（初めて選ばれたとき、画像が無い瞬間を作らない）
-        panel.render(config, state, VoiceView());
+        panel.render(config, state, VoiceView(), updater.status());
         vr.submitPanel(panel.toRgba().data());
         vr.logOverlayState("接続直後");
     }
@@ -1182,7 +1308,8 @@ int runOverlay(const Options& options) {
         renderThumbnail(fonts, kThumbnailSize, thumbnail);
         vr.submitThumbnail(thumbnail.data(), kThumbnailSize);
         drawnVersion = worker.snapshot(state);
-        panel.render(config, state, voiceView);
+        drawnUpdateRevision = updater.revision();
+        panel.render(config, state, voiceView, updater.status());
         vr.submitPanel(panel.toRgba().data());
         vr.logOverlayState("作り直した後");
         dirty = true;
@@ -1209,6 +1336,10 @@ int runOverlay(const Options& options) {
             std::fprintf(stderr, "[VR] vrserver がいなくなったので終了します\n");
             break;
         }
+
+        // 新しい版の確認・更新の状態を進める（見えていない間も。GitHub に行くのはスクリプトのキャッシュが切れたときだけ）
+        updater.tick(config.updateCheck);
+        if (updater.revision() != drawnUpdateRevision) dirty = true;
 
         // パネルが見えている間だけ、ワーカーが 1 秒ごとに読み直す（見えていない間は何も実行しない）
         const bool visible = vr.panelVisible();
@@ -1240,6 +1371,9 @@ int runOverlay(const Options& options) {
                         applyPreset(hit.action);
                     } else if (hit.action == PanelAction::TabQuick || hit.action == PanelAction::TabFine) {
                         switchTab(hit.action == PanelAction::TabQuick ? PanelTab::Quick : PanelTab::Fine);
+                    } else if (hit.action == PanelAction::UpdateCheckNow || hit.action == PanelAction::UpdateInstall ||
+                               hit.action == PanelAction::UpdateRetry || hit.action == PanelAction::UpdateDismiss) {
+                        handleUpdateAction(hit.action);
                     } else if (!handleNsAction(hit.action)) {
                         handleAction(hit, config, options.configPath, worker, voice, state, voiceView);
                     }
@@ -1275,7 +1409,8 @@ int runOverlay(const Options& options) {
             drawnVersion = version;
             voiceView = voice.view();
             lastVoiceFrame = nowSeconds();
-            panel.render(config, state, voiceView);
+            drawnUpdateRevision = updater.revision();
+            panel.render(config, state, voiceView, updater.status());
             vr.submitPanel(panel.toRgba().data());
             dirty = false;
             if (firstSubmit) {

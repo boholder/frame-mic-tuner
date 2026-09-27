@@ -87,6 +87,55 @@ struct UiText {
     const char* tabQuick;          ///< 「かんたん」のタブ（「細かく調整」のタブは fineTune）
     const char* goFine;            ///< かんたんのタブから細かく調整のタブへ移るボタン
     const char* nsDefaultNote;     ///< 「標準に戻す」の左の説明（標準の値）
+
+    // ---- 更新（vendor/frame-updater/strings.md から。今の版の行と、更新の確認・実行） ----
+    const char* rowUpdateCheck;         ///< 設定名「新しい版の確認」（今は設定を切り替える画面が無いので未使用）
+    const char* hintUpdateCheck;        ///< その説明（今は未使用）
+    const char* updateUpToDateFormat;   ///< 最新（%s は版）
+    const char* updateChecking;         ///< 確認中
+    const char* updateAvailableFormat;  ///< 新しい版あり（%s は版）
+    const char* updateButton;           ///< 「更新する」ボタン
+    const char* updateManual;           ///< ここからは入れられない版（手で更新してね）
+    const char* updateReleasePage;      ///< 「リリースページ:」（今は URL を出していないので未使用）
+    const char* updateConfirmFormat;    ///< 確認の文言（%s は版。今は行の文言をこれに差し替えるだけで使う）
+    const char* updateConfirmHint;      ///< 確認の補足（今は未使用。行が 1 行しかないため）
+    const char* updateConfirmYes;       ///< 確認の実行（updateButton と同じ文言）
+    const char* updateConfirmNo;        ///< 確認のやめる（今は別ボタンを出していないので未使用。ほかを押すか待つと取り消し）
+    const char* updateInstallingFormat; ///< 更新中（%s は手順）
+    const char* updateInstalledFormat;  ///< 入れ終わった（%s は版）
+    const char* updateInstallFailed;    ///< 更新失敗の見出し（あとに理由が続く）
+    const char* updateCheckFailed;      ///< 確認失敗の見出し（あとに理由が続く）
+    const char* updateCheckNow;         ///< 「確認」ボタン（いつも出る行のボタン）
+    const char* updateRetry;            ///< 「もう一度」ボタン（更新失敗のあと）
+    const char* updateDismiss;          ///< 「閉じる」ボタン
+    const char* updateLogHint;          ///< 失敗の補足（今は未使用）
+    // 更新中の手順（UpdateStatus::step）
+    const char* updateStepStart;
+    const char* updateStepDownload;
+    const char* updateStepVerify;
+    const char* updateStepExtract;
+    const char* updateStepInstall;
+    // 更新の失敗の理由（UpdateStatus::error）
+    const char* updateErrNetwork;
+    const char* updateErrRateLimited;
+    const char* updateErrNotFound;
+    const char* updateErrBadResponse;
+    const char* updateErrBadVersion;
+    const char* updateErrBadUrl;
+    const char* updateErrMissingTool;
+    const char* updateErrNoChecksums;
+    const char* updateErrNoAsset;
+    const char* updateErrChecksumMismatch;
+    const char* updateErrUnsafeArchive;
+    const char* updateErrNoInstaller;
+    const char* updateErrInstallFailed;
+    const char* updateErrBadArgs;
+    const char* updateErrBusy;
+    const char* updateErrNotNewer;
+    const char* updateErrDetachFailed;
+    const char* updateErrInterrupted;
+    const char* updateErrIo;
+    const char* updateErrOther;  ///< 知らない理由・usage・script-failed・spawn-failed もここに落ちる
 };
 
 /**

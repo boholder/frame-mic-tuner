@@ -25,6 +25,8 @@ struct Config {
     bool hasNsParams = false;
     double nsVad = kNsVadDefault;      ///< 判定の厳しさ（%）。キーは ns_vad_threshold_percent
     double nsGrace = kNsGraceDefault;  ///< 余韻（ms）。キーは ns_vad_grace_ms
+    // 新しい版の自動確認（起動時と 1 日 1 回）。オフでも［確認］ボタンでは確かめられる。キーは update_check
+    bool updateCheck = true;
 };
 
 /** 画面の文字に使うフォント（Noto Sans CJK。読めなければ fontconfig で探す）。 */

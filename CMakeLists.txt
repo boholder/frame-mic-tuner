@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(frame-mic-tuner VERSION 0.1.0 LANGUAGES CXX)
+project(frame-mic-tuner VERSION 0.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,8 +32,9 @@ add_executable(frame-mic-tuner
   src/vk_texture.cpp
   src/draw.cpp
   src/i18n.cpp
+  vendor/frame-updater/cpp/update_check.cpp
 )
-target_include_directories(frame-mic-tuner PRIVATE third_party/openvr)
+target_include_directories(frame-mic-tuner PRIVATE third_party/openvr vendor/frame-updater/cpp)
 target_compile_options(frame-mic-tuner PRIVATE -Wall -Wextra)
 # --version で出す版（CHANGELOG.md と合わせる）
 target_compile_definitions(frame-mic-tuner PRIVATE FRAME_MIC_TUNER_VERSION="${PROJECT_VERSION}")

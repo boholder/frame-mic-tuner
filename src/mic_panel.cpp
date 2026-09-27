@@ -14,9 +14,9 @@
 
 namespace {
 
-// 横長の 2 カラム: 左 = 切り替え、右 = 声のチェック、下 = 全幅の 1 行（言語・自動起動・終了）と注意書き
+// 横長の 2 カラム: 左 = 切り替え、右 = 声のチェック、下 = 版の行、その下 = 全幅の 1 行（言語・自動起動・終了）と注意書き
 constexpr int kWidth = 1200;
-constexpr int kHeight = 700;
+constexpr int kHeight = 758;
 constexpr double kPad = 28;                  // パネルの外側の余白
 constexpr double kCardPad = 20;              // カードの中の余白
 constexpr double kLeftX = kPad;              // 左のカラム
@@ -46,7 +46,8 @@ constexpr double kPipelineH = 116;
 constexpr double kVoiceY = 26;       // 声のチェックのカード
 constexpr double kVoiceH = 548;
 constexpr double kRowStep = 74;      // 履歴の 1 行
-constexpr double kFooterY = 594;     // 下の 1 行
+constexpr double kUpdateRowY = 594;  // 版・新しい版の確認と更新の行
+constexpr double kFooterY = 652;     // 下の 1 行（言語・自動起動・終了）
 
 /**
  * 収まる幅になるまで文字を小さくした大きさを返す。
@@ -330,6 +331,29 @@ std::string errorText(MicError error, const UiText& text) {
     return "";
 }
 
+std::string updateErrorText(const std::string& error, const UiText& t) {
+    if (error == "network") return t.updateErrNetwork;
+    if (error == "rate-limited") return t.updateErrRateLimited;
+    if (error == "not-found") return t.updateErrNotFound;
+    if (error == "bad-response") return t.updateErrBadResponse;
+    if (error == "bad-version") return t.updateErrBadVersion;
+    if (error == "bad-url") return t.updateErrBadUrl;
+    if (error == "missing-tool") return t.updateErrMissingTool;
+    if (error == "no-checksums") return t.updateErrNoChecksums;
+    if (error == "no-asset") return t.updateErrNoAsset;
+    if (error == "checksum-mismatch") return t.updateErrChecksumMismatch;
+    if (error == "unsafe-archive") return t.updateErrUnsafeArchive;
+    if (error == "no-installer") return t.updateErrNoInstaller;
+    if (error == "install-failed") return t.updateErrInstallFailed;
+    if (error == "bad-args") return t.updateErrBadArgs;
+    if (error == "busy") return t.updateErrBusy;
+    if (error == "not-newer") return t.updateErrNotNewer;
+    if (error == "detach-failed") return t.updateErrDetachFailed;
+    if (error == "interrupted") return t.updateErrInterrupted;
+    if (error == "io") return t.updateErrIo;
+    return t.updateErrOther;  // 知らない理由・usage・script-failed・spawn-failed
+}
+
 MicPanel::MicPanel(const FontSet& fonts) : fonts_(fonts) {
     surface_ = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, kWidth, kHeight);
     cr_ = cairo_create(surface_);
@@ -406,7 +430,15 @@ PanelHit MicPanel::pointerDown(double x, double y, double now) {
         quitArmedUntil_ = now + kQuitConfirmSec;
         return {};
     }
-    quitArmed_ = false;  // 別のボタンを押したら確認は取り消す
+    if (pressed_.action == PanelAction::UpdateInstall) {
+        // 終了と同じく、1 回目は確認の表示にするだけ（行の文言が updateConfirmFormat に変わる）
+        if (updateArmed_ && now <= updateArmedUntil_) return pressed_;
+        updateArmed_ = true;
+        updateArmedUntil_ = now + kQuitConfirmSec;
+        return {};
+    }
+    quitArmed_ = false;    // 別のボタンを押したら確認は取り消す
+    updateArmed_ = false;
     return pressed_;
 }
 
@@ -428,10 +460,16 @@ bool MicPanel::pointerLeave() {
 bool MicPanel::tick(double now) {
     const bool holdExpired = holdUntil_ >= 0 && now_ <= holdUntil_ && now > holdUntil_;
     now_ = now;
-    if (holdExpired) return true;  // 書いた値の表示をやめて、読んだ値に戻す
-    if (!quitArmed_ || now <= quitArmedUntil_) return false;
-    quitArmed_ = false;
-    return true;
+    bool changed = holdExpired;  // 書いた値の表示をやめて、読んだ値に戻す
+    if (quitArmed_ && now > quitArmedUntil_) {
+        quitArmed_ = false;
+        changed = true;
+    }
+    if (updateArmed_ && now > updateArmedUntil_) {
+        updateArmed_ = false;
+        changed = true;
+    }
+    return changed;
 }
 
 void MicPanel::holdPreset(PanelAction action, double until) {
@@ -464,6 +502,11 @@ void MicPanel::setDragForPreview(PanelAction action, double value) {
 void MicPanel::armQuitForPreview() {
     quitArmed_ = true;
     quitArmedUntil_ = 1e300;
+}
+
+void MicPanel::armUpdateForPreview() {
+    updateArmed_ = true;
+    updateArmedUntil_ = 1e300;
 }
 
 void MicPanel::setPointerForPreview(PanelHit hover, PanelHit pressed) {
@@ -1071,6 +1114,110 @@ void MicPanel::drawVoice(const Pen& pen, const UiText& t, const VoiceView& voice
     }
 }
 
+void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_updater::UpdateStatus& update, double y) {
+    using frame_updater::UpdateState;
+    cairo_t* cr = pen.cr;
+    const double h = 40;
+    const double buttonH = 36;
+    const double buttonY = y + (h - buttonH) / 2;
+
+    // 右端に積むボタン 1 個（押している・乗っている見た目とボタン自身の当たり判定はここでまとめて描く）
+    const auto pillButton = [&](PanelAction action, double x, double w, const std::string& label, bool danger) {
+        const int pointer = pointerState(action);
+        pen.color(danger ? kDanger : (pointer > 0 ? kControlHover : kControl));
+        pen.roundedRect(x, buttonY, w, buttonH, buttonH / 2);
+        cairo_fill(cr);
+        if (!danger) strokeRounded(pen, x, buttonY, w, buttonH, buttonH / 2, kBorder, 1.5);
+        const Color textColor = danger ? kOnAccent : kText;
+        const double s = fitSize(pen, label, 16, 12, w - 16, true);
+        textCentered(pen, x + w / 2, centerBaseline(buttonY, buttonH, s), label, s, textColor, true);
+        addButton(action, 0, x, buttonY, w, buttonH);
+    };
+
+    // 行の文言: checking 中はほかの状態より優先して「確かめています…」を出す（前の答えは裏でそのまま残る）
+    std::string message;
+    Color color = kTextMuted;
+    char buf[256];
+    if (update.checking) {
+        message = t.updateChecking;
+    } else {
+        switch (update.state) {
+            case UpdateState::Unknown:
+                message = "v" + update.current;
+                break;
+            case UpdateState::UpToDate:
+                std::snprintf(buf, sizeof(buf), t.updateUpToDateFormat, update.current.c_str());
+                message = buf;
+                break;
+            case UpdateState::Available:
+                std::snprintf(buf, sizeof(buf),
+                              (updateArmed_ && update.installable) ? t.updateConfirmFormat : t.updateAvailableFormat,
+                              update.latest.c_str());
+                message = buf;
+                color = kAccent;
+                if (!update.installable) message += std::string("  ") + t.updateManual;
+                break;
+            case UpdateState::Installing: {
+                const char* step = t.updateStepStart;
+                if (update.step == "download") step = t.updateStepDownload;
+                else if (update.step == "verify") step = t.updateStepVerify;
+                else if (update.step == "extract") step = t.updateStepExtract;
+                else if (update.step == "install") step = t.updateStepInstall;
+                std::snprintf(buf, sizeof(buf), t.updateInstallingFormat, step);
+                message = buf;
+                break;
+            }
+            case UpdateState::Installed:
+                std::snprintf(buf, sizeof(buf), t.updateInstalledFormat, update.version.c_str());
+                message = buf;
+                color = kAccent;
+                break;
+            case UpdateState::CheckFailed:
+                message = std::string(t.updateCheckFailed) + " " + updateErrorText(update.error, t);
+                color = kDanger;
+                break;
+            case UpdateState::InstallFailed:
+                message = std::string(t.updateInstallFailed) + " " + updateErrorText(update.error, t);
+                color = kDanger;
+                break;
+        }
+    }
+
+    // ボタン: 確かめている間は出さない（連打を避ける）。ほかは状態ごとに 0〜2 個、右端から積む
+    double buttonsLeft = kRight;
+    if (!update.checking) {
+        switch (update.state) {
+            case UpdateState::Unknown:
+            case UpdateState::UpToDate:
+            case UpdateState::CheckFailed:
+                buttonsLeft = kRight - 110;
+                pillButton(PanelAction::UpdateCheckNow, buttonsLeft, 110, t.updateCheckNow, false);
+                break;
+            case UpdateState::Available:
+                if (update.installable) {
+                    buttonsLeft = kRight - 130;
+                    pillButton(PanelAction::UpdateInstall, buttonsLeft, 130,
+                               updateArmed_ ? t.updateConfirmYes : t.updateButton, updateArmed_);
+                }
+                break;
+            case UpdateState::Installed:
+                buttonsLeft = kRight - 110;
+                pillButton(PanelAction::UpdateDismiss, buttonsLeft, 110, t.updateDismiss, false);
+                break;
+            case UpdateState::InstallFailed:
+                buttonsLeft = kRight - 110;
+                pillButton(PanelAction::UpdateDismiss, buttonsLeft, 110, t.updateDismiss, false);
+                buttonsLeft -= 14 + 120;
+                pillButton(PanelAction::UpdateRetry, buttonsLeft, 120, t.updateRetry, false);
+                break;
+            case UpdateState::Installing: break;  // 更新中はボタンなし
+        }
+    }
+
+    const double textMax = buttonsLeft - kPad - 16;
+    pen.text(kPad, centerBaseline(y, h, 16), message, fitSize(pen, message, 16, 12, textMax, false), color);
+}
+
 void MicPanel::drawFooter(const Pen& pen, const UiText& t, const MicState& state, Language language, double y) {
     const double h = 50;
     const double size = 19;
@@ -1122,7 +1269,8 @@ void MicPanel::drawFooter(const Pen& pen, const UiText& t, const MicState& state
     }
 }
 
-void MicPanel::render(const Config& config, const MicState& state, const VoiceView& voice) {
+void MicPanel::render(const Config& config, const MicState& state, const VoiceView& voice,
+                      const frame_updater::UpdateStatus& update) {
     const Pen pen {cr_, &fonts_};
     const UiText& t = uiText(config.language);
     buttons_.clear();
@@ -1149,6 +1297,7 @@ void MicPanel::render(const Config& config, const MicState& state, const VoiceVi
     }
     drawPipeline(pen, t, state, kPipelineY);
     drawVoice(pen, t, voice, kVoiceY);
+    drawUpdateRow(pen, t, update, kUpdateRowY);
     drawFooter(pen, t, state, config.language, kFooterY);
 
     // 押せなくなったボタンに乗っていた印は外す

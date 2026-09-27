@@ -6,6 +6,8 @@
 #include "mic_state.h"
 #include "voice_check.h"
 
+#include "update_check.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -41,6 +43,10 @@ enum class PanelAction {
     NsReset,       ///< 標準（SteamOS の既定 23% / 500ms）に戻す
     TabQuick,      ///< 「かんたん」のタブ
     TabFine,       ///< 「細かく調整」のタブ（かんたんのタブの「細かく調整を見る →」も。そちらは index = 1）
+    UpdateCheckNow,  ///< 版の行の「確認」（24 時間のキャッシュを無視してその場で確認。update_check が false でも押せる）
+    UpdateInstall,   ///< 版の行の「更新する」（1 回目は確認の表示にするだけ。kQuitConfirmSec 以内の 2 回目で返る）
+    UpdateRetry,     ///< 更新に失敗したあとの「もう一度」（確認なしでもう一度 install を頼む）
+    UpdateDismiss,   ///< 「入れました」「更新できませんでした」の表示を閉じる
 };
 
 /** 押されたボタン（操作と、履歴なら何件目か）。 */
@@ -76,8 +82,10 @@ public:
      * @param config 今の設定（言語）
      * @param state マイクの状態
      * @param voice 声のチェックの状態
+     * @param update 新しい版の確認・更新の状態（既定値のままなら「まだ確かめていない」の表示になる）
      */
-    void render(const Config& config, const MicState& state, const VoiceView& voice);
+    void render(const Config& config, const MicState& state, const VoiceView& voice,
+               const frame_updater::UpdateStatus& update = {});
 
     /**
      * ポインターが動いた。
@@ -133,6 +141,11 @@ public:
      * 見た目の確認用に「もう一度押すと終了」の状態にする（--dump-png 用）。
      */
     void armQuitForPreview();
+
+    /**
+     * 見た目の確認用に、更新の「確認しますか？」の状態にする（--dump-png 用）。
+     */
+    void armUpdateForPreview();
 
     /**
      * 見た目の確認用に、ポインターが乗っている・押しているボタンを決める（--dump-png 用）。
@@ -223,6 +236,8 @@ private:
     PanelHit pressed_;
     bool quitArmed_ = false;
     double quitArmedUntil_ = 0.0;
+    bool updateArmed_ = false;      ///< 「更新する」の 1 回目が押された（2 回目の確認待ち）
+    double updateArmedUntil_ = 0.0;
     double now_ = 0.0;              ///< tick() で知らされた時刻
     std::vector<Track> tracks_;     ///< 最後に描いたときのバーの溝
     PanelAction dragAction_ = PanelAction::None;
@@ -285,6 +300,8 @@ private:
     void drawVoice(const Pen& pen, const UiText& t, const VoiceView& voice, double y);
     /** 下の 1 行（言語・自動起動・終了）と最下行の説明・失敗。 */
     void drawFooter(const Pen& pen, const UiText& t, const MicState& state, Language language, double y);
+    /** 今の版・新しい版の確認と更新の行（vendor/frame-updater の状態を表示する）。 */
+    void drawUpdateRow(const Pen& pen, const UiText& t, const frame_updater::UpdateStatus& update, double y);
 
     /**
      * 2 つの選択肢を 1 本のピルに並べ、選択中の側に塗りを置く（スライド式）。
@@ -310,6 +327,14 @@ private:
  * @return 文言（None なら空）
  */
 std::string errorText(MicError error, const UiText& text);
+
+/**
+ * 更新の失敗の理由（UpdateStatus::error）を画面の文言にする。知らない理由は updateErrOther。
+ * @param error 失敗の種類（"network" など。strings.md の一覧）
+ * @param text 言語の表
+ * @return 文言
+ */
+std::string updateErrorText(const std::string& error, const UiText& text);
 
 /**
  * ダッシュボードの下に並ぶサムネイル（アイコン）を描く。言語によらず同じ（マイクの絵と「Mic」の文字）。

@@ -62,7 +62,7 @@ bool loadConfig(const std::string& path, Config& out, std::vector<std::string>& 
     Config config;  // 書かれていない項目は既定値
     for (const auto& member : root.members) {
         if (member.first != "language" && member.first != "tab" && member.first != "ns_vad_threshold_percent" &&
-            member.first != "ns_vad_grace_ms") {
+            member.first != "ns_vad_grace_ms" && member.first != "update_check") {
             warnings.push_back("知らないキーです: " + member.first);
         }
     }
@@ -78,6 +78,13 @@ bool loadConfig(const std::string& path, Config& out, std::vector<std::string>& 
             config.tab = PanelTab::Fine;
         } else {
             warnings.push_back("tab は \"quick\" か \"fine\" で書いてください");
+        }
+    }
+    if (const JsonValue* updateCheck = root.get("update_check")) {
+        if (updateCheck->isBool()) {
+            config.updateCheck = updateCheck->boolean;
+        } else {
+            warnings.push_back("update_check は true か false で書いてください");
         }
     }
     // ノイズ除去の強さは 2 つそろっているときだけ使う（範囲外は丸める）
@@ -117,7 +124,8 @@ bool saveConfig(const std::string& path, const Config& config, std::string& erro
     std::ostringstream out;
     out << "{\n"
         << "  \"language\": \"" << languageCode(config.language) << "\",\n"
-        << "  \"tab\": \"" << (config.tab == PanelTab::Fine ? "fine" : "quick") << "\"";
+        << "  \"tab\": \"" << (config.tab == PanelTab::Fine ? "fine" : "quick") << "\",\n"
+        << "  \"update_check\": " << (config.updateCheck ? "true" : "false");
     if (config.hasNsParams) {
         char numbers[128];
         std::snprintf(numbers, sizeof(numbers), ",\n  \"ns_vad_threshold_percent\": %.0f,\n  \"ns_vad_grace_ms\": %.0f",
