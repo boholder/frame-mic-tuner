@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
 - **Noise filter strength**: two sliders tune the noise suppression on the spot: **Strictness** (how voice-like a sound must be to pass; lower lets more through) and **Hold** (how long sound keeps passing after you stop speaking).
 - **Signal path**: shows whether an app is using the mic and which filters the sound actually goes through (mic → EQ → echo cancellation → noise suppression → apps), read from the live PipeWire links.
 - **Voice check**: records up to 10 seconds of the final sound that apps receive, keeps the last 5 recordings, and plays them back through the Frame's speakers or your earphones. Each recording shows the time, length, the setting it was made with and a small waveform.
-- **Updates**: a row always shows the running version. It checks GitHub for a newer release at startup and once a day (turn this off with `update_check: false` in the settings file), and **Check** looks right away regardless. When a newer version is available, **Update** downloads and installs it after you confirm once.
+- **Updates**: an update card above the bottom row always shows the running version. It asks GitHub for a newer release about once a day (turn this off with `update_check: false` in the settings file), and **Check now** asks right away regardless. When a newer version is available the card gets an accent-colored border and an **Update** button, which downloads and installs it after you confirm once.
 - Japanese and English UI. Text and controls meet WCAG 2.x AA contrast.
 
 Why this is needed: while an app uses the mic, SteamOS runs it through EQ, echo cancellation and noise suppression. Echo cancellation strongly reduces small sounds, and noise suppression silences anything that doesn't sound like a voice. With earphones there is no speaker sound to cancel, so turning echo cancellation off lets more of your voice through.
@@ -57,14 +57,14 @@ cd frame-mic-tuner
 
 Then **restart the headset** once, so WirePlumber loads the switch script. Don't restart PipeWire or WirePlumber by hand while playing: SteamVR and Steam Link lose their sound. If that happens anyway, restart SteamVR on the headset (or reconnect Steam Link) and the sound comes back.
 
-No sudo is needed. `install.sh` puts everything into your home directory (`~/.local/bin`, `~/.local/share`, `~/.config`), so SteamOS updates don't remove it. To update by hand: download the new release and run its `install.sh` again (or, in a source checkout, `git pull && ./install.sh`) — or just press **Update** in the panel once it shows a newer version is available.
+No sudo is needed. `install.sh` puts everything into your home directory (`~/.local/bin`, `~/.local/share`, `~/.config`), so SteamOS updates don't remove it. To update by hand: download the new release and run its `install.sh` again (or, in a source checkout, `git pull && ./install.sh`) — or just press **Update** on the panel's update card once it shows a newer version is available.
 
 What gets installed:
 
 - the app, a launcher entry for the dashboard's **+** (launch a program) list, and its icons
 - a systemd user unit for starting it together with SteamVR (not enabled unless you turn it on; see below)
 - a WirePlumber script and config (`contrib/wireplumber/`) that replace SteamOS's microphone tracker with one whose echo cancellation and noise suppression can be switched. It behaves like the original otherwise.
-- the shared update script (`~/.local/share/frame-mic-tuner/frame-update.sh`, from `vendor/frame-updater/`), used by the panel's version row
+- the shared update script (`~/.local/share/frame-mic-tuner/frame-update.sh`, from `vendor/frame-updater/`), used by the panel's update card
 
 To remove it: `./install.sh --uninstall`, then restart the headset to get SteamOS's original microphone behaviour back. Add `--purge` to also delete the app's settings and the saved switch values.
 
@@ -78,7 +78,11 @@ To remove it: `./install.sh --uninstall`, then restart the headset to get SteamO
 4. **Start with SteamVR** (bottom row): turn it on to have the app start automatically with SteamVR from now on. You can also enable it with `./install.sh --autostart`.
 5. **Language**: the panel starts in your Steam Frame's language (Japanese if Steam is set to Japanese, English otherwise). Change it with **日本語 / English** at the bottom left; your choice is saved.
 6. **Quit**: press it twice, or hover over the Mic icon in the dashboard and choose Close.
-7. **Updates**: the row above shows the running version. **Check** looks for a newer release right away (this works even if the automatic daily check is off). When one is available it turns into **Update**; press it, confirm once, and it downloads and installs the new version (this may close and reopen the panel).
+7. **Updates** (the card above the bottom row): it shows the running version, for example "Up to date (0.2.0)". **Check now** looks for a newer release right away (this works even if the automatic daily check is off).
+   - When one is available, the card gets an accent-colored border and says "Version X is available". Press **Update**; the card asks "Update to X?" with **Cancel** and **Update** (the question goes away by itself after 3 seconds). Press **Update** again to start. The card then shows the progress ("Updating: Downloading", and so on).
+   - The panel stays open and keeps running the old version while it installs. When the card says "X is installed. Reopen to use it", press **Quit** twice and start the app again from **+** (or restart SteamVR), then **Close** the message if it's still shown. If the new version changed the WirePlumber script, restart the headset too (the update log says so).
+   - If the card says "This version can't be installed from here" (the release has no `SHA256SUMS` or no package), update by hand as described under Install; the card shows the release page.
+   - If the update fails, the card gets a red border, says why and that nothing was changed, and offers **Try again** and **Close**. If only the check fails (for example with no network), just the text turns red and **Check now** stays.
 
 The settings are also available from SSH:
 
@@ -112,7 +116,7 @@ wpctl settings --save frame-mic.noise-suppression true   # noise suppression on 
 - **Frame Mic Tuner is missing from the + list**: restart the headset once after installing.
 - **The Mic icon is missing from the dashboard although the app is running**: SteamVR can lose the app's dashboard panel (for example when the dashboard itself restarts). The app checks every 3 seconds and recreates the panel by itself, so wait a few seconds and open the dashboard again. Launching the app again from **+** also checks and recreates it before opening the panel. If it still doesn't come back, the log (`journalctl --user -u frame-mic-tuner -f` when it runs as a service) says why (the log is in Japanese; look for lines starting with "自己修復", which means "self-repair"); quitting the app and starting it again fixes it too.
 - Logs: `journalctl --user -u frame-mic-tuner -f` when it runs as a service. To see the log of a manual run, quit the app and start `~/.local/bin/frame-mic-tuner` from SSH.
-- **The update check fails, or "Update" doesn't do anything**: `~/.cache/frame-mic-tuner/update.log` has the details, and `~/.cache/frame-mic-tuner/update-check.json` / `update-state.json` the last raw answer. `update_check: false` in the settings file turns off the automatic daily check without removing the version row or the **Check** / **Update** buttons.
+- **The update check fails, or "Update" doesn't do anything**: `~/.cache/frame-mic-tuner/update.log` has the details, and `~/.cache/frame-mic-tuner/update-check.json` / `update-state.json` the last raw answer. `update_check: false` in the settings file turns off the automatic daily check without removing the update card or its **Check now** / **Update** buttons.
 
 ## Privacy
 
@@ -120,14 +124,19 @@ wpctl settings --save frame-mic.noise-suppression true   # noise suppression on 
 - While it records, the panel shows "● Recording". Recording stops as soon as you close the panel.
 - The microphone may pick up the voices of people around you. Keep that in mind before recording.
 - To pick the default language it reads the `language` line of Steam's `~/.steam/registry.vdf` once at startup (read only).
-- The app has no telemetry. It contacts only `api.github.com` (and, when you press **Update**, `github.com` / `*.githubusercontent.com` to download the release) to look for a newer version, at startup and once a day; set `update_check: false` in the settings file to stop the automatic check (the **Check** button still works, on request). The only files it writes are `~/.config/frame-mic-tuner/config.json` (UI language, last tab, noise filter strength and the update-check setting), `~/.config/frame-mic-tuner/install-args` (the options your last `./install.sh` run used, so an update reinstalls the same way), `~/.cache/frame-mic-tuner/` (the update check's cached answer, its log, and its state while installing), and a lock file in `$XDG_RUNTIME_DIR` that holds its process ID (to stop a second copy from starting).
+- The app has no telemetry. Its only network use is the update check:
+  - **When**: while the app runs, it asks GitHub at startup if its last answer is more than 24 hours old, and after that about once a day (an hour later after a failed check). **Check now** asks right away. Set `update_check: false` in the settings file to stop the automatic check; then it only connects when you press **Check now** or **Update**.
+  - **What it sends**: one HTTPS request for this project's latest release to `api.github.com`, with no account, ID or usage data. Like any web request, GitHub sees your IP address and the User-Agent of `curl`. Your recordings, settings and logs are never sent.
+  - **What it receives**: the latest release's version number, its page and the names and links of its files. The answer is kept in `~/.cache/frame-mic-tuner/update-check.json`.
+  - **Only when you press Update and confirm**, it also downloads that release's package and `SHA256SUMS` from `github.com` / `*.githubusercontent.com`.
+- The only files it writes are `~/.config/frame-mic-tuner/config.json` (UI language, last tab, noise filter strength and the update-check setting), `~/.config/frame-mic-tuner/install-args` (the options your last `./install.sh` run used, so an update reinstalls the same way), `~/.cache/frame-mic-tuner/` (the update check's cached answer, the update's log and state, and a work folder whose download is deleted after each update), and a lock file in `$XDG_RUNTIME_DIR` that holds its process ID (to stop a second copy from starting). An update also rewrites the installed files, as running `./install.sh` does.
 
 ## Disclaimer
 
 - Use at your own risk. This project was made with Claude Opus 5.5, an AI model. I've tested it on my own Steam Frame, but I can't take responsibility for what happens on yours, so please read the code and check it yourself before you run it. The software comes with no warranty (see [LICENSE](LICENSE)).
-- What it changes: the two WirePlumber settings `frame-mic.echo-cancel` and `frame-mic.noise-suppression` (through `wpctl settings`), the noise suppressor's two live parameters "VAD Threshold (%)" and "VAD Grace Period (ms)" (through `pw-cli set-param`; SteamOS puts its defaults back when its audio restarts), and WirePlumber's configuration in your home directory, where it replaces SteamOS's microphone tracker with its own script. Apart from that it only enables or disables its own systemd user unit when you ask it to.
+- What it changes: the two WirePlumber settings `frame-mic.echo-cancel` and `frame-mic.noise-suppression` (through `wpctl settings`), the noise suppressor's two live parameters "VAD Threshold (%)" and "VAD Grace Period (ms)" (through `pw-cli set-param`; SteamOS puts its defaults back when its audio restarts), and WirePlumber's configuration in your home directory, where it replaces SteamOS's microphone tracker with its own script. Apart from that it only enables or disables its own systemd user unit when you ask it to, and, when you update from the panel, runs the new release's `install.sh` in a short-lived systemd user unit (`frame-mic-tuner-update`).
 - It never restarts PipeWire or WirePlumber, never writes to the ALSA mixer (amixer), never touches `/etc` and never needs root.
-- **Update**: downloads the release's `.tar.gz` and `SHA256SUMS` from GitHub over HTTPS, checks the hash, and only then extracts it and runs its `install.sh` with the same options as your last install. It refuses a release with no `SHA256SUMS`, a hash mismatch, or an archive containing an absolute path or `..`; nothing is changed if any of that happens. See [frame-update.sh's own notes](vendor/frame-updater/frame-update.sh) for the exact steps.
+- **Update**: downloads the latest release's `.tar.gz` and `SHA256SUMS` from GitHub over HTTPS (only to GitHub's own hosts), checks the hash, and only then extracts it into `~/.cache/frame-mic-tuner/update/` and runs its `install.sh` with the same options as your last install. It refuses a release with no `SHA256SUMS`, a hash mismatch, or an archive containing an absolute path, `..`, a link or a special file; nothing is changed if any of that happens. The download is deleted afterwards. The running app isn't restarted: quit it and start it again to use the new version. See [frame-update.sh's own notes](vendor/frame-updater/frame-update.sh) for the exact steps.
 - A SteamOS update can change how the microphone filters are set up. If that happens, the switches may stop working until this project is updated. Because the switch script is a required part of WirePlumber, a script that no longer loads can also stop all sound on the headset (see Troubleshooting). `./install.sh --uninstall` and a restart bring back SteamOS's original behaviour.
 - This is an unofficial project with no affiliation with or endorsement from Valve Corporation. Steam, Steam Frame, SteamVR and Steam Link are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries. The names are used here only to say what this works with.
 
@@ -141,7 +150,7 @@ cmake -G Ninja -S . -B build && ninja -C build
 scripts/package.sh   # release build: dist/frame-mic-tuner-<version>.tar.gz, dist/SHA256SUMS
 ```
 
-Useful options that don't need SteamVR: `--print`, `--set-ns-vad N` / `--set-ns-grace N` (apply a noise filter strength right away without saving it), `--dump-png PATH` (render the panel, with `--fake-*` states for screenshots, including `--fake-update STATE` and `--preview-update-confirm` for the version row), `--test-record 3` (record 3 seconds and play them back), `--contrast-report` (WCAG contrast of every color pair) and `--version`. Design notes, how the switch script works and test results are in [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) (Japanese).
+Useful options that don't need SteamVR: `--print`, `--set-ns-vad N` / `--set-ns-grace N` (apply a noise filter strength right away without saving it), `--dump-png PATH` (render the panel, with `--fake-*` states for screenshots, including `--fake-update STATE` and `--preview-update-confirm` for the update card), `--test-record 3` (record 3 seconds and play them back), `--contrast-report` (WCAG contrast of every color pair) and `--version`. Design notes, how the switch script works and test results are in [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) (Japanese).
 
 The update mechanism (`vendor/frame-updater/`) is copied from a shared, private repository; don't edit the copy by hand — `sh vendor/frame-updater/verify.sh` (run by `scripts/package.sh`) checks that it wasn't.
 

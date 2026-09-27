@@ -117,7 +117,7 @@ fi
 
 # The app: binary, launcher entry for the dashboard's "+" list, icons, and the systemd unit
 install -Dm755 "$built_bin" "$bin"
-# The shared update script (vendor/frame-updater), so the panel's version row can check and install updates
+# The shared update script (vendor/frame-updater), so the panel's update card can check and install updates
 install -Dm755 vendor/frame-updater/frame-update.sh "$update_script"
 for size in 48 128 256; do
     install -Dm644 "contrib/icons/frame-mic-tuner-$size.png" "$icons/${size}x${size}/apps/frame-mic-tuner.png"
