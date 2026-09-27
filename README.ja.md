@@ -129,14 +129,14 @@ wpctl settings --save frame-mic.noise-suppression true   # ノイズ除去オン
   - **送るもの**: `api.github.com` に、このプロジェクトの最新のリリースを聞く HTTPS のリクエストを 1 つ送るだけです。アカウント・ID・使い方のデータは入れません。ふつうのウェブのリクエストと同じく、GitHub には IP アドレスと `curl` の User-Agent が見えます。録音・設定・ログは送りません
   - **受け取るもの**: 最新のリリースの版の番号・リリースページ・ファイルの名前とリンクです。答えは `~/.cache/frame-mic-tuner/update-check.json` に置きます
   - **更新する を押して確認したときだけ**、そのリリースのファイルと `SHA256SUMS` を `github.com` / `*.githubusercontent.com` からダウンロードします
-- 書き込むファイルは、画面の言語・最後に開いていたタブ・ノイズ除去の強さ・新しい版の自動確認の設定を保存する `~/.config/frame-mic-tuner/config.json`、直前の `./install.sh` のオプションを覚えておく `~/.config/frame-mic-tuner/install-args`（更新のときに同じオプションで入れ直すため）、新しい版の確認の答え・更新のログと状態・作業用のフォルダ（ダウンロードしたものは更新のたびに消す）を置く `~/.cache/frame-mic-tuner/`、二重起動を防ぐためのロックファイル（`$XDG_RUNTIME_DIR` の中、中身はプロセス ID だけ）です。更新すると、`./install.sh` を実行したときと同じく、インストールしたファイルも書き換わります
+- 書き込むファイルは、画面の言語・最後に開いていたタブ・ノイズ除去の強さ・新しい版の自動確認の設定を保存する `~/.config/frame-mic-tuner/config.json`、直前の `./install.sh` のオプションを覚えておく `~/.config/frame-mic-tuner/install-args`（更新のときに同じオプションで入れ直すため）、新しい版の確認の答え・更新のログと状態・更新中のロックのフォルダ（`update.lock/`）・作業用のフォルダ（ダウンロードしたものは更新のたびに消す）を置く `~/.cache/frame-mic-tuner/`、二重起動を防ぐためのロックファイル（`$XDG_RUNTIME_DIR` の中、中身はプロセス ID だけ）です。更新すると、`./install.sh` を実行したときと同じく、インストールしたファイルも書き換わります
 
 ## 免責事項
 
 - 自己責任でお使いください。このプロジェクトは AI（Claude Opus 5.5）を使って作りました。自分の Steam Frame で動作は確かめていますが、あなたの環境で何か起きても責任は取れません。使う前にコードを自分の目で確認してください。本ソフトウェアは無保証です（[LICENSE](LICENSE) を参照）
 - 変更するのは、`wpctl settings` の 2 項目（`frame-mic.echo-cancel` と `frame-mic.noise-suppression`）、ノイズ除去の動いている値 2 つ（「VAD Threshold (%)」と「VAD Grace Period (ms)」。`pw-cli set-param` で変え、SteamOS の音声が起動し直すと標準に戻る）、ホームフォルダの WirePlumber の設定（SteamOS のマイクの tracker を自作のスクリプトに置き換える）だけです。そのほかには、頼まれたときに自分の systemd のユーザーユニットを有効・無効にすることと、パネルから更新するときに、新しいリリースの `install.sh` を一時的な systemd のユーザーユニット（`frame-mic-tuner-update`）で実行することだけです
 - PipeWire・WirePlumber の再起動、ALSA のミキサー（amixer）への書き込み、`/etc` の変更はしません。root 権限も使いません
-- **更新する**: 最新のリリースの `.tar.gz` と `SHA256SUMS` を GitHub から HTTPS でダウンロードし（GitHub のホストにだけつなぐ）、ハッシュを確かめてから `~/.cache/frame-mic-tuner/update/` に展開して `install.sh` を（前回と同じオプションで）実行します。`SHA256SUMS` が無い・ハッシュが合わない・アーカイブに絶対パスや `..`・リンク・特殊なファイルが入っているときは、そこで止めて何も変えません。ダウンロードしたものは終わったら消します。動いているアプリは再起動しないので、新しい版を使うには終了してから起動し直してください。詳しい手順は [frame-update.sh の説明](vendor/frame-updater/frame-update.sh) を参照してください
+- **更新する**: 最新のリリースの `.tar.gz` と `SHA256SUMS` を GitHub から HTTPS でダウンロードし（GitHub のホストにだけつなぐ）、ハッシュを確かめてから `~/.cache/frame-mic-tuner/update/` に展開して `install.sh` を（前回と同じオプションで）実行します。`SHA256SUMS` が無い・ハッシュが合わない・アーカイブに絶対パスや `..`・リンク・特殊なファイルが入っているときは、そこで止めて何も変えません。ダウンロードしたものは終わったら消します。`SHA256SUMS` は同じリリースに置いたチェックサムで、署名ではありません。壊れたダウンロードや途中で切れたダウンロードは見つけられますが、GitHub のリリースそのものが差し替えられた場合は防げません。動いているアプリは再起動しないので、新しい版を使うには終了してから起動し直してください。詳しい手順は [frame-update.sh の説明](vendor/frame-updater/frame-update.sh) を参照してください
 - SteamOS の更新で、マイクのフィルターの作りが変わる可能性があります。そのときは、このプロジェクトが対応するまで切り替えが効かなくなるかもしれません。切り替えのスクリプトは WirePlumber の必須の部品なので、読み込めなくなるとヘッドセットの音が全部出なくなることもあります（「うまく動かないとき」を参照）。`./install.sh --uninstall` のあと再起動すれば、SteamOS の元の動きに戻ります
 - 非公式のプロジェクトで、Valve Corporation とは関係なく、承認も受けていません。Steam、Steam Frame、SteamVR、Steam Link は、米国およびその他の国における Valve Corporation の商標または登録商標です。対応製品を示す目的でのみ名前を使っています
 
@@ -166,4 +166,4 @@ gh release create v<バージョン> dist/frame-mic-tuner-<バージョン>.tar.
 
 ## ライセンス
 
-MIT。[LICENSE](LICENSE) を参照してください。同梱している OpenVR のヘッダー（`third_party/openvr/`）は Valve Corporation による BSD-3-Clause です。同梱物と使っているライブラリのライセンスは [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) に、変更履歴は [CHANGELOG.md](CHANGELOG.md) にあります。
+MIT。[LICENSE](LICENSE) を参照してください。同梱している OpenVR のヘッダー（`third_party/openvr/`）は Valve Corporation による BSD-3-Clause です。`vendor/frame-updater/` は作者自身の更新の仕組みのコピーで、このリポジトリのほかの部分と同じ MIT です。同梱物と使っているライブラリのライセンスは [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) に、変更履歴は [CHANGELOG.md](CHANGELOG.md) にあります。

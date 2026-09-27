@@ -12,6 +12,11 @@ Frame Mic Tuner's own code is MIT licensed (see [LICENSE](LICENSE)). That licens
 
 The BSD-3-Clause license does not allow using Valve's name to endorse or promote this project. Frame Mic Tuner is not affiliated with or endorsed by Valve Corporation.
 
+### Update helper (`vendor/frame-updater/`)
+
+- A copy of the author's own update helper, shared with the author's other Steam Frame apps. It is not third-party code
+- License: MIT, the same as this repository ([LICENSE](LICENSE))
+
 ## Not bundled: libraries used from the headset
 
 The build links dynamically against these libraries, which are already installed on SteamOS (or come with SteamVR). None of their code is included in this repository or in the release tar.gz: the prebuilt binary in a release (`frame-mic-tuner-<version>.tar.gz`) links to the copies already on the headset and ships with this file, [LICENSE](LICENSE) and [third_party/openvr/LICENSE](third_party/openvr/LICENSE). The licenses below were checked against the packages installed on a Steam Frame (SteamOS, `pacman -Qi`, 2026-09-27).
