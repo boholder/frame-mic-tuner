@@ -14,7 +14,7 @@ The BSD-3-Clause license does not allow using Valve's name to endorse or promote
 
 ## Not bundled: libraries used from the headset
 
-The build links dynamically against these libraries, which are already installed on SteamOS (or come with SteamVR). None of their code is included in this repository, and no prebuilt binaries are distributed. The licenses below were checked against the packages installed on a Steam Frame (SteamOS, `pacman -Qi`, 2026-09-27).
+The build links dynamically against these libraries, which are already installed on SteamOS (or come with SteamVR). None of their code is included in this repository or in the release tar.gz: the prebuilt binary in a release (`frame-mic-tuner-<version>.tar.gz`) links to the copies already on the headset and ships with this file, [LICENSE](LICENSE) and [third_party/openvr/LICENSE](third_party/openvr/LICENSE). The licenses below were checked against the packages installed on a Steam Frame (SteamOS, `pacman -Qi`, 2026-09-27).
 
 | Library | Provided by | License |
 |---|---|---|
@@ -32,4 +32,4 @@ The panel is drawn with the headset's own Noto Sans CJK (`/usr/share/fonts/noto-
 
 ## Programs called at run time
 
-The app runs `wpctl`, `pw-link` (both part of PipeWire / WirePlumber) and `systemctl` (systemd) as separate programs with fixed arguments. They are not linked or bundled.
+The app runs `wpctl`, `pw-link`, `pw-dump`, `pw-cli`, `pw-metadata` (part of PipeWire / WirePlumber) and `systemctl` (systemd) as separate programs with fixed arguments, and the bundled update script (`vendor/frame-updater/`, by the same author and covered by this repository's MIT license) runs `curl`, `tar`, `sha256sum` and `systemd-run`. None of them are linked or bundled.
