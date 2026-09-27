@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Install or update Frame Mic Tuner on a Steam Frame. Run it on the headset as the normal user, from the
-# cloned repository (no sudo needed):
+# Install or update Frame Mic Tuner on a Steam Frame. Run it on the headset as the normal user (no sudo
+# needed), either from a downloaded release (extract the tar.gz first) or from a cloned repository
+# (this builds it):
 #   ./install.sh                     build if needed, then install or update
 #   ./install.sh --autostart         same, and also start it together with SteamVR from now on
 #   ./install.sh --uninstall         remove the app and the WirePlumber script (reboot afterwards)
@@ -22,6 +23,15 @@ unit="frame-mic-tuner.service"
 app_config="$config_home/frame-mic-tuner"
 wp_script="$data_home/wireplumber/scripts/frame-mic-tracker.lua"
 wp_conf="$config_home/wireplumber/wireplumber.conf.d/90-frame-mic.conf"
+update_script="$data_home/frame-mic-tuner/frame-update.sh"
+
+# A release tar.gz has the built binary next to this script and no CMakeLists.txt; a git checkout has
+# the source and no binary here yet (or an outdated one from a previous build).
+if [[ -f "$here/CMakeLists.txt" ]]; then
+    from_source=1
+else
+    from_source=0
+fi
 
 usage() {
     sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//'
@@ -48,7 +58,8 @@ if [[ $uninstall -eq 1 ]]; then
     # Stop and disable the service, and quit an instance started from the dashboard (+), if any.
     systemctl --user disable --now "$unit" 2>/dev/null || true
     pkill -TERM -x frame-mic-tuner 2>/dev/null || true
-    rm -f "$bin" "$desktop" "$unit_dir/$unit" "$wp_script" "$wp_conf"
+    rm -f "$bin" "$desktop" "$unit_dir/$unit" "$wp_script" "$wp_conf" "$update_script"
+    rmdir "$(dirname "$update_script")" 2>/dev/null || true
     for size in 48 128 256; do
         rm -f "$icons/${size}x${size}/apps/frame-mic-tuner.png"
     done
@@ -80,22 +91,34 @@ if [[ "$(uname -m)" != "aarch64" ]]; then
     echo "This is for the Steam Frame (aarch64), but this machine is $(uname -m)." >&2
     exit 1
 fi
-for tool in cmake ninja g++ pkg-config wpctl systemctl; do
+tools="wpctl systemctl"
+if [[ $from_source -eq 1 ]]; then
+    tools="cmake ninja g++ pkg-config $tools"
+fi
+for tool in $tools; do
     if ! command -v "$tool" >/dev/null 2>&1; then
         echo "Missing tool: $tool" >&2
         exit 1
     fi
 done
 
-# Build (or bring an existing build up to date after a git pull)
 cd "$here"
-if [[ ! -f build/build.ninja ]]; then
-    cmake -G Ninja -S . -B build
+if [[ $from_source -eq 1 ]]; then
+    # Build (or bring an existing build up to date after a git pull)
+    if [[ ! -f build/build.ninja ]]; then
+        cmake -G Ninja -S . -B build
+    fi
+    ninja -C build
+    built_bin="build/frame-mic-tuner"
+else
+    # A release tar.gz: the binary is already built, right next to this script
+    built_bin="$here/frame-mic-tuner"
 fi
-ninja -C build
 
 # The app: binary, launcher entry for the dashboard's "+" list, icons, and the systemd unit
-install -Dm755 build/frame-mic-tuner "$bin"
+install -Dm755 "$built_bin" "$bin"
+# The shared update script (vendor/frame-updater), so the panel's version row can check and install updates
+install -Dm755 vendor/frame-updater/frame-update.sh "$update_script"
 for size in 48 128 256; do
     install -Dm644 "contrib/icons/frame-mic-tuner-$size.png" "$icons/${size}x${size}/apps/frame-mic-tuner.png"
 done
@@ -148,6 +171,14 @@ if [[ $autostart -eq 1 ]]; then
     systemctl --user enable "$unit"
 fi
 autostart_state="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
+
+# Remember this run's options, so an update started from the panel (which runs this same script with no
+# terminal to ask) reinstalls with the same options. Only --autostart matters here.
+mkdir -p "$app_config"
+: > "$app_config/install-args"
+if [[ $autostart -eq 1 ]]; then
+    echo --autostart >> "$app_config/install-args"
+fi
 
 cat <<EOF
 
