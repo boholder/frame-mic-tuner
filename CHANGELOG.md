@@ -1,23 +1,23 @@
-# Changelog
+# 更新日志
 
 ## 0.2.0 (2026-09-27)
 
-First release with a prebuilt package (`frame-mic-tuner-<version>.tar.gz` + `SHA256SUMS`, built by `scripts/package.sh`); `install.sh` now installs either from that tarball or, as before, by building from a source checkout.
+第一个带预构建发布包的版本（`frame-mic-tuner-<version>.tar.gz` + `SHA256SUMS`，由 `scripts/package.sh` 生成）；`install.sh` 现在既可以从这个 tar 包安装，也可以像以前一样从源码检出目录构建安装。
 
-- Updates: an update card above the language/autostart/quit row always shows the running version. It asks GitHub for a newer release about once a day (`update_check` setting, on by default), and **Check now** looks right away regardless, even with automatic checking off. When a newer version is available, **Update** downloads and installs it after you confirm once (the card asks again with **Cancel** / **Update**; checksum-verified against the release's `SHA256SUMS`; nothing changes if that check fails). Shared with the other Frame apps via `vendor/frame-updater/`.
-- The update card shows its state at a glance: an accent-colored border for a new version, the confirmation and a finished install, a red border with **Try again** / **Close** when an update failed, and red text (with **Check now**) when only the check failed.
-- `install.sh` now writes `~/.config/frame-mic-tuner/install-args` with the options your last install used (currently just `--autostart`, when passed), so an update started from the panel reinstalls the same way.
+- 更新：语言 / 自启动 / 退出这一行上方的更新提示条始终显示当前运行的版本。它大约每天向 GitHub 查询一次是否有新版本（`update_check` 设置，默认开启），而 **立即检查** 则会马上查询，即使自动检查已关闭也一样。有新版本时，**更新** 会在你确认一次后下载并安装（提示条会再用 **取消** / **更新** 问一次；用发布包的 `SHA256SUMS` 校验；校验失败则什么都不改动）。通过 `vendor/frame-updater/` 与其他 Frame 应用共用。
+- 更新提示条一眼就能看出状态：有新版本时是强调色边框，确认中和安装完成也是，更新失败时是红色边框并带 **重试** / **关闭**，只有检查失败时是红色文字（并带 **立即检查**）。
+- `install.sh` 现在会把上次安装使用的选项写入 `~/.config/frame-mic-tuner/install-args`（目前只有传入时的 `--autostart`），这样从面板发起的更新会以相同方式重新安装。
 
 ## 0.1.0 (2026-09-27)
 
-First release.
+第一个版本。
 
-- A "Mic" panel in the SteamVR dashboard that switches the Steam Frame's microphone filters, with two tabs ("Quick" and "Fine-tune"; it reopens on the last one): presets for how you listen ("Earphones / headphones" = echo cancellation off and noise suppression off, "Frame speakers" = echo cancellation on and noise suppression off; each card shows what it sets, and both cards turn grey when the settings match neither), plus separate "Fine-tune" switches for echo cancellation and noise suppression. Changes apply at once, even while the mic is in use, and are kept after a restart.
-- Noise filter strength sliders (Strictness = VAD threshold, Hold = VAD grace period) that apply live without restarting PipeWire. The values are saved and applied again whenever the app starts.
-- Shows whether the mic is in use and which filters the sound actually goes through, read from the live PipeWire links.
-- Voice check: record up to 10 seconds of what apps hear, keep the last 5 recordings in memory and play them back to compare settings. Nothing is written to disk.
-- Japanese and English UI. It starts in the Steam Frame's language (from Steam's language setting) and remembers your choice. Colors meet WCAG 2.x AA contrast (`--contrast-report` prints every pair).
-- Self-repair: if SteamVR loses the app's dashboard panel (for example when the dashboard restarts), the app notices within 3 seconds and recreates it.
-- Starts from the dashboard's "+" (launch a program) list. Launching it again while it runs opens its panel. Optional autostart with SteamVR, switched from the panel.
-- Includes the WirePlumber script (`contrib/wireplumber/`) that makes the filters switchable without restarting PipeWire.
-- `install.sh` builds and installs everything into the home directory, with no sudo and no PipeWire / WirePlumber restart.
+- SteamVR 仪表盘里的“Mic”面板，用于切换 Steam Frame 麦克风的滤镜，有两个标签页（“简单”和“精细调整”；会重新打开上次使用的那一个）：按收听方式的预设（“耳机 / 头戴式耳机” = 关闭回声消除和噪声抑制，“Frame 扬声器” = 打开回声消除、关闭噪声抑制；每张卡片都显示它会设置成什么，与两者都不一致时两张卡片都变灰），以及“精细调整”里回声消除和噪声抑制各自的开关。改动立即生效，即使麦克风正在使用中也是如此，重启后仍会保留。
+- 噪声抑制强度滑块（判定严格度 = VAD 阈值，保持时间 = VAD grace period），无需重启 PipeWire 即可实时生效。这些值会被保存，并在应用每次启动时重新施加。
+- 显示麦克风是否正在使用，以及声音实际经过了哪些滤镜，信息来自实时的 PipeWire 连接。
+- 声音检查：录制最多 10 秒应用听到的声音，在内存里保留最近 5 段录音并回放，用来对比不同设置。不会写入磁盘。
+- 日文和英文界面。它按 Steam Frame 的语言启动（来自 Steam 的语言设置）并记住你的选择。颜色符合 WCAG 2.x AA 对比度（`--contrast-report` 会输出每一对）。
+- 自修复：如果 SteamVR 丢失了应用的仪表盘面板（例如仪表盘重启时），应用会在 3 秒内发现并重新创建。
+- 从仪表盘的“+”（启动程序）列表启动。它已在运行时再次启动会打开它的面板。可选随 SteamVR 自启动，从面板切换。
+- 内置 WirePlumber 脚本（`contrib/wireplumber/`），让滤镜无需重启 PipeWire 即可切换。
+- `install.sh` 把所有内容构建并安装到主目录，不需要 sudo，也不重启 PipeWire / WirePlumber。

@@ -1,45 +1,45 @@
-name: Bug report / 不具合の報告
-description: Something doesn't work as expected. / 思ったとおりに動かないとき
+name: Bug report / 缺陷报告
+description: Something doesn't work as expected. / 无法按预期工作
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! English or Japanese is fine. / 報告ありがとう！英語でも日本語でも大丈夫です。
+        Thanks for reporting! English or Japanese is fine. / 感谢报告！英文或中文都可以。
         Logs may contain IP addresses on your home network. Feel free to replace them with `x.x.x.x`.
-        ログには家のネットワークの IP アドレスが入ることがあります。気になるときは `x.x.x.x` などに書き換えてください。
+        日志里可能含有你家网络的 IP 地址。介意的话可以替换成 `x.x.x.x`。
   - type: textarea
     id: what
     attributes:
-      label: What happened / 何が起きたか
-      description: What you did, what you expected, and what happened instead (a screenshot helps). / 何をしたら、どうなるはずが、どうなったか（スクリーンショットがあると助かります）
+      label: What happened / 发生了什么
+      description: What you did, what you expected, and what happened instead (a screenshot helps). / 你做了什么、本来应该怎样、实际变成了怎样（有截图更好）
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version / 版
-      description: Shown on the panel's update card, or run `~/.local/bin/frame-mic-tuner --version` on the Frame. / パネルの更新の帯、または Frame で `~/.local/bin/frame-mic-tuner --version`
+      label: Version / 版本
+      description: Shown on the panel's update card, or run `~/.local/bin/frame-mic-tuner --version` on the Frame. / 面板的更新提示条上会显示，或在 Frame 上运行 `~/.local/bin/frame-mic-tuner --version`
       placeholder: "0.2.0"
     validations:
       required: true
   - type: input
     id: app
     attributes:
-      label: App using the mic / 使っていたアプリ
-      description: The app that was using the microphone when it happened. / 問題が起きたときにマイクを使っていたアプリ
-      placeholder: "VRChat via Steam Link / Steam Link で VRChat"
+      label: App using the mic / 当时在用麦克风的应用
+      description: The app that was using the microphone when it happened. / 出现问题时正在使用麦克风的应用
+      placeholder: "VRChat via Steam Link / 通过 Steam Link 使用 VRChat"
   - type: textarea
     id: logs
     attributes:
-      label: Logs / ログ
+      label: Logs / 日志
       description: |
         Run this on the Frame (Desktop Mode terminal or ssh) soon after the problem, and paste the output.
-        問題が起きたあとすぐに Frame で（デスクトップモードの端末か ssh で）次を実行して、出てきた内容を貼ってください。
+        出现问题时尽快在 Frame 上（桌面模式终端或 ssh）运行下面的命令，然后把输出贴上来。
         `journalctl --user -u frame-mic-tuner --since "1 hour ago" --no-pager`
       render: shell
   - type: textarea
     id: extra
     attributes:
-      label: Anything else / そのほか
-      description: Echo cancellation and noise suppression on/off, the noise filter strength, and your settings if you changed any (`~/.config/frame-mic-tuner/config.json`). / エコー除去・ノイズ除去のオン・オフ、ノイズ除去の強さ、変えた設定（`~/.config/frame-mic-tuner/config.json`）など
+      label: Anything else / 其他补充
+      description: Echo cancellation and noise suppression on/off, the noise filter strength, and your settings if you changed any (`~/.config/frame-mic-tuner/config.json`). / 回声消除、噪声抑制的开 / 关，噪声抑制强度，以及改动过的设置（`~/.config/frame-mic-tuner/config.json`）等

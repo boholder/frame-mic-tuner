@@ -1,5 +1,5 @@
 [Unit]
-Description=Frame Mic Tuner (mic filter switch panel for Steam Frame)
+Description=Frame Mic Tuner（Steam Frame 的麦克风滤镜切换面板）
 # OpenVR のオーバーレイなので SteamVR が動いている間だけ動かす
 After=steamvr.service
 PartOf=steamvr.service

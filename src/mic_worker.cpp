@@ -134,7 +134,7 @@ void MicWorker::run() {
         const double vad = desiredVad_;
         const double grace = desiredGrace_;
         lock.unlock();
-        std::fprintf(stderr, "[ノイズ除去] ノード %d に保存した値をかけます（%.0f%% / %.0fms）\n", nodeId, vad, grace);
+        std::fprintf(stderr, "[噪声抑制] 对节点 %d 应用保存的值（%.0f%% / %.0fms）\n", nodeId, vad, grace);
         const bool ok = writeNsParams(nodeId, vad, grace);
         NsParams fresh = ok ? readNsParams() : params;
         lock.lock();

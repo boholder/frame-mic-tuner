@@ -1,63 +1,63 @@
 # Frame Mic Tuner
 
-A SteamVR dashboard panel for the Steam Frame that switches the headset microphone's echo cancellation and noise suppression while you're wearing it. Turn echo cancellation off when you use earphones, so quiet sounds like mouth noises come through clearly, and back on when you use the Frame's speakers, so their sound doesn't leak into your mic. A built-in voice check records a few seconds of what apps actually hear, so you can compare settings on the spot.
+一款用于 Steam Frame 的 SteamVR 仪表盘面板：戴着它就能切换头显麦克风的回声消除与噪声抑制。用耳机时关闭回声消除，让口部杂音之类的细微声音也能清晰地传进去；用 Frame 的扬声器时再打开回声消除，避免扬声器的声音串进麦克风。内置的“声音检查”会录下几秒钟应用实际听到的声音，让你当场对比不同设置。
 
-[日本語版はこちら](README.ja.md)
+[English](README.en.md) | [日本語](README.ja.md)
 
-| Quick (presets) | Fine-tune |
+| 简单（预设） | 精细调整 |
 |---|---|
-| ![The Quick tab](docs/v10-en-quick-speaker_2026-09-27_19-30-27.png) | ![The Fine-tune tab](docs/v10-en-fine_2026-09-27_19-30-27.png) |
+| ![简单标签页](docs/v10-zh-quick-speaker_2026-10-08_00-03-00.png) | ![精细调整标签页](docs/v10-zh-fine_2026-10-08_00-03-00.png) |
 
-### Demo video (with sound)
+### 演示视频（有声音）
 
-The Frame's speakers play a blizzard sound while the voice check records, and the two recordings are played back. 1st clip: noise suppression off (Speaker preset). 2nd clip: echo cancellation off too (Earphones preset). With echo cancellation off, the blizzard from the speakers leaks into the mic. The panel in the video is in Japanese.
+Frame 的扬声器播放暴风雪的声音，同时“声音检查”正在录音，然后回放这两段录音。第 1 段：关闭噪声抑制（扬声器预设）。第 2 段：连回声消除也关闭（耳机预设）。关闭回声消除后，扬声器里的暴风雪声会串进麦克风。视频中的面板是日文界面。
 
 https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
 
-## What it does
+## 功能
 
-- **Two tabs**: **Quick** has the presets, **Fine-tune** has the individual switches and sliders. The panel opens on the tab you used last.
-- **Presets for how you listen** (Quick tab, "How are you listening?"): one tap on **Earphones / headphones** sets echo cancellation off and noise suppression off; one tap on **Frame speakers** sets echo cancellation on and noise suppression off. Each card shows what it sets, and the card matching your current settings is highlighted. On the **Fine-tune** tab, echo cancellation and noise suppression also have their own on/off switches; when your settings match neither preset, both cards turn grey. Changes apply at once, even while the mic is in use, without cutting the sound, and they are kept after a restart.
-- **Noise filter strength**: two sliders tune the noise suppression on the spot: **Strictness** (how voice-like a sound must be to pass; lower lets more through) and **Hold** (how long sound keeps passing after you stop speaking).
-- **Signal path**: shows whether an app is using the mic and which filters the sound actually goes through (mic → EQ → echo cancellation → noise suppression → apps), read from the live PipeWire links.
-- **Voice check**: records up to 10 seconds of the final sound that apps receive, keeps the last 5 recordings, and plays them back through the Frame's speakers or your earphones. Each recording shows the time, length, the setting it was made with and a small waveform.
-- **Updates**: an update card above the bottom row always shows the running version. It asks GitHub for a newer release about once a day (turn this off with `update_check: false` in the settings file), and **Check now** asks right away regardless. When a newer version is available the card gets an accent-colored border and an **Update** button, which downloads and installs it after you confirm once.
-- Japanese and English UI. Text and controls meet WCAG 2.x AA contrast.
+- **两个标签页**：**简单** 里是预设，**精细调整** 里是逐项开关和滑块。打开面板时会显示你上次使用的标签页。
+- **按收听方式的预设**（简单标签页，“你在哪里听声音？”）：点一下 **耳机 / 头戴式耳机** 就把回声消除设为关、噪声抑制设为关；点一下 **Frame 扬声器** 则把回声消除设为开、噪声抑制设为关。每张卡片上都写明它会设置成什么，与当前设置一致的那张卡片会高亮。在 **精细调整** 标签页里，回声消除和噪声抑制也各有独立的开关；当你的设置与两个预设都不一致时，两张卡片都会变灰。改动立即生效，即使麦克风正在使用中也不会中断声音，重启后仍会保留。
+- **噪声抑制强度**：两个滑块可以当场调节噪声抑制：**判定严格度**（声音要多像人声才能通过；调低会让更多声音通过）和 **保持时间**（你停止说话后声音继续通过的时间）。
+- **信号链路**：显示是否有应用正在使用麦克风，以及声音实际经过了哪些滤镜（麦克风 → 音质校正 → 回声消除 → 噪声抑制 → 输出到应用），这些信息来自实时的 PipeWire 连接。
+- **声音检查**：录制最多 10 秒应用最终收到的声音，保留最近 5 段录音，并通过 Frame 的扬声器或你的耳机回放。每条录音都会显示时间、长度、录制时使用的设置，以及一小段波形。
+- **更新**：底部一行上方的更新提示条始终显示当前运行的版本。它大约每天向 GitHub 查询一次是否有新版本（可在设置文件里用 `update_check: false` 关闭），而 **立即检查** 则会马上查询，即使自动检查已关闭也一样。有新版本时，提示条会带上强调色边框并出现 **更新** 按钮，确认一次后它就会下载并安装。
+- 日文、英文和简体中文界面。文字与控件的对比度符合 WCAG 2.x AA。
 
-Why this is needed: while an app uses the mic, SteamOS runs it through EQ, echo cancellation and noise suppression. Echo cancellation strongly reduces small sounds, and noise suppression silences anything that doesn't sound like a voice. With earphones there is no speaker sound to cancel, so turning echo cancellation off lets more of your voice through.
+为什么需要它：当应用使用麦克风时，SteamOS 会让声音经过音质校正、回声消除和噪声抑制。回声消除会大幅削弱细微的声音，噪声抑制则会把听起来不像人声的声音变成静音。使用耳机时没有需要消除的扬声器声音，所以关闭回声消除能让你的声音更完整地传过去。
 
-## Requirements
+## 环境要求
 
-- A Steam Frame with Developer Mode on and SSH access (Settings > System > Developer Mode, then set a password under Developer). Choose a strong password: with SSH on, anyone on your network who knows it can log in to the headset.
-- SteamVR on the headset. Building from source (see below) needs cmake, ninja, g++, pkg-config and the cairo, FreeType, PipeWire and Vulkan development files, which already come with SteamOS; a downloaded release doesn't need any of them.
+- 一台已开启开发者模式并可通过 SSH 登录的 Steam Frame（设置 > 系统 > 开发者模式，然后在开发者选项里设置密码）。请设置强度高的密码：开启 SSH 后，同一网络中知道密码的人都能登录头显。
+- 头显上装有 SteamVR。从源码构建（见下文）需要 cmake、ninja、g++、pkg-config 以及 cairo、FreeType、PipeWire 和 Vulkan 的开发文件，这些 SteamOS 已经自带；下载的发布包则不需要其中任何一个。
 
-## Install
+## 安装
 
-### Easiest: install right inside the Frame (recommended)
+### 最简单：直接在 Frame 里安装（推荐）
 
-No PC needed. In Konsole on the Frame (+ on the bar at the bottom → the list of programs → Konsole), type this command, press Enter, and pick **3** (frame-mic-tuner) from the menu.
+不需要 PC。在 Frame 的 Konsole（底部栏的 + → 程序列表 → Konsole）里输入下面的命令，按回车，然后在菜单中选择 **3**（frame-mic-tuner）。
 
 ```sh
 curl -fsSL https://frame.sasaken1102s.net | sh
 ```
 
-- Do this once first: Steam Settings → System → turn on "Enable Developer Mode" (while it's off, Konsole doesn't show up in the + list).
-- The other apps (frameeyeosc, frame-jp-keyboard, frame-perf-overlay) can be installed from the same menu.
-- To update, run the same command and pick the same number again. To uninstall, use `u` in the menu.
-- Step-by-step guide and video: https://frame.sasaken1102s.net
-- To install without any prompts: `curl -fsSL https://frame.sasaken1102s.net | sh -s -- install mic`
+- 请先做这一步：Steam 设置 → 系统 → 打开“启用开发者模式”（关闭时 Konsole 不会出现在 + 列表里）。
+- 其他应用（frameeyeosc、frame-jp-keyboard、frame-perf-overlay）也可以从同一个菜单安装。
+- 要更新，运行同一条命令并再次选择同一个编号。要卸载，在菜单里使用 `u`。
+- 分步指南和视频：https://frame.sasaken1102s.net
+- 想不回答任何提示直接安装：`curl -fsSL https://frame.sasaken1102s.net | sh -s -- install mic`
 
-What gets installed and the options are the same as in "Install from a PC" below (it runs `install.sh` for you).
+安装的内容和选项与下面的“从 PC 安装”相同（它会替你运行 `install.sh`）。
 
-### Install from a PC
+### 从 PC 安装
 
-Download `frame-mic-tuner-<version>.tar.gz` from the [releases page](https://github.com/sasaken1102r/frame-mic-tuner/releases) and copy it to the headset, for example from your PC:
+从[发布页面](https://github.com/sasaken1102r/frame-mic-tuner/releases)下载 `frame-mic-tuner-<version>.tar.gz` 并复制到头显上，例如在你的 PC 上：
 
 ```sh
 scp frame-mic-tuner-*.tar.gz steamos@<headset-ip>:
 ```
 
-Then on the headset (`ssh steamos@<headset-ip>`):
+然后在头显上（`ssh steamos@<headset-ip>`）：
 
 ```sh
 tar xzf frame-mic-tuner-*.tar.gz
@@ -65,7 +65,7 @@ cd frame-mic-tuner
 ./install.sh
 ```
 
-Or build it from source instead (also on the headset):
+或者改为从源码构建（同样在头显上）：
 
 ```sh
 git clone https://github.com/sasaken1102r/frame-mic-tuner.git
@@ -73,115 +73,115 @@ cd frame-mic-tuner
 ./install.sh
 ```
 
-Then **restart the headset** once, so WirePlumber loads the switch script. Don't restart PipeWire or WirePlumber by hand while playing: SteamVR and Steam Link lose their sound. If that happens anyway, restart SteamVR on the headset (or reconnect Steam Link) and the sound comes back.
+然后**重启头显**一次，让 WirePlumber 加载切换脚本。游戏过程中不要手动重启 PipeWire 或 WirePlumber：SteamVR 和 Steam Link 会失去声音。如果还是发生了，在头显上重启 SteamVR（或重新连接 Steam Link），声音就会回来。
 
-No sudo is needed. `install.sh` puts everything into your home directory (`~/.local/bin`, `~/.local/share`, `~/.config`), so SteamOS updates don't remove it. To update by hand: download the new release and run its `install.sh` again (or, in a source checkout, `git pull && ./install.sh`) — or just press **Update** on the panel's update card once it shows a newer version is available. Version 0.1.0 has no update card, so going from 0.1.0 to 0.2.0 has to be done by hand this once.
+不需要 sudo。`install.sh` 会把所有内容放进你的主目录（`~/.local/bin`、`~/.local/share`、`~/.config`），所以 SteamOS 更新不会删除它。要手动更新：下载新的发布包并再次运行它的 `install.sh`（如果是在源码检出目录里，则是 `git pull && ./install.sh`）——或者等面板的更新提示条显示有新版本后直接按 **更新**。0.1.0 版没有更新提示条，所以从 0.1.0 升到 0.2.0 这一次只能手动完成。
 
-What gets installed:
+安装的内容：
 
-- the app, a launcher entry for the dashboard's **+** (launch a program) list, and its icons
-- a systemd user unit for starting it together with SteamVR (not enabled unless you turn it on; see below)
-- a WirePlumber script and config (`contrib/wireplumber/`) that replace SteamOS's microphone tracker with one whose echo cancellation and noise suppression can be switched. It behaves like the original otherwise.
-- the shared update script (`~/.local/share/frame-mic-tuner/frame-update.sh`, from `vendor/frame-updater/`), used by the panel's update card
+- 应用、仪表盘 **+**（启动程序）列表用的启动项，以及它的图标
+- 一个 systemd 用户单元，用于随 SteamVR 一起启动（除非你打开它，否则不会启用；见下文）
+- 一套 WirePlumber 脚本和配置（`contrib/wireplumber/`），它把 SteamOS 的麦克风追踪器替换成可以切换回声消除和噪声抑制的版本。除此之外的行为与原版一致。
+- 共享的更新脚本（`~/.local/share/frame-mic-tuner/frame-update.sh`，来自 `vendor/frame-updater/`），供面板的更新提示条使用
 
-To remove it: `./install.sh --uninstall`, then restart the headset to get SteamOS's original microphone behaviour back. Add `--purge` to also delete the app's settings and the saved switch values.
+要移除它：`./install.sh --uninstall`，然后重启头显，即可恢复 SteamOS 原本的麦克风行为。加上 `--purge` 还会删除应用的设置和保存的切换值。
 
-## Usage
+## 使用
 
-1. Open the SteamVR dashboard, press **+** (launch a program) and choose **Frame Mic Tuner**. A **Mic** icon appears in the row at the bottom of the dashboard; select it to open the panel. Launching it again while it's running just opens the panel.
-2. On the **Quick** tab, under **How are you listening?**, choose **Earphones / headphones** or **Frame speakers**. These are presets: they set echo cancellation and noise suppression to the recommended values (the chips on each card show them); the noise filter strength sliders stay as they are. For finer control, switch to the **Fine-tune** tab. If your settings then match neither preset, both cards on the Quick tab turn grey and it says "Using fine-tuned settings", with an **Open Fine-tune →** button; tap a card to go back to that preset. Noise filter cuts quiet sounds (mouth noises and the like) when on.
-   - On the **Fine-tune** tab, drag the **Strictness** and **Hold** sliders (or use − / ＋) to tune the noise filter. SteamOS's defaults are 23% and 500 ms; **Default** brings them back. The sliders only have an effect while Noise filter is on.
-   - SteamOS resets these two values whenever its audio restarts (for example after a reboot). The app saves your values and applies them again each time it starts, so they only stick while the app is running. Turn on **Start with SteamVR** if you want them all the time. Without the app, SteamOS's defaults are used.
-3. **Voice check**: press **Record**, say something, and press **Stop** (it stops by itself after 10 seconds). Switch the setting, record again, and use ▶ on each row to compare. Recording stops as soon as you close the panel.
-4. **Start with SteamVR** (bottom row): turn it on to have the app start automatically with SteamVR from now on. You can also enable it with `./install.sh --autostart`.
-5. **Language**: the panel starts in your Steam Frame's language (Japanese if Steam is set to Japanese, English otherwise). Change it with **日本語 / English** at the bottom left; your choice is saved.
-6. **Quit**: press it twice, or hover over the Mic icon in the dashboard and choose Close.
-7. **Updates** (the card above the bottom row): it shows the running version, for example "Up to date (0.2.0)". **Check now** looks for a newer release right away (this works even if the automatic daily check is off).
-   - When one is available, the card gets an accent-colored border and says "Version X is available". Press **Update**; the card asks "Update to X?" with **Cancel** and **Update** (the question goes away by itself after 3 seconds). Press **Update** again to start. The card then shows the progress ("Updating: Downloading", and so on).
-   - The panel stays open and keeps running the old version while it installs. When the card says "X is installed. Quit and start the app again to use it", press **Quit** twice and start the app again from **+** (or restart SteamVR), then **Close** the message if it's still shown. If the new version changed the WirePlumber script, restart the headset too (the card reminds you, and the update log says whether it changed).
-   - If the card says "This version can't be installed from here" (the release has no `SHA256SUMS` or no package), update by hand as described under Install; the card shows the release page.
-   - If the update fails, the card gets a red border, says why and that nothing was changed, and offers **Try again** and **Close**. If only the check fails (for example with no network), just the text turns red and **Check now** stays.
+1. 打开 SteamVR 仪表盘，按 **+**（启动程序）并选择 **Frame Mic Tuner**。仪表盘底部一行会出现一个 **Mic** 图标；选中它即可打开面板。它已在运行时再次启动，只会打开面板。
+2. 在 **简单** 标签页的 **你在哪里听声音？** 下面，选择 **耳机 / 头戴式耳机** 或 **Frame 扬声器**。这些是预设：它们把回声消除和噪声抑制设为推荐值（每张卡片上的标签会显示具体值）；噪声抑制强度滑块保持不变。想要更细的控制，就切到 **精细调整** 标签页。如果你的设置之后与两个预设都不一致，简单标签页上的两张卡片都会变灰并显示“当前使用精细调整的设置”，旁边有一个 **查看精细调整 →** 按钮；点某张卡片即可回到该预设。噪声抑制开启时会削掉细微的声音（口部杂音之类）。
+   - 在 **精细调整** 标签页里，拖动 **判定严格度** 和 **保持时间** 滑块（或使用 − / ＋）来调节噪声抑制。SteamOS 的默认值是 23% 和 500 ms；**恢复默认** 可以把它们调回来。这两个滑块只在噪声抑制开启时才有效。
+   - 每当 SteamOS 的音频重新启动（例如重启之后），它都会重置这两个值。应用会保存你的值，并在每次启动时重新应用，所以它们只在应用运行期间有效。想让它们一直生效，就打开 **随 SteamVR 启动**。没有这个应用时，使用的是 SteamOS 的默认值。
+3. **声音检查**：按 **录音**，说点什么，再按 **停止**（10 秒后它会自动停止）。切换设置，再录一次，然后用每行上的 ▶ 对比。关闭面板后录音会立即停止。
+4. **随 SteamVR 启动**（底部一行）：打开它，应用从此就会随 SteamVR 自动启动。也可以用 `./install.sh --autostart` 启用。
+5. **语言**：面板会以你的 Steam Frame 的语言启动（Steam 设为简体中文或繁体中文时是简体中文，日文时是日文，英文时是英文，其他语言默认简体中文）。用左下角的 **日本語 / English / 简体中文** 切换；你的选择会被保存。
+6. **退出**：按两次，或者在仪表盘里悬停在 Mic 图标上并选择“关闭”。
+7. **更新**（底部一行上方的提示条）：它显示当前运行的版本，例如“已是最新版本（0.2.0）”。**立即检查** 会马上查找新版本（即使自动每日检查已关闭，这也有效）。
+   - 有新版本时，提示条会带上强调色边框并显示“有新版本 X 可用”。按 **更新**；提示条会问“要更新到 X 吗？”，并有 **取消** 和 **更新**（这个问题会在 3 秒后自行消失）。再按一次 **更新** 就开始。随后提示条会显示进度（“更新中：下载中”等等）。
+   - 安装期间面板会保持打开并继续运行旧版本。当提示条显示“已安装 X。退出并重新启动，即可使用新版本”时，按两次 **退出**，然后从 **+** 重新启动应用（或重启 SteamVR），如果那条消息还在，就按 **关闭**。如果新版本改动了 WirePlumber 脚本，还要重启头显（提示条会提醒你，更新日志里也会写明是否改动过）。
+   - 如果提示条显示“此版本无法从这里安装。请到 GitHub 手动更新”（该发布包没有 `SHA256SUMS` 或没有可安装的文件），请按“安装”一节手动更新；提示条会显示发布页面。
+   - 如果更新失败，提示条会带上红色边框，说明原因并说明没有改动任何内容，同时提供 **重试** 和 **关闭**。如果只是检查失败（例如没有网络），则只有文字变红，**立即检查** 仍然保留。
 
-The settings are also available from SSH:
+这些设置也可以通过 SSH 使用：
 
 ```sh
-wpctl settings --save frame-mic.echo-cancel false        # earphones: echo cancellation off
-wpctl settings --save frame-mic.echo-cancel true         # speaker: echo cancellation on (default)
-wpctl settings --save frame-mic.noise-suppression true   # noise suppression on (default: off)
-~/.local/bin/frame-mic-tuner --print                     # current values, mic in use, signal path
+wpctl settings --save frame-mic.echo-cancel false        # 耳机：关闭回声消除
+wpctl settings --save frame-mic.echo-cancel true         # 扬声器：打开回声消除（默认）
+wpctl settings --save frame-mic.noise-suppression true   # 打开噪声抑制（默认：关）
+~/.local/bin/frame-mic-tuner --print                     # 当前值、麦克风是否在用、信号链路
 ```
 
-## Troubleshooting
+## 疑难解答
 
-- **The panel says "Mic switch is not installed"**: the WirePlumber script isn't loaded yet. Run `./install.sh`, then restart the headset.
-- **Autostart buttons are grey**: the systemd unit isn't installed. Run `./install.sh`.
-- **Recordings are silent, or others can't hear you at all**: check the microphone volume in the headset's mixer (read only; this is safe):
+- **面板显示“切换组件尚未安装”**：WirePlumber 脚本还没有加载。运行 `./install.sh`，然后重启头显。
+- **自启动按钮是灰色的**：systemd 单元没有安装。运行 `./install.sh`。
+- **录音是静音的，或者别人完全听不到你**：检查头显混音器里的麦克风音量（只读，这是安全的）：
   ```sh
   amixer -c 0 cget name='VA_DEC0 Volume'
   amixer -c 0 cget name='VA_DEC1 Volume'
   ```
-  Both should say `values=96`. If they say `0`, the microphone is effectively muted. This app never touches the mixer, but it has been seen dropping to 0 on its own. To set them back (at your own risk; note the current values and the `max=` shown by `cget` first, and use the value your headset normally has, 96 on ours):
+  两者都应显示 `values=96`。如果显示 `0`，麦克风实际上处于静音状态。这个应用从不改动混音器，但确实见过它自己掉到 0。要调回去（风险自负；先记下当前值和 `cget` 显示的 `max=`，并使用你头显通常的值，我们这边是 96）：
   ```sh
   amixer -c 0 cset name='VA_DEC0 Volume' 96
   amixer -c 0 cset name='VA_DEC1 Volume' 96
   ```
-- **No sound at all in SteamVR or Steam Link after PipeWire or WirePlumber was restarted**: restart SteamVR on the headset (or reconnect Steam Link). The sound comes back.
-- **No sound at all after a SteamOS update**: the switch script is loaded as a required part of WirePlumber, so if an update breaks it, WirePlumber may stop and take all sound with it. Remove the config over SSH and restart the headset (or run `./install.sh --uninstall` and restart):
+- **重启 PipeWire 或 WirePlumber 后 SteamVR 或 Steam Link 完全没有声音**：在头显上重启 SteamVR（或重新连接 Steam Link）。声音就会回来。
+- **SteamOS 更新后完全没有声音**：切换脚本是作为 WirePlumber 的必需部分加载的，所以如果更新把它弄坏了，WirePlumber 可能会停止运行并带走所有声音。通过 SSH 删除该配置并重启头显（或者运行 `./install.sh --uninstall` 再重启）：
   ```sh
   rm ~/.config/wireplumber/wireplumber.conf.d/90-frame-mic.conf
   ```
-- **"In use" while you're not talking in any app**: any app that records audio counts, including screen or audio recorders. SteamOS turns the filters on for all of them.
-- **Frame Mic Tuner is missing from the + list**: restart the headset once after installing.
-- **The Mic icon is missing from the dashboard although the app is running**: SteamVR can lose the app's dashboard panel (for example when the dashboard itself restarts). The app checks every 3 seconds and recreates the panel by itself, so wait a few seconds and open the dashboard again. Launching the app again from **+** also checks and recreates it before opening the panel. If it still doesn't come back, the log (`journalctl --user -u frame-mic-tuner -f` when it runs as a service) says why (the log is in Japanese; look for lines starting with "自己修復", which means "self-repair"); quitting the app and starting it again fixes it too.
-- Logs: `journalctl --user -u frame-mic-tuner -f` when it runs as a service. To see the log of a manual run, quit the app and start `~/.local/bin/frame-mic-tuner` from SSH.
-- **The update check fails, or "Update" doesn't do anything**: `~/.cache/frame-mic-tuner/update.log` has the details, and `~/.cache/frame-mic-tuner/update-check.json` / `update-state.json` the last raw answer. `update_check: false` in the settings file turns off the automatic daily check without removing the update card or its **Check now** / **Update** buttons.
+- **你并没有在任何应用里说话却显示“使用中”**：任何录制音频的应用都会被算进去，包括录屏或录音工具。SteamOS 会为它们全部打开滤镜。
+- **+ 列表里没有 Frame Mic Tuner**：安装后重启一次头显。
+- **应用在运行，但仪表盘里没有 Mic 图标**：SteamVR 可能会丢失应用的仪表盘面板（例如仪表盘自身重启时）。应用每 3 秒检查一次并自行重建面板，所以等几秒钟再打开仪表盘。从 **+** 再次启动应用也会在打开面板前检查并重建。如果还是没有回来，日志（作为服务运行时是 `journalctl --user -u frame-mic-tuner -f`）会说明原因（找以“自修复”开头的行）；退出应用再启动也能修好。
+- 日志：作为服务运行时是 `journalctl --user -u frame-mic-tuner -f`。要看手动运行的日志，请退出应用，然后从 SSH 启动 `~/.local/bin/frame-mic-tuner`。
+- **更新检查失败，或者“更新”没有反应**：`~/.cache/frame-mic-tuner/update.log` 里有详细信息，`~/.cache/frame-mic-tuner/update-check.json` / `update-state.json` 里是上一次的原始应答。设置文件里的 `update_check: false` 会关闭自动每日检查，但不会移除更新提示条及其 **立即检查** / **更新** 按钮。
 
-## Privacy
+## 隐私
 
-- Voice check recordings are kept only in the app's memory. They are never written to disk or to logs, and never sent anywhere. They are gone when the app quits.
-- While it records, the panel shows "● Recording". Recording stops as soon as you close the panel.
-- The microphone may pick up the voices of people around you. Keep that in mind before recording.
-- To pick the default language it reads the `language` line of Steam's `~/.steam/registry.vdf` once at startup (read only).
-- The app has no telemetry. Its only network use is the update check:
-  - **When**: while the app runs, it asks GitHub at startup if its last answer is more than 24 hours old, and after that about once a day (an hour later after a failed check). **Check now** asks right away. Set `update_check: false` in the settings file to stop the automatic check; then it only connects when you press **Check now** or **Update**.
-  - **What it sends**: one HTTPS request for this project's latest release to `api.github.com`, with no account, ID or usage data. Like any web request, GitHub sees your IP address and the User-Agent of `curl`. Your recordings, settings and logs are never sent.
-  - **What it receives**: the latest release's version number, its page and the names and links of its files. The answer is kept in `~/.cache/frame-mic-tuner/update-check.json`.
-  - **Only when you press Update and confirm**, it also downloads that release's package and `SHA256SUMS` from `github.com` / `*.githubusercontent.com`.
-- The only files it writes are `~/.config/frame-mic-tuner/config.json` (UI language, last tab, noise filter strength and the update-check setting), `~/.config/frame-mic-tuner/install-args` (the options your last `./install.sh` run used, so an update reinstalls the same way), `~/.cache/frame-mic-tuner/` (the update check's cached answer, the update's log and state, a lock folder `update.lock/` while an update runs, and a work folder whose download is deleted after each update), and a lock file in `$XDG_RUNTIME_DIR` that holds its process ID (to stop a second copy from starting). An update also rewrites the installed files, as running `./install.sh` does.
+- 声音检查的录音只保存在应用的内存里。它们绝不会写入磁盘或日志，也不会被发送到任何地方。应用退出时它们就消失了。
+- 录音期间，面板会显示“● 录音中”。关闭面板后录音会立即停止。
+- 麦克风可能会录到周围人的说话声。录音前请留意这一点。
+- 为了选择默认语言，它会在启动时读取一次 Steam 的 `~/.steam/registry.vdf` 里的 `language` 行（只读）。
+- 应用没有遥测。它唯一的网络用途是更新检查：
+  - **何时**：应用运行期间，如果上次的应答超过 24 小时，它会在启动时询问 GitHub，之后大约每天一次（检查失败后过一个小时）。**立即检查** 会马上询问。在设置文件里把 `update_check: false` 设为关闭自动检查；之后只有你按 **立即检查** 或 **更新** 时它才会联网。
+  - **发送什么**：向 `api.github.com` 发一个 HTTPS 请求，查询本项目的最新发布，不带账号、ID 或使用数据。和任何网页请求一样，GitHub 会看到你的 IP 地址和 `curl` 的 User-Agent。你的录音、设置和日志绝不会被发送。
+  - **收到什么**：最新发布的版本号、它的页面，以及其中文件的名称和链接。应答保存在 `~/.cache/frame-mic-tuner/update-check.json`。
+  - **只有在你按下更新并确认时**，它才会从 `github.com` / `*.githubusercontent.com` 下载该发布包和 `SHA256SUMS`。
+- 它写入的文件只有 `~/.config/frame-mic-tuner/config.json`（界面语言、上次的标签页、噪声抑制强度和更新检查设置）、`~/.config/frame-mic-tuner/install-args`（你上次运行 `./install.sh` 时用的选项，这样更新时会以相同方式重新安装）、`~/.cache/frame-mic-tuner/`（更新检查的缓存应答、更新的日志和状态、更新运行期间的锁文件夹 `update.lock/`，以及一个工作文件夹，其中的下载内容会在每次更新后删除），还有 `$XDG_RUNTIME_DIR` 里一个保存其进程 ID 的锁文件（用来阻止第二个副本启动）。更新还会重写已安装的文件，就像运行 `./install.sh` 一样。
 
-## Disclaimer
+## 免责声明
 
-- Use at your own risk. This project was made with Claude Opus 5.5, an AI model. I've tested it on my own Steam Frame, but I can't take responsibility for what happens on yours, so please read the code and check it yourself before you run it. The software comes with no warranty (see [LICENSE](LICENSE)).
-- What it changes: the two WirePlumber settings `frame-mic.echo-cancel` and `frame-mic.noise-suppression` (through `wpctl settings`), the noise suppressor's two live parameters "VAD Threshold (%)" and "VAD Grace Period (ms)" (through `pw-cli set-param`; SteamOS puts its defaults back when its audio restarts), and WirePlumber's configuration in your home directory, where it replaces SteamOS's microphone tracker with its own script. Apart from that it only enables or disables its own systemd user unit when you ask it to, and, when you update from the panel, runs the new release's `install.sh` in a short-lived systemd user unit (`frame-mic-tuner-update`).
-- It never restarts PipeWire or WirePlumber, never writes to the ALSA mixer (amixer), never touches `/etc` and never needs root.
-- **Update**: downloads the latest release's `.tar.gz` and `SHA256SUMS` from GitHub over HTTPS (only to GitHub's own hosts), checks the hash, and only then extracts it into `~/.cache/frame-mic-tuner/update/` and runs its `install.sh` with the same options as your last install. It refuses a release with no `SHA256SUMS`, a hash mismatch, or an archive containing an absolute path, `..`, a link or a special file; nothing is changed if any of that happens. The download is deleted afterwards. `SHA256SUMS` is a checksum published in the same release, not a signature: it catches a corrupted or incomplete download, but not a release that was replaced on GitHub. The running app isn't restarted: quit it and start it again to use the new version. See [frame-update.sh's own notes](vendor/frame-updater/frame-update.sh) for the exact steps.
-- A SteamOS update can change how the microphone filters are set up. If that happens, the switches may stop working until this project is updated. Because the switch script is a required part of WirePlumber, a script that no longer loads can also stop all sound on the headset (see Troubleshooting). `./install.sh --uninstall` and a restart bring back SteamOS's original behaviour.
-- This is an unofficial project with no affiliation with or endorsement from Valve Corporation. Steam, Steam Frame, SteamVR and Steam Link are trademarks and/or registered trademarks of Valve Corporation in the U.S. and/or other countries. The names are used here only to say what this works with.
+- 使用风险自负。本项目是用 AI 模型 Claude Opus 5.5 制作的。我在自己的 Steam Frame 上测试过，但无法为你的设备上发生的事情负责，所以请在运行前自行阅读并检查代码。本软件不提供任何担保（见 [LICENSE](LICENSE)）。
+- 它改动的内容：两个 WirePlumber 设置 `frame-mic.echo-cancel` 和 `frame-mic.noise-suppression`（通过 `wpctl settings`）、噪声抑制器的两个实时参数 “VAD Threshold (%)” 和 “VAD Grace Period (ms)”（通过 `pw-cli set-param`；SteamOS 的音频重启时会恢复它的默认值），以及你主目录里 WirePlumber 的配置——它用自己的脚本替换了 SteamOS 的麦克风追踪器。除此之外，它只会在你要求时启用或禁用自身的 systemd 用户单元，以及在你从面板更新时，在一个短命的 systemd 用户单元（`frame-mic-tuner-update`）里运行新版本的 `install.sh`。
+- 它从不重启 PipeWire 或 WirePlumber，从不写入 ALSA 混音器（amixer），从不接触 `/etc`，也从不需要 root。
+- **更新**：通过 HTTPS 从 GitHub 下载最新发布包的 `.tar.gz` 和 `SHA256SUMS`（只连接 GitHub 自己的主机），校验哈希，只有通过后才解压到 `~/.cache/frame-mic-tuner/update/`，并用与上次安装相同的选项运行它的 `install.sh`。它会拒绝没有 `SHA256SUMS` 的发布包、哈希不匹配的发布包，以及包含绝对路径、`..`、链接或特殊文件的归档；出现任何这类情况都不会改动任何内容。下载内容之后会被删除。`SHA256SUMS` 是随同一发布一起提供的校验和，不是签名：它能发现下载损坏或不完整，但发现不了在 GitHub 上被替换过的发布。运行中的应用不会被重启：退出并重新启动它才能用上新版本。确切的步骤见 [frame-update.sh 自身的说明](vendor/frame-updater/frame-update.sh)。
+- SteamOS 更新可能会改变麦克风滤镜的设置方式。如果发生这种情况，这些开关可能会失效，直到本项目跟进更新。由于切换脚本是 WirePlumber 的必需部分，一个不再能加载的脚本也可能让头显完全没声音（见“疑难解答”）。`./install.sh --uninstall` 加上重启即可恢复 SteamOS 原本的行为。
+- 这是一个非官方项目，与 Valve Corporation 无任何隶属关系，也未获得其认可。Steam、Steam Frame、SteamVR 和 Steam Link 是 Valve Corporation 在美国和/或其他国家的商标和/或注册商标。这里使用这些名称只是为了说明本项目的适用范围。
 
-## Development
+## 开发
 
-Build on the headset:
+在头显上构建：
 
 ```sh
 cmake -G Ninja -S . -B build && ninja -C build
 ./build/frame-mic-tuner --help
-scripts/package.sh   # release build: dist/frame-mic-tuner-<version>.tar.gz, dist/SHA256SUMS
+scripts/package.sh   # 发布构建：dist/frame-mic-tuner-<version>.tar.gz、dist/SHA256SUMS
 ```
 
-Useful options that don't need SteamVR: `--print`, `--set-ns-vad N` / `--set-ns-grace N` (apply a noise filter strength right away without saving it), `--dump-png PATH` (render the panel, with `--fake-*` states for screenshots, including `--fake-update STATE` and `--preview-update-confirm` for the update card), `--test-record 3` (record 3 seconds and play them back), `--contrast-report` (WCAG contrast of every color pair) and `--version`. Design notes, how the switch script works and test results are in [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) (Japanese).
+不需要 SteamVR 的实用选项：`--print`、`--set-ns-vad N` / `--set-ns-grace N`（立即应用噪声抑制强度而不保存）、`--dump-png PATH`（渲染面板，配合 `--fake-*` 状态用于截图，包括更新提示条用的 `--fake-update STATE` 和 `--preview-update-confirm`）、`--test-record 3`（录 3 秒并回放）、`--contrast-report`（每一对颜色的 WCAG 对比度）以及 `--version`。设计说明、切换脚本的工作原理和测试结果都在 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)（简体中文；日文原文是 [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md)）。
 
-The update mechanism (`vendor/frame-updater/`) is copied from a shared, private repository; don't edit the copy by hand — `sh vendor/frame-updater/verify.sh` (run by `scripts/package.sh`) checks that it wasn't.
+更新机制（`vendor/frame-updater/`）复制自一个共享的私有仓库；不要手动改动这份副本——`sh vendor/frame-updater/verify.sh`（由 `scripts/package.sh` 运行）会检查它没有被改过。
 
-### Releasing
+### 发布
 
-`scripts/package.sh` runs `vendor/frame-updater/verify.sh`, builds a Release binary, and writes `dist/frame-mic-tuner-<version>.tar.gz` and `dist/SHA256SUMS` (required for the panel's **Update** button to accept the release). It prints the command that creates the GitHub release (and its tag) with both files attached; write the release notes in a file outside the repository first:
+`scripts/package.sh` 会运行 `vendor/frame-updater/verify.sh`，构建 Release 版可执行文件，并写出 `dist/frame-mic-tuner-<version>.tar.gz` 和 `dist/SHA256SUMS`（面板的 **更新** 按钮需要它才会接受该发布）。它会打印创建 GitHub 发布（及其标签）并把两个文件作为附件的命令；请先把发布说明写在仓库之外的文件里：
 
 ```sh
 gh release create v<version> dist/frame-mic-tuner-<version>.tar.gz dist/SHA256SUMS --title v<version> --notes-file <release-notes-file>
 ```
 
-Don't make it a draft or a prerelease: the panel looks at GitHub's latest release, which skips both.
+不要把它设为草稿或预发布：面板查看的是 GitHub 的最新发布，而这两种都会被跳过。
 
-## License
+## 许可证
 
-MIT. See [LICENSE](LICENSE). The bundled OpenVR header (`third_party/openvr/`) is BSD-3-Clause by Valve Corporation. `vendor/frame-updater/` is a copy of the author's own update helper and is MIT like the rest of this repository. Licenses of the bundled header and the libraries it uses are listed in [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+MIT。见 [LICENSE](LICENSE)。随附的 OpenVR 头文件（`third_party/openvr/`）是 Valve Corporation 的 BSD-3-Clause。`vendor/frame-updater/` 是作者自己的更新助手的副本，与本仓库其余部分一样是 MIT。随附头文件及其使用的库的许可证列在 [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)。改动列在 [CHANGELOG.md](CHANGELOG.md)。

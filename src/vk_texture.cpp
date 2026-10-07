@@ -43,7 +43,7 @@ std::vector<std::string> filterSupported(const std::vector<std::string>& wanted,
         if (found) {
             result.push_back(name);
         } else {
-            std::fprintf(stderr, "[Vulkan] %s 拡張 %s は使えないので外します\n", kind, name.c_str());
+            std::fprintf(stderr, "[Vulkan] %s 扩展 %s 不可用，将移除\n", kind, name.c_str());
         }
     }
     return result;
@@ -67,7 +67,7 @@ std::vector<const char*> toPointers(const std::vector<std::string>& names) {
  * @return 理由の文字列
  */
 std::string vkError(const char* what, VkResult result) {
-    return std::string(what) + " に失敗 (VkResult " + std::to_string(static_cast<int>(result)) + ")";
+    return std::string(what) + " 失败 (VkResult " + std::to_string(static_cast<int>(result)) + ")";
 }
 
 }  // namespace
@@ -86,7 +86,7 @@ bool VulkanContext::init(std::string& error) {
     vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr);
     std::vector<VkExtensionProperties> instanceExts(count);
     vkEnumerateInstanceExtensionProperties(nullptr, &count, instanceExts.data());
-    const std::vector<std::string> instanceNames = filterSupported(splitNames(buffer), instanceExts, "インスタンス");
+    const std::vector<std::string> instanceNames = filterSupported(splitNames(buffer), instanceExts, "实例");
     const std::vector<const char*> instancePtrs = toPointers(instanceNames);
 
     VkApplicationInfo app {};
@@ -116,7 +116,7 @@ bool VulkanContext::init(std::string& error) {
         physicalDevice_ = first;
     }
     if (physicalDevice_ == VK_NULL_HANDLE) {
-        error = "Vulkan の GPU が見つかりません";
+        error = "未找到 Vulkan 的 GPU";
         destroy();
         return false;
     }
@@ -135,7 +135,7 @@ bool VulkanContext::init(std::string& error) {
         }
     }
     if (!foundFamily) {
-        error = "グラフィックス用のキューがありません";
+        error = "没有可用的图形队列";
         destroy();
         return false;
     }
@@ -148,7 +148,7 @@ bool VulkanContext::init(std::string& error) {
     vkEnumerateDeviceExtensionProperties(physicalDevice_, nullptr, &count, nullptr);
     std::vector<VkExtensionProperties> deviceExts(count);
     vkEnumerateDeviceExtensionProperties(physicalDevice_, nullptr, &count, deviceExts.data());
-    const std::vector<std::string> deviceNames = filterSupported(splitNames(buffer), deviceExts, "デバイス");
+    const std::vector<std::string> deviceNames = filterSupported(splitNames(buffer), deviceExts, "设备");
     const std::vector<const char*> devicePtrs = toPointers(deviceNames);
 
     const float priority = 1.0f;
@@ -186,7 +186,7 @@ bool VulkanContext::init(std::string& error) {
 
     VkPhysicalDeviceProperties props {};
     vkGetPhysicalDeviceProperties(physicalDevice_, &props);
-    std::fprintf(stderr, "[Vulkan] %s を使います（インスタンス拡張 %zu 個、デバイス拡張 %zu 個）\n", props.deviceName,
+    std::fprintf(stderr, "[Vulkan] 使用 %s（实例扩展 %zu 个，设备扩展 %zu 个）\n", props.deviceName,
                  instanceNames.size(), deviceNames.size());
     return true;
 }
@@ -344,7 +344,7 @@ void OverlayTexture::destroy() {
 
 bool OverlayTexture::update(uint64_t overlayHandle, const uint8_t* rgba, std::string& error) {
     if (!ready()) {
-        error = "テクスチャが作られていません";
+        error = "纹理尚未创建";
         return false;
     }
     const int index = next_;

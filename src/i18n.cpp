@@ -29,25 +29,36 @@ std::string steamLanguage() {
 }
 
 /**
- * ロケールの環境変数（LC_ALL → LC_MESSAGES → LANG の順で最初に空でないもの）が日本語か。
- * @return 日本語なら true
+ * 取第一个非空的语言环境变量（LC_ALL → LC_MESSAGES → LANG 的顺序）。
+ * @return 值。哪个都没有则为空
  */
-bool localeIsJapanese() {
+std::string localeName() {
     for (const char* name : {"LC_ALL", "LC_MESSAGES", "LANG"}) {
         const char* value = std::getenv(name);
-        if (value != nullptr && value[0] != '\0') return std::string(value).rfind("ja", 0) == 0;
+        if (value != nullptr && value[0] != '\0') return value;
     }
-    return false;
+    return "";
 }
 
 /**
- * システム言語を調べる（systemLanguage の本体）。
- * @return 言語
+ * 系统语言（systemLanguage 的本体）。
+ * 中文（zh）→ 简体中文，日文（ja）→ 日文，英文（en）→ 英文；
+ * 其他语言以及识别不出来时，都用本分支的默认语言（简体中文）。
+ * @return 语言
  */
 Language detectSystemLanguage() {
     const std::string steam = steamLanguage();
-    if (!steam.empty()) return steam == "japanese" ? Language::Ja : Language::En;
-    return localeIsJapanese() ? Language::Ja : Language::En;
+    if (!steam.empty()) {
+        if (steam == "japanese") return Language::Ja;
+        if (steam == "english") return Language::En;
+        if (steam == "schinese" || steam == "tchinese" || steam == "chinese") return Language::Zh;
+        return Language::Zh;  // 本分支的默认语言
+    }
+    const std::string locale = localeName();
+    if (locale.rfind("ja", 0) == 0) return Language::Ja;
+    if (locale.rfind("en", 0) == 0) return Language::En;
+    if (locale.rfind("zh", 0) == 0) return Language::Zh;
+    return Language::Zh;  // 本分支的默认语言
 }
 
 const UiText kJapanese = {
@@ -158,10 +169,66 @@ const UiText kEnglish = {
     "Something went wrong",
 };
 
+// 简体中文（本分支新增）。字段的顺序和个数必须与 kJapanese / kEnglish 完全一致，不能增减。
+const UiText kChinese = {
+    "麦克风", "使用中", "未使用", "加载中…",
+    "耳机", "扬声器",
+    "细小的声音也能传到", "消除扬声器串入麦克风的声音",
+    "回声消除", "消除扬声器的声音",
+    "噪声抑制", "连嘴部等细小声音也一并消除",
+    "开", "关",
+    "信号链路", "麦克风", "音质校正", "回声消除", "噪声抑制", "输出到应用",
+    "未在使用，处理已暂停", "无法读取信号链路",
+    "声音检查", "录下应用收到的声音，对比试听",
+    "录音", "停止", "录音中", "秒", "%.1f 秒 · 剩余 %.1f 秒",
+    "按下“录音”最多录制 10 秒", "还没有录音",
+    "＋噪声抑制", "设置未知",
+    "语言", "随 SteamVR 启动",
+    "自启动尚未安装（请运行 ./install.sh）", "无法读取自启动状态",
+    "退出", "再按一次退出",
+    "按下即刻生效，重启后依然保留。录音只保存在内存中，退出后即消失",
+    "读取失败（wpctl）", "切换组件尚未安装（运行 ./install.sh 后重启）",
+    "信号链路读取失败（pw-link）", "切换失败（wpctl）", "自启动切换失败（systemctl）",
+    "无法开始录音（PipeWire）", "无法播放（PipeWire）",
+    "判定严格度", "越低，非人声越容易通过", "保持时间", "说完后继续放行声音的时间",
+    "关闭期间不生效", "恢复默认",
+    "无法修改噪声抑制强度（pw-cli）",
+    "你在哪里听声音？", "选择后会应用推荐设置",
+    "耳机 / 头戴式耳机", "Frame 扬声器",
+    "回声消除 关", "回声消除 开",
+    "精细调整",
+    "当前使用精细调整的设置", "噪声抑制 关",
+    "回声消除切换失败（wpctl）", "噪声抑制切换失败（wpctl）",
+    "简单", "查看精细调整 →", "默认 23% · 500ms（SteamOS 的值）",
+
+    // 更新（文案与 vendor/frame-updater/strings.md 对应。确认的补充说明和“已安装”的文案按本应用的实际行为调整）
+    "检查新版本", "启动时以及每天一次，到 GitHub 检查是否有新版本",
+    "已是最新版本（%s）", "正在检查新版本…", "有新版本 %s 可用",
+    "更新", "此版本无法从这里安装。请到 GitHub 手动更新", "发布页面：",
+    "要更新到 %s 吗？", "将下载并替换文件。完成后退出并重新启动，即可使用新版本",
+    "更新", "取消",
+    "更新中：%s", "已安装 %s。退出并重新启动，即可使用新版本",
+    "更新失败（仍为当前版本）：", "无法检查新版本：",
+    "立即检查", "重试", "关闭", "详情见 ~/.cache/<应用>/update.log",
+    "如果 WirePlumber 脚本也有变化，请同时重启头显（见 ~/.cache/frame-mic-tuner/update.log）",
+    "准备中", "下载中", "校验文件中", "解压中", "替换中",
+    "无法连接 GitHub", "触发了 GitHub 的频率限制。请过一小时左右再试",
+    "没有已发布的版本", "无法解析 GitHub 的响应", "无法读取版本号",
+    "已中止：下载地址指向了 GitHub 以外的位置", "缺少必需的命令（python3）",
+    "此版本没有用于校验的 SHA256SUMS。请手动更新", "此版本没有可安装的文件",
+    "下载的文件已损坏", "已中止：压缩包内容不安全",
+    "压缩包中没有 install.sh", "install.sh 执行失败",
+    "无法读取上次安装的选项", "另一个更新正在运行", "已是最新版本",
+    "无法启动更新（systemd-run）", "更新中途停止", "无法写入文件",
+    "出现了问题",
+};
+
 }  // namespace
 
 const UiText& uiText(Language language) {
-    return language == Language::En ? kEnglish : kJapanese;
+    if (language == Language::En) return kEnglish;
+    if (language == Language::Zh) return kChinese;
+    return kJapanese;
 }
 
 Language systemLanguage() {
@@ -170,7 +237,9 @@ Language systemLanguage() {
 }
 
 const char* languageCode(Language language) {
-    return language == Language::En ? "en" : "ja";
+    if (language == Language::En) return "en";
+    if (language == Language::Zh) return "zh";
+    return "ja";
 }
 
 bool parseLanguage(const std::string& code, Language& language) {
@@ -180,6 +249,10 @@ bool parseLanguage(const std::string& code, Language& language) {
     }
     if (code == "en") {
         language = Language::En;
+        return true;
+    }
+    if (code == "zh") {
+        language = Language::Zh;
         return true;
     }
     return false;

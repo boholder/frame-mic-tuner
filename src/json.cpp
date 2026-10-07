@@ -24,12 +24,12 @@ public:
     bool parseDocument(JsonValue& out, std::string& error) {
         skipSpace();
         if (!parseValue(out, 0)) {
-            error = error_ + "（" + std::to_string(pos_) + " 文字目付近）";
+            error = error_ + "（" + std::to_string(pos_) + " 个字符附近）";
             return false;
         }
         skipSpace();
         if (pos_ != src_.size()) {
-            error = "値のあとに余分な文字があります（" + std::to_string(pos_) + " 文字目付近）";
+            error = "值的后面有多余的字符（" + std::to_string(pos_) + " 个字符附近）";
             return false;
         }
         return true;
@@ -83,9 +83,9 @@ private:
      * @return 成功したら true
      */
     bool parseValue(JsonValue& out, int depth) {
-        if (depth > kMaxDepth) return fail("入れ子が深すぎます");
+        if (depth > kMaxDepth) return fail("嵌套太深");
         skipSpace();
-        if (pos_ >= src_.size()) return fail("値がありません");
+        if (pos_ >= src_.size()) return fail("缺少值");
         const char c = src_[pos_];
         if (c == '{') return parseObject(out, depth);
         if (c == '[') return parseArray(out, depth);
@@ -124,11 +124,11 @@ private:
             if (!numberChar) break;
             ++pos_;
         }
-        if (pos_ == start) return fail("解釈できない文字があります");
+        if (pos_ == start) return fail("有无法解析的字符");
         const std::string token = src_.substr(start, pos_ - start);
         char* end = nullptr;
         const double value = std::strtod(token.c_str(), &end);
-        if (end == nullptr || *end != '\0') return fail("数値の形が正しくありません: " + token);
+        if (end == nullptr || *end != '\0') return fail("数值格式不正确: " + token);
         out.type = JsonValue::Type::Number;
         out.number = value;
         return true;
@@ -140,7 +140,7 @@ private:
      * @return 成功したら true
      */
     bool parseHex4(unsigned& code) {
-        if (pos_ + 4 > src_.size()) return fail("\\u の後ろが短すぎます");
+        if (pos_ + 4 > src_.size()) return fail("\\u 的后面太短");
         code = 0;
         for (int i = 0; i < 4; ++i) {
             const char c = src_[pos_++];
@@ -148,7 +148,7 @@ private:
             if (c >= '0' && c <= '9') code |= static_cast<unsigned>(c - '0');
             else if (c >= 'a' && c <= 'f') code |= static_cast<unsigned>(c - 'a' + 10);
             else if (c >= 'A' && c <= 'F') code |= static_cast<unsigned>(c - 'A' + 10);
-            else return fail("\\u の後ろが 16 進数ではありません");
+            else return fail("\\u 的后面不是 16 进制数");
         }
         return true;
     }
@@ -216,10 +216,10 @@ private:
                     appendUtf8(code, out);
                     break;
                 }
-                default: return fail("文字列のエスケープが正しくありません");
+                default: return fail("字符串转义不正确");
             }
         }
-        return fail("文字列が閉じていません");
+        return fail("字符串没有闭合");
     }
 
     /**
@@ -241,10 +241,10 @@ private:
             if (!parseValue(item, depth + 1)) return false;
             out.items.push_back(std::move(item));
             skipSpace();
-            if (pos_ >= src_.size()) return fail("配列が閉じていません");
+            if (pos_ >= src_.size()) return fail("数组没有闭合");
             const char c = src_[pos_++];
             if (c == ']') return true;
-            if (c != ',') return fail("配列の区切りに , か ] が必要です");
+            if (c != ',') return fail("数组的分隔处需要 , 或 ]");
         }
     }
 
@@ -264,20 +264,20 @@ private:
         }
         while (true) {
             skipSpace();
-            if (pos_ >= src_.size() || src_[pos_] != '"') return fail("キーは \"...\" で書いてください");
+            if (pos_ >= src_.size() || src_[pos_] != '"') return fail("键请写成 \"...\" 的形式");
             std::string key;
             if (!parseString(key)) return false;
             skipSpace();
-            if (pos_ >= src_.size() || src_[pos_] != ':') return fail("キーの後ろに : が必要です");
+            if (pos_ >= src_.size() || src_[pos_] != ':') return fail("键的后面需要 :");
             ++pos_;
             JsonValue value;
             if (!parseValue(value, depth + 1)) return false;
             out.members.emplace_back(std::move(key), std::move(value));
             skipSpace();
-            if (pos_ >= src_.size()) return fail("オブジェクトが閉じていません");
+            if (pos_ >= src_.size()) return fail("对象没有闭合");
             const char c = src_[pos_++];
             if (c == '}') return true;
-            if (c != ',') return fail("メンバーの区切りに , か } が必要です");
+            if (c != ',') return fail("成员的分隔处需要 , 或 }");
         }
     }
 };

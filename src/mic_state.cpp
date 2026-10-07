@@ -95,8 +95,8 @@ bool readSetting(const char* key, bool& value, MicError& error) {
     if (result.ok() && parseSettingValue(result.out, value)) return true;
     // 設定が見つからない = WirePlumber に frame-mic-tracker と 90-frame-mic.conf が入っていない
     const bool notFound = result.ok() && result.out.find("not found") != std::string::npos;
-    std::fprintf(stderr, "[マイク] 設定を読めません: %s%s\n", describeCommand(argv, result).c_str(),
-                 notFound ? "（設定が見つかりません）" : "");
+    std::fprintf(stderr, "[麦克风] 无法读取设置: %s%s\n", describeCommand(argv, result).c_str(),
+                 notFound ? "（未找到设置）" : "");
     error = notFound ? MicError::NotInstalled : MicError::ReadSettings;
     return false;
 }
@@ -215,11 +215,11 @@ MicState readMicState(bool withAutostart) {
         state.nsKnown = parseSettingFromList(settings.out, kNoiseSuppressionKey, state.ns);
         if (!state.echoKnown || !state.nsKnown) {
             // 一覧に無い = WirePlumber に frame-mic-tracker と 90-frame-mic.conf が入っていない
-            std::fprintf(stderr, "[マイク] 設定 %s / %s が一覧にありません\n", kEchoCancelKey, kNoiseSuppressionKey);
+            std::fprintf(stderr, "[麦克风] 设置 %s / %s 不在列表中\n", kEchoCancelKey, kNoiseSuppressionKey);
             state.readError = MicError::NotInstalled;
         }
     } else {
-        std::fprintf(stderr, "[マイク] 設定を読めません: %s\n", describeCommand(settingsArgv, settings).c_str());
+        std::fprintf(stderr, "[麦克风] 无法读取设置: %s\n", describeCommand(settingsArgv, settings).c_str());
         state.readError = MicError::ReadSettings;
     }
 
@@ -228,7 +228,7 @@ MicState readMicState(bool withAutostart) {
     if (links.ok()) {
         parseLinks(links.out, state);
     } else {
-        std::fprintf(stderr, "[マイク] つながりを読めません: %s\n", describeCommand(linkArgv, links).c_str());
+        std::fprintf(stderr, "[麦克风] 无法读取信号链路: %s\n", describeCommand(linkArgv, links).c_str());
         if (state.readError == MicError::None) state.readError = MicError::ReadLinks;
     }
 
@@ -242,7 +242,7 @@ MicState readMicState(bool withAutostart) {
         state.autostart = parseAutostart(enabled.out);
     }
     if (state.autostart == Autostart::Unknown) {
-        std::fprintf(stderr, "[自動起動] 状態を読めません: %s（出力: %s）\n", describeCommand(enabledArgv, enabled).c_str(),
+        std::fprintf(stderr, "[自启动] 无法读取状态: %s（输出: %s）\n", describeCommand(enabledArgv, enabled).c_str(),
                      trim(enabled.out).c_str());
     }
     return state;
@@ -313,7 +313,7 @@ NsParams readNsParams() {
     const std::vector<std::string> argv = {"pw-dump", kNsNodeName};
     const CommandResult result = runCommand(argv);
     if (!result.ok()) {
-        std::fprintf(stderr, "[ノイズ除去] 値を読めません: %s\n", describeCommand(argv, result).c_str());
+        std::fprintf(stderr, "[噪声抑制] 无法读取数值: %s\n", describeCommand(argv, result).c_str());
         return NsParams();
     }
     return parseNsDump(result.out);
@@ -327,20 +327,20 @@ bool writeNsParams(int nodeId, double vad, double grace) {
                   kNsGraceParam, clampNsGrace(grace));
     const std::vector<std::string> argv = {"pw-cli", "set-param", std::to_string(nodeId), "Props", pod};
     const CommandResult result = runCommand(argv);
-    std::fprintf(stderr, "[ノイズ除去] %s\n", describeCommand(argv, result).c_str());
+    std::fprintf(stderr, "[噪声抑制] %s\n", describeCommand(argv, result).c_str());
     return result.ok();
 }
 
 bool writeSetting(const char* key, bool value) {
     const std::vector<std::string> argv = {"wpctl", "settings", "--save", key, value ? "true" : "false"};
     const CommandResult result = runCommand(argv);
-    std::fprintf(stderr, "[マイク] %s\n", describeCommand(argv, result).c_str());
+    std::fprintf(stderr, "[麦克风] %s\n", describeCommand(argv, result).c_str());
     if (!result.ok()) return false;
     // wpctl は知らないキーでも終了コード 0 のことがあるので、読み返して確かめる
     bool now = !value;
     MicError error = MicError::None;
     if (!readSetting(key, now, error) || now != value) {
-        std::fprintf(stderr, "[マイク] 書いた値を読み返せません（%s）\n", key);
+        std::fprintf(stderr, "[麦克风] 无法回读写入的值（%s）\n", key);
         return false;
     }
     return true;
@@ -349,20 +349,20 @@ bool writeSetting(const char* key, bool value) {
 bool writeAutostart(bool enable) {
     const std::vector<std::string> argv = {"systemctl", "--user", enable ? "enable" : "disable", kServiceName};
     const CommandResult result = runCommand(argv, 5000);
-    std::fprintf(stderr, "[自動起動] %s\n", describeCommand(argv, result).c_str());
+    std::fprintf(stderr, "[自启动] %s\n", describeCommand(argv, result).c_str());
     return result.ok();
 }
 
 std::string describeChain(const MicState& state) {
-    if (!state.linksKnown) return "（つながりを読めません）";
-    std::string text = "マイク";
+    if (!state.linksKnown) return "（无法读取信号链路）";
+    std::string text = "麦克风";
     for (const auto& stage : state.chain) {
         switch (stage.kind) {
             case ChainStage::Kind::Eq: text += " → EQ"; break;
-            case ChainStage::Kind::EchoCancel: text += " → エコー除去"; break;
-            case ChainStage::Kind::NoiseSuppression: text += " → ノイズ除去"; break;
+            case ChainStage::Kind::EchoCancel: text += " → 回声消除"; break;
+            case ChainStage::Kind::NoiseSuppression: text += " → 噪声抑制"; break;
             case ChainStage::Kind::Other: text += " → " + stage.name; break;
         }
     }
-    return text + " → 出力";
+    return text + " → 输出";
 }

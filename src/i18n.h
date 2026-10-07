@@ -1,17 +1,18 @@
-// 画面に出す文言の表（日本語・英語）。描画コードの中に文言を書かず、ここから引く。
-// ログや --print の出力は日本語のまま（ここには入れない）。
+// 画面上显示的文案表（日文・英文・简体中文）。渲染代码里不直接写文案，一律从这里取。
+// 日志和 --print 的输出不放进这个表（本分支已把那些文案直接改成简体中文）。
 #pragma once
 
 #include <string>
 
 /** 表示の言語。 */
-enum class Language { Ja, En };
+enum class Language { Ja, En, Zh };  ///< Zh = 简体中文（本分支新增的语言）
 
 /**
- * Frame のシステム言語（設定ファイルに language が無いときの既定値）。
- * Steam の言語設定（~/.steam/registry.vdf の "language"、読むだけ）が日本語なら日本語、
- * 読めなければ LC_ALL / LC_MESSAGES / LANG を見て、どれでもなければ英語。結果は最初の 1 回だけ調べて覚えておく。
- * @return 言語
+ * Frame 的系统语言（配置文件里没有 language 时的默认值）。
+ * 读取 Steam 的语言设置（~/.steam/registry.vdf 的 "language"，只读）：中文 → 简体中文，日文 → 日文。
+ * 读不到时依次看 LC_ALL / LC_MESSAGES / LANG；都识别不出来时默认简体中文（本分支的默认语言）。
+ * 结果只在第一次查一次并记住。
+ * @return 语言
  */
 Language systemLanguage();
 
@@ -147,16 +148,16 @@ struct UiText {
 const UiText& uiText(Language language);
 
 /**
- * 設定ファイルに書く言語の名前。
- * @param language 言語
- * @return "ja" / "en"
+ * 写入设置文件的语言名称。
+ * @param language 语言
+ * @return "ja" / "en" / "zh"
  */
 const char* languageCode(Language language);
 
 /**
- * 設定ファイルの言語の名前を読む。
- * @param code "ja" / "en"
- * @param language 読めたときの書き込み先
- * @return 知っている名前なら true
+ * 读取设置文件里的语言名称。
+ * @param code "ja" / "en" / "zh"
+ * @param language 读到时写入的目标
+ * @return 认识的名称则 true
  */
 bool parseLanguage(const std::string& code, Language& language);

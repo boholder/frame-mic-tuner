@@ -84,7 +84,7 @@ bool VoiceCheck::ensureLoop() {
     initPipeWireOnce();
     loop_ = pw_thread_loop_new("frame-mic-tuner-audio", nullptr);
     if (loop_ == nullptr) {
-        std::fprintf(stderr, "[声] PipeWire のスレッドを作れません\n");
+        std::fprintf(stderr, "[声音] 无法创建 PipeWire 线程\n");
         return false;
     }
     // SIGTERM・SIGINT・SIGUSR1 はメインスレッドで受けたいので、止めた状態でスレッドを作る（マスクは引き継がれる）
@@ -98,7 +98,7 @@ bool VoiceCheck::ensureLoop() {
     const int started = pw_thread_loop_start(loop_);
     pthread_sigmask(SIG_SETMASK, &previous, nullptr);
     if (started != 0) {
-        std::fprintf(stderr, "[声] PipeWire のスレッドを始められません\n");
+        std::fprintf(stderr, "[声音] 无法启动 PipeWire 线程\n");
         pw_thread_loop_destroy(loop_);
         loop_ = nullptr;
         return false;
@@ -112,7 +112,7 @@ const pw_stream_events& VoiceCheck::recordEvents() {
         e.version = PW_VERSION_STREAM_EVENTS;
         e.state_changed = [](void* data, pw_stream_state, pw_stream_state state, const char* error) {
             if (state != PW_STREAM_STATE_ERROR) return;
-            std::fprintf(stderr, "[声] 録音のストリームが失敗しました: %s\n", error != nullptr ? error : "?");
+            std::fprintf(stderr, "[声音] 录音流失败: %s\n", error != nullptr ? error : "?");
             static_cast<VoiceCheck*>(data)->recordFailed_ = true;
         };
         e.process = [](void* data) {
@@ -152,7 +152,7 @@ const pw_stream_events& VoiceCheck::playEvents() {
         e.version = PW_VERSION_STREAM_EVENTS;
         e.state_changed = [](void* data, pw_stream_state, pw_stream_state state, const char* error) {
             if (state != PW_STREAM_STATE_ERROR) return;
-            std::fprintf(stderr, "[声] 再生のストリームが失敗しました: %s\n", error != nullptr ? error : "?");
+            std::fprintf(stderr, "[声音] 播放流失败: %s\n", error != nullptr ? error : "?");
             static_cast<VoiceCheck*>(data)->playFailed_ = true;
         };
         e.process = [](void* data) {
@@ -211,7 +211,7 @@ pw_stream* VoiceCheck::connectStream(const char* name, bool capture) {
     const int result =
         pw_stream_connect(stream, capture ? PW_DIRECTION_INPUT : PW_DIRECTION_OUTPUT, PW_ID_ANY, flags, params, 1);
     if (result < 0) {
-        std::fprintf(stderr, "[声] pw_stream_connect に失敗: %s\n", std::strerror(-result));
+        std::fprintf(stderr, "[声音] pw_stream_connect 失败: %s\n", std::strerror(-result));
         pw_stream_destroy(stream);
         return nullptr;
     }
@@ -257,7 +257,7 @@ bool VoiceCheck::startRecording(const MicState& settings) {
         return false;
     }
     error_ = VoiceError::None;
-    std::fprintf(stderr, "[声] 録音を始めました（既定の入力・最大 %.0f 秒）\n", kVoiceMaxSec);
+    std::fprintf(stderr, "[声音] 已开始录音（默认输入·最长 %.0f 秒）\n", kVoiceMaxSec);
     return true;
 }
 
@@ -269,12 +269,12 @@ void VoiceCheck::stopRecording() {
     recordBuffer_.clear();
     recordBuffer_.shrink_to_fit();
     if (clip->seconds() < kMinClipSec) {
-        std::fprintf(stderr, "[声] 録音を止めました（短すぎるので残しません）\n");
+        std::fprintf(stderr, "[声音] 已停止录音（太短，不保留）\n");
         return;
     }
     clip->id = nextId_++;
     buildWave(*clip);
-    std::fprintf(stderr, "[声] 録音を止めました（%.1f 秒・ピーク %.1f dBFS）\n", clip->seconds(), clip->peakDb);
+    std::fprintf(stderr, "[声音] 已停止录音（%.1f 秒·峰值 %.1f dBFS）\n", clip->seconds(), clip->peakDb);
     clips_.push_front(clip);
     while (clips_.size() > kVoiceHistory) {
         if (playingId() == clips_.back()->id) stopPlayback();
@@ -308,7 +308,7 @@ bool VoiceCheck::play(uint64_t id) {
         return false;
     }
     error_ = VoiceError::None;
-    std::fprintf(stderr, "[声] 再生を始めました（%.1f 秒・既定の出力）\n", clip->seconds());
+    std::fprintf(stderr, "[声音] 已开始播放（%.1f 秒·默认输出）\n", clip->seconds());
     return true;
 }
 
@@ -326,7 +326,7 @@ void VoiceCheck::shutdown() {
         pw_thread_loop_stop(loop_);
         pw_thread_loop_destroy(loop_);
         loop_ = nullptr;
-        std::fprintf(stderr, "[声] PipeWire のストリームとスレッドを片付けました%s\n", wasBusy ? "（録音・再生を止めました）" : "");
+        std::fprintf(stderr, "[声音] 已清理 PipeWire 的流和线程%s\n", wasBusy ? "（已停止录音·播放）" : "");
     }
 }
 
@@ -352,7 +352,7 @@ bool VoiceCheck::update() {
         changed = true;
     }
     if (playDone || playFailed) {
-        if (playDone) std::fprintf(stderr, "[声] 再生が終わりました\n");
+        if (playDone) std::fprintf(stderr, "[声音] 播放已结束\n");
         stopPlayback();
         if (playFailed) error_ = VoiceError::Play;
         changed = true;
