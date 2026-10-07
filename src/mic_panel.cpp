@@ -1135,6 +1135,7 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
     std::string message;
     std::string hint;
     Color color = kText;
+    Color hintColor = kTextMuted;
     bool bold = false;
     Color border = kDivider;
     double borderWidth = 1;
@@ -1159,7 +1160,11 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
                 bold = true;
                 border = kAccent;
                 borderWidth = 2;
-                if (confirming) hint = t.updateConfirmHint;
+                if (confirming) {
+                    // 本分支: 上流の版を入れると中国語表示が消えるので、確認のときはその注意を出す
+                    hint = t.updateForkWarning;
+                    hintColor = kDanger;
+                }
                 if (!update.installable) {
                     // 手で更新: 2 行目に理由と、入るならリリースページの URL
                     hint = t.updateManual;
@@ -1259,7 +1264,7 @@ void MicPanel::drawUpdateRow(const Pen& pen, const UiText& t, const frame_update
         pen.text(textX, centerBaseline(y, h, size), message, size, color, bold);
     } else {
         pen.text(textX, y + 30, message, size, color, bold);
-        pen.text(textX, y + 54, hint, fitSize(pen, hint, 15, 12, textMax, false), kTextMuted);
+        pen.text(textX, y + 54, hint, fitSize(pen, hint, 15, 12, textMax, false), hintColor);
     }
 }
 

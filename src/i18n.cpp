@@ -113,6 +113,7 @@ const UiText kJapanese = {
     "前回のインストールのオプションを読めません", "別の更新が動いています", "もう最新版です",
     "更新を始められませんでした（systemd-run）", "更新が途中で止まりました", "ファイルを書けませんでした",
     "うまくいきませんでした",
+    "注意: これは上流の日本語/英語版を入れるので、中国語の表示は消えます。中国語版は dhies23/frame-mic-tuner-zh から更新してください",
 };
 
 const UiText kEnglish = {
@@ -167,6 +168,8 @@ const UiText kEnglish = {
     "The saved install options are invalid", "Another update is running", "Already up to date",
     "Couldn't start the update (systemd-run)", "The update was interrupted", "Couldn't write files",
     "Something went wrong",
+    "Note: this installs the upstream Japanese/English build, so the Chinese UI will be gone. "
+    "Get the Simplified Chinese build from dhies23/frame-mic-tuner-zh",
 };
 
 // 简体中文（本分支新增）。字段的顺序和个数必须与 kJapanese / kEnglish 完全一致，不能增减。
@@ -221,6 +224,7 @@ const UiText kChinese = {
     "无法读取上次安装的选项", "另一个更新正在运行", "已是最新版本",
     "无法启动更新（systemd-run）", "更新中途停止", "无法写入文件",
     "出现了问题",
+    "注意：这会装成上游的日文/英文版，中文界面会消失。简体中文版请到 dhies23/frame-mic-tuner-zh 更新",
 };
 
 }  // namespace

@@ -138,6 +138,7 @@ struct UiText {
     const char* updateErrInterrupted;
     const char* updateErrIo;
     const char* updateErrOther;  ///< 知らない理由・usage・script-failed・spawn-failed もここに落ちる
+    const char* updateForkWarning;  ///< 更新の確認のときの注意（本分支：上游版を入れると中国語表示が消えるため、中国語版の入手先を出す）
 };
 
 /**

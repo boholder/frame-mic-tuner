@@ -33,7 +33,11 @@ https://github.com/user-attachments/assets/14b5e180-f417-4d90-85f5-6ba1dc573546
 
 ## 安装
 
-### 最简单：直接在 Frame 里安装（推荐）
+本仓库是上游 [sasaken1102r/frame-mic-tuner](https://github.com/sasaken1102r/frame-mic-tuner) 的**简体中文版**。简体中文版的发布包只在本仓库的[发布页面](https://github.com/dhies23/frame-mic-tuner-zh/releases)上，请按下面“从 PC 安装”的步骤安装。
+
+> 面板里的“更新”按钮检查的是**上游**仓库。如果上游发布了新版本，更新会装成上游的日文/英文版，中文界面会消失（面板会在你确认更新时提醒你）。要更新简体中文版，请回到本仓库的发布页面。
+
+### 一键安装（装的是上游原版：日文/英文界面）
 
 不需要 PC。在 Frame 的 Konsole（底部栏的 + → 程序列表 → Konsole）里输入下面的命令，按回车，然后在菜单中选择 **3**（frame-mic-tuner）。
 
@@ -51,7 +55,7 @@ curl -fsSL https://frame.sasaken1102s.net | sh
 
 ### 从 PC 安装
 
-从[发布页面](https://github.com/sasaken1102r/frame-mic-tuner/releases)下载 `frame-mic-tuner-<version>.tar.gz` 并复制到头显上，例如在你的 PC 上：
+从本仓库的[发布页面](https://github.com/dhies23/frame-mic-tuner-zh/releases)下载 `frame-mic-tuner-<version>.tar.gz` 并复制到头显上，例如在你的 PC 上：
 
 ```sh
 scp frame-mic-tuner-*.tar.gz steamos@<headset-ip>:
@@ -68,8 +72,8 @@ cd frame-mic-tuner
 或者改为从源码构建（同样在头显上）：
 
 ```sh
-git clone https://github.com/sasaken1102r/frame-mic-tuner.git
-cd frame-mic-tuner
+git clone https://github.com/dhies23/frame-mic-tuner-zh.git
+cd frame-mic-tuner-zh
 ./install.sh
 ```
 
