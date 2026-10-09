@@ -31,7 +31,7 @@ enum class PanelAction {
     Play,          ///< 履歴の再生・停止（index = 履歴の何件目か。新しい順）
     LanguageJa,
     LanguageEn,
-    LanguageZh,
+    LanguageSc,
     AutostartOn,   ///< SteamVR と一緒に起動: オン
     AutostartOff,  ///< SteamVR と一緒に起動: オフ
     Quit,          ///< 終了（2 回目の押下で確定したときだけ返る）

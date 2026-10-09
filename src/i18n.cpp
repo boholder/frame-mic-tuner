@@ -49,11 +49,11 @@ Language detectSystemLanguage() {
     const std::string steam = steamLanguage();
     if (!steam.empty()) {
         if (steam == "japanese") return Language::Ja;
-        if (steam == "schinese" || steam == "tchinese" || steam == "chinese") return Language::Zh;
+        if (steam == "schinese" || steam == "chinese") return Language::Sc;
         return Language::En;
     }
     if (localeEnvVarsAreSetTo("ja")) return Language::Ja;
-    if (localeEnvVarsAreSetTo("zh")) return Language::Zh;
+    if (localeEnvVarsAreSetTo("zh_CN")) return Language::Sc;
     return Language::En;
 }
 
@@ -165,7 +165,7 @@ const UiText kEnglish = {
     "Something went wrong",
 };
 
-const UiText kChinese = {
+const UiText kSimplifiedChinese = {
     "麦克风", "使用中", "未使用", "加载中…",
     "耳机", "扬声器",
     "细小声音也会被收音", "消除麦克风收到的头戴扬声器的声音",
@@ -221,7 +221,7 @@ const UiText kChinese = {
 
 const UiText& uiText(Language language) {
     if (language == Language::En) return kEnglish;
-    if (language == Language::Zh) return kChinese;
+    if (language == Language::Sc) return kSimplifiedChinese;
     return kJapanese;
 }
 
@@ -232,7 +232,7 @@ Language systemLanguage() {
 
 const char* languageCode(Language language) {
     if (language == Language::En) return "en";
-    if (language == Language::Zh) return "zh";
+    if (language == Language::Sc) return "sc";
     return "ja";
 }
 
@@ -245,8 +245,8 @@ bool parseLanguage(const std::string& code, Language& language) {
         language = Language::En;
         return true;
     }
-    if (code == "zh") {
-        language = Language::Zh;
+    if (code == "sc") {
+        language = Language::Sc;
         return true;
     }
     return false;

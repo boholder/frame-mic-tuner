@@ -1273,7 +1273,7 @@ void MicPanel::drawFooter(const Pen& pen, const UiText& t, const MicState& state
     x += pen.text(x, centerBaseline(y, h, size), t.rowLanguage, size, kTextMuted) + 12;
     {
         const std::string labels[3] = {"日本語", "English", "简体中文"};  // 言語の名前はその言語自身の書き方
-        const PanelAction actions[3] = {PanelAction::LanguageJa, PanelAction::LanguageEn, PanelAction::LanguageZh};
+        const PanelAction actions[3] = {PanelAction::LanguageJa, PanelAction::LanguageEn, PanelAction::LanguageSc};
         const int selected = language == Language::Ja ? 0 : (language == Language::En ? 1 : 2);
         drawSegmented(pen, x, y, 320, h, labels, actions, 3, selected, size);
         x += 320 + 36;
