@@ -16,6 +16,15 @@ double linearChannel(double c) {
 }
 
 /**
+ * WCAG 2.x の相対輝度。
+ * @param c 色
+ * @return 0（黒）〜1（白）
+ */
+double relativeLuminance(Color c) {
+    return 0.2126 * linearChannel(c.r) + 0.7152 * linearChannel(c.g) + 0.0722 * linearChannel(c.b);
+}
+
+/**
  * 色を #rrggbb にする（表示用）。
  * @param c 色
  * @return 文字列
@@ -35,7 +44,6 @@ std::string hexText(Color c) {
 const char* kindName(ContrastKind kind) {
     switch (kind) {
         case ContrastKind::Text: return "文字";
-        case ContrastKind::LargeText: return "大きい文字";
         case ContrastKind::Ui: return "部品";
         case ContrastKind::Disabled: return "無効（目安）";
     }
@@ -43,10 +51,6 @@ const char* kindName(ContrastKind kind) {
 }
 
 }  // namespace
-
-double relativeLuminance(Color c) {
-    return 0.2126 * linearChannel(c.r) + 0.7152 * linearChannel(c.g) + 0.0722 * linearChannel(c.b);
-}
 
 double contrastRatio(Color a, Color b) {
     const double la = relativeLuminance(a);

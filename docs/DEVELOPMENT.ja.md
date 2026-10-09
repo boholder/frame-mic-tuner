@@ -169,6 +169,19 @@ ssh steamos@<headset-ip> 'cd ~/frame-mic-tuner && cmake -G Ninja -S . -B build &
 
 実行ファイルは `build/frame-mic-tuner`。OpenVR ライブラリの場所は rpath に入っているので、別の場所にコピーしてもそのまま動く。`-Wall -Wextra` で警告ゼロ。版は `CMakeLists.txt` の `project(... VERSION ...)` で、`--version` で出る（`CHANGELOG.md` と合わせる）。
 
+### 回帰テスト
+
+画面や実機が要らない純粋なロジック（JSON・設定・文言・`wpctl` / `pw-link` / `systemctl` / `pw-dump` の読み取り・ワーカーの待ち行列・色のコントラスト比）は `tests/tests.cpp` で確かめられる。cairo・PipeWire・Vulkan・OpenVR は要らないので、PC でもビルドできる:
+
+```sh
+cmake -DBUILD_TESTING=ON -DFRAME_MIC_TUNER_APP=OFF -S . -B build-test
+cmake --build build-test
+ctest --test-dir build-test --output-on-failure
+```
+
+- `FRAME_MIC_TUNER_APP=OFF` でアプリ本体（cairo・PipeWire・Vulkan が要る）を外し、テストだけをビルドする（既定は ON なので、いつもの `cmake -S . -B build` は今までどおり）
+- 実機で同じ判定を確かめる `--self-test` はそのまま残してある
+
 ## 手動で動かす
 
 ```sh

@@ -165,10 +165,6 @@ public:
 
     /** @return バーをドラッグしている間 true */
     bool dragging() const { return dragAction_ != PanelAction::None; }
-    /** @return ドラッグしているバー（NsVadSlider / NsGraceSlider） */
-    PanelAction dragAction() const { return dragAction_; }
-    /** @return ドラッグ中の値（範囲に丸め済み） */
-    double dragValue() const { return dragValue_; }
 
     /**
      * バーの値を書き込みに出した直後、読み直しが追いつくまでの間、その値を表示に使う（表示が戻ってちらつかないように）。

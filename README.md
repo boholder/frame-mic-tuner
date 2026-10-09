@@ -168,6 +168,13 @@ cmake -G Ninja -S . -B build && ninja -C build
 scripts/package.sh   # release build: dist/frame-mic-tuner-<version>.tar.gz, dist/SHA256SUMS
 ```
 
+Regression tests for the pure logic (JSON, settings, the `wpctl`/`pw-link`/`systemctl`/`pw-dump` parsers, the worker queue, colour contrast) need no cairo, PipeWire, Vulkan or OpenVR, so they also build on a PC:
+
+```sh
+cmake -DBUILD_TESTING=ON -DFRAME_MIC_TUNER_APP=OFF -S . -B build-test
+cmake --build build-test && ctest --test-dir build-test --output-on-failure
+```
+
 Useful options that don't need SteamVR: `--print`, `--set-ns-vad N` / `--set-ns-grace N` (apply a noise filter strength right away without saving it), `--dump-png PATH` (render the panel, with `--fake-*` states for screenshots, including `--fake-update STATE` and `--preview-update-confirm` for the update card), `--test-record 3` (record 3 seconds and play them back), `--contrast-report` (WCAG contrast of every color pair) and `--version`. Design notes, how the switch script works and test results are in [docs/DEVELOPMENT.ja.md](docs/DEVELOPMENT.ja.md) (Japanese).
 
 The update mechanism (`vendor/frame-updater/`) is copied from a shared, private repository; don't edit the copy by hand — `sh vendor/frame-updater/verify.sh` (run by `scripts/package.sh`) checks that it wasn't.

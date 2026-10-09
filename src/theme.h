@@ -2,7 +2,7 @@
 // 描画コードはここの色だけを使い、--contrast-report は同じ色の組み合わせを計算して合否を出す。
 #pragma once
 
-#include "draw.h"
+#include "color.h"
 
 #include <string>
 #include <vector>
@@ -56,7 +56,6 @@ constexpr Color kQuitFill = blendColor(kDanger, kBg, 0.12);      ///< 終了ボ�
 /** コントラストの確かめ方の種類。 */
 enum class ContrastKind {
     Text,      ///< 文字（4.5:1 以上）
-    LargeText, ///< 大きい文字（24px 以上、太字なら 18.7px 以上。3:1 以上）
     Ui,        ///< 部品の枠・選択状態・図（3:1 以上。WCAG 1.4.11）
     Disabled,  ///< 押せないボタンの文字（WCAG では例外。読める程度の 3:1 を目安にする）
 };
@@ -68,13 +67,6 @@ struct ContrastPair {
     Color bg;
     ContrastKind kind;
 };
-
-/**
- * WCAG 2.x の相対輝度。
- * @param c 色
- * @return 0（黒）〜1（白）
- */
-double relativeLuminance(Color c);
 
 /**
  * WCAG 2.x のコントラスト比。

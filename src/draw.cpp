@@ -102,12 +102,6 @@ void Pen::roundedRect(double x, double y, double w, double h, double r) const {
     cairo_close_path(cr);
 }
 
-void Pen::dot(double x, double y, Color c) const {
-    color(c);
-    cairo_arc(cr, x, y, 4.0, 0, 2 * M_PI);
-    cairo_fill(cr);
-}
-
 void surfaceToRgba(cairo_surface_t* surface, std::vector<uint8_t>& out) {
     // 乗算済みを戻す計算（c * 255 / a）を前もって表にしておく（割り算を画素ごとにしない）
     static const std::vector<uint8_t> unpremultiply = [] {

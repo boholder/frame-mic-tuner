@@ -1,16 +1,13 @@
 // 描画の共通部品（色・フォント・文字や角丸の描画・OpenVR 用の画素変換）。
 #pragma once
 
+#include "color.h"
+
 #include <cairo.h>
 
 #include <cstdint>
 #include <string>
 #include <vector>
-
-/** RGB の色（0〜1）。 */
-struct Color {
-    double r, g, b;
-};
 
 // 色の定数は theme.h にまとめてある（コントラスト比の確認と同じ定義を使うため）
 
@@ -101,14 +98,6 @@ struct Pen {
      * @param r 角の半径
      */
     void roundedRect(double x, double y, double w, double h, double r) const;
-
-    /**
-     * 小さな色つきの丸（凡例用）を描く。
-     * @param x 中心 x
-     * @param y 中心 y
-     * @param c 色
-     */
-    void dot(double x, double y, Color c) const;
 };
 
 /**
