@@ -29,36 +29,39 @@ std::string steamLanguage() {
 }
 
 /**
- * 取第一个非空的语言环境变量（LC_ALL → LC_MESSAGES → LANG 的顺序）。
- * @return 值。哪个都没有则为空
+ * ロケールの環境変数（LC_ALL → LC_MESSAGES → LANG の順で最初に空でないもの）が日本語か。
+ * @return 日本語なら true
  */
-std::string localeName() {
+bool localeIsJapanese() {
     for (const char* name : {"LC_ALL", "LC_MESSAGES", "LANG"}) {
         const char* value = std::getenv(name);
-        if (value != nullptr && value[0] != '\0') return value;
+        if (value != nullptr && value[0] != '\0') return std::string(value).rfind("ja", 0) == 0;
     }
-    return "";
+    return false;
+}
+
+bool localeIsChinese() {
+    for (const char* name : {"LC_ALL", "LC_MESSAGES", "LANG"}) {
+        const char* value = std::getenv(name);
+        if (value != nullptr && value[0] != '\0') return std::string(value).rfind("zh", 0) == 0;
+    }
+    return false;
 }
 
 /**
- * 系统语言（systemLanguage 的本体）。
- * 中文（zh）→ 简体中文，日文（ja）→ 日文，英文（en）→ 英文；
- * 其他语言以及识别不出来时，都用本分支的默认语言（简体中文）。
- * @return 语言
+ * システム言語を調べる（systemLanguage の本体）。
+ * @return 言語
  */
 Language detectSystemLanguage() {
     const std::string steam = steamLanguage();
     if (!steam.empty()) {
         if (steam == "japanese") return Language::Ja;
-        if (steam == "english") return Language::En;
         if (steam == "schinese" || steam == "tchinese" || steam == "chinese") return Language::Zh;
-        return Language::Zh;  // 本分支的默认语言
+        return Language::En;
     }
-    const std::string locale = localeName();
-    if (locale.rfind("ja", 0) == 0) return Language::Ja;
-    if (locale.rfind("en", 0) == 0) return Language::En;
-    if (locale.rfind("zh", 0) == 0) return Language::Zh;
-    return Language::Zh;  // 本分支的默认语言
+    if (localeIsJapanese()) return Language::Ja;
+    if (localeIsChinese()) return Language::Zh;
+    return Language::En;
 }
 
 const UiText kJapanese = {
@@ -113,7 +116,6 @@ const UiText kJapanese = {
     "前回のインストールのオプションを読めません", "別の更新が動いています", "もう最新版です",
     "更新を始められませんでした（systemd-run）", "更新が途中で止まりました", "ファイルを書けませんでした",
     "うまくいきませんでした",
-    "注意: これは上流の日本語/英語版を入れるので、中国語の表示は消えます。中国語版は dhies23/frame-mic-tuner-zh から更新してください",
 };
 
 const UiText kEnglish = {
@@ -168,11 +170,8 @@ const UiText kEnglish = {
     "The saved install options are invalid", "Another update is running", "Already up to date",
     "Couldn't start the update (systemd-run)", "The update was interrupted", "Couldn't write files",
     "Something went wrong",
-    "Note: this installs the upstream Japanese/English build, so the Chinese UI will be gone. "
-    "Get the Simplified Chinese build from dhies23/frame-mic-tuner-zh",
 };
 
-// 简体中文（本分支新增）。字段的顺序和个数必须与 kJapanese / kEnglish 完全一致，不能增减。
 const UiText kChinese = {
     "麦克风", "使用中", "未使用", "加载中…",
     "耳机", "扬声器",
@@ -204,7 +203,6 @@ const UiText kChinese = {
     "回声消除切换失败（wpctl）", "噪声抑制切换失败（wpctl）",
     "简单", "查看精细调整 →", "默认 23% · 500ms（SteamOS 的值）",
 
-    // 更新（文案与 vendor/frame-updater/strings.md 对应。确认的补充说明和“已安装”的文案按本应用的实际行为调整）
     "检查新版本", "启动时以及每天一次，到 GitHub 检查是否有新版本",
     "已是最新版本（%s）", "正在检查新版本…", "有新版本 %s 可用",
     "更新", "此版本无法从这里安装。请到 GitHub 手动更新", "发布页面：",
@@ -224,7 +222,6 @@ const UiText kChinese = {
     "无法读取上次安装的选项", "另一个更新正在运行", "已是最新版本",
     "无法启动更新（systemd-run）", "更新中途停止", "无法写入文件",
     "出现了问题",
-    "注意：这会装成上游的日文/英文版，中文界面会消失。简体中文版请到 dhies23/frame-mic-tuner-zh 更新",
 };
 
 }  // namespace

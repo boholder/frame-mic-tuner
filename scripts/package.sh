@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# 生成发布用的 tar.gz。在 Steam Frame 上运行（因为要链接本体的 cairo、FreeType、PipeWire 和 SteamVR 的 OpenVR）。
-#   scripts/package.sh   → dist/frame-mic-tuner-<版本>.tar.gz, dist/SHA256SUMS
-# 内容：可执行文件、install.sh（从 tar.gz 安装时不用构建，可以直接装）、vendor/frame-updater/frame-update.sh
-# （install.sh 会放到 ~/.local/share/frame-mic-tuner/ 的更新脚本）、contrib（WirePlumber、.desktop、.service、
-# 图标、设置示例）、README、CHANGELOG、LICENSE 等。不放入 CMakeLists.txt 和 src/
-# （install.sh 发现没有它们时就当作“来自 tar.gz”，不进行构建直接安装）。
+# リリースの tar.gz を作る。Steam Frame の上で実行する（本体の cairo・FreeType・PipeWire・SteamVR の OpenVR にリンクするため）。
+#   scripts/package.sh   → dist/frame-mic-tuner-<バージョン>.tar.gz, dist/SHA256SUMS
+# 中身: 実行ファイル、install.sh（tar.gz からならビルドせずそのまま入れられる）、vendor/frame-updater/frame-update.sh
+# （install.sh が ~/.local/share/frame-mic-tuner/ に置く更新スクリプト）、contrib（WirePlumber・.desktop・.service・
+# アイコン・設定の例）、README・CHANGELOG・LICENSE など。CMakeLists.txt や src/ は入れない
+# （install.sh はそれが無ければ「tar.gz から」と見なし、ビルドをせずに入れる）。
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -12,7 +12,7 @@ name="frame-mic-tuner"
 build_dir="build-release"
 
 if [[ "$(uname -m)" != "aarch64" ]]; then
-    echo "请在 Steam Frame（aarch64）上运行。本机是 $(uname -m)。" >&2
+    echo "Run this on the Steam Frame (aarch64). This machine is $(uname -m)." >&2
     exit 1
 fi
 
@@ -25,7 +25,7 @@ cmake --build "$build_dir" --clean-first
 
 version="$("$build_dir/$name" --version | awk '{print $2}')"
 if [[ -z "$version" || "$version" == "unknown" ]]; then
-    echo "无法从 $build_dir/$name --version 读取版本" >&2
+    echo "Could not read the version from $build_dir/$name --version" >&2
     exit 1
 fi
 
@@ -36,7 +36,7 @@ mkdir -p "$root/contrib/icons" "$root/contrib/wireplumber" "$root/vendor/frame-u
 install -m755 "$build_dir/$name" "$root/$name"
 strip "$root/$name"
 install -m755 install.sh "$root/"
-install -m644 LICENSE THIRD_PARTY_LICENSES.md README.md README.en.md README.ja.md CHANGELOG.md "$root/"
+install -m644 LICENSE THIRD_PARTY_LICENSES.md README.md README.ja.md CHANGELOG.md "$root/"
 install -m644 "contrib/$name.service" "contrib/$name.desktop" contrib/config.example.json "$root/contrib/"
 install -m644 contrib/icons/*.png "$root/contrib/icons/"
 install -m644 contrib/wireplumber/* "$root/contrib/wireplumber/"
@@ -54,7 +54,7 @@ tar -tzvf "$out"
 echo
 cat dist/SHA256SUMS
 echo
-echo "创建发布（标签 v$version 由 gh release create 生成。发布说明请写在仓库之外的文件里再传进来）："
-echo "  gh release create v$version $out dist/SHA256SUMS --title v$version --notes-file <发布说明文件>"
-echo "不要设为草稿（--draft）或预发布（--prerelease）：面板的更新看的是 /releases/latest，设了就会找不到。"
-echo "SHA256SUMS 也一定要附上（没有它就无法从更新按钮安装，只能让用户手动更新）。"
+echo "リリースにする（タグ v$version は gh release create が作る。リリースノートはリポジトリの外のファイルに書いて渡す）:"
+echo "  gh release create v$version $out dist/SHA256SUMS --title v$version --notes-file <リリースノートのファイル>"
+echo "下書き（--draft）・プレリリース（--prerelease）にはしない: パネルの更新は /releases/latest を見るので、見つけられなくなる。"
+echo "SHA256SUMS も必ず添付する（無いと更新ボタンから入れられず、手で更新してもらうことになる）。"

@@ -41,7 +41,7 @@ const char* overlayErrorName(vr::EVROverlayError error) {
  */
 bool checkOverlay(const char* what, vr::EVROverlayError error) {
     if (error == vr::VROverlayError_None) return true;
-    std::fprintf(stderr, "[VR] %s 失败: %s\n", what, overlayErrorName(error));
+    std::fprintf(stderr, "[VR] %s に失敗: %s\n", what, overlayErrorName(error));
     return false;
 }
 
@@ -51,7 +51,7 @@ bool checkOverlay(const char* what, vr::EVROverlayError error) {
  * @param error 戻り値
  */
 void logShutdownStep(const char* what, vr::EVROverlayError error) {
-    std::fprintf(stderr, "[VR] 退出处理 %s -> %s\n", what, overlayErrorName(error));
+    std::fprintf(stderr, "[VR] 終了処理 %s -> %s\n", what, overlayErrorName(error));
 }
 
 }  // namespace
@@ -114,7 +114,7 @@ VrOverlay::ConnectResult VrOverlay::connect(int width, int height, std::string& 
     // 3) Vulkan（OpenVR が要求する拡張と、HMD の GPU で作る）
     std::string vkMessage;
     if (!vulkan_.init(vkMessage)) {
-        message = "Vulkan 准备失败: " + vkMessage;
+        message = "Vulkan の準備に失敗: " + vkMessage;
         shutdown();
         return ConnectResult::Error;
     }
@@ -128,7 +128,7 @@ VrOverlay::ConnectResult VrOverlay::connect(int width, int height, std::string& 
     }
 
     if (!panelTexture_.create(vulkan_, width, height, vkMessage)) {
-        message = "无法创建面板纹理: " + vkMessage;
+        message = "パネルのテクスチャを作れません: " + vkMessage;
         shutdown();
         return ConnectResult::Error;
     }
@@ -162,7 +162,7 @@ bool VrOverlay::createDashboardOverlay(std::string& message) {
     bool closeEnabled = false;
     const vr::EVROverlayError readError =
         overlay->GetOverlayFlag(main, vr::VROverlayFlags_EnableControlBarClose, &closeEnabled);
-    std::fprintf(stderr, "[VR] SetOverlayFlag(EnableControlBarClose) -> %s（回读: %s, %s）\n",
+    std::fprintf(stderr, "[VR] SetOverlayFlag(EnableControlBarClose) -> %s（読み返し: %s, %s）\n",
                  overlayErrorName(closeError), overlayErrorName(readError), closeEnabled ? "true" : "false");
     return true;
 }
@@ -174,7 +174,7 @@ OverlayRepair VrOverlay::ensureOverlay() {
     const vr::EVROverlayError findError = overlay->FindOverlay(kDashboardKey, &found);
     const OverlayHealth health = judgeOverlay(findError == vr::VROverlayError_None, found, dashboardHandle_);
     if (health == OverlayHealth::Alive) {
-        if (repairFailing_) std::fprintf(stderr, "[VR] 自修复: 覆盖层已恢复\n");
+        if (repairFailing_) std::fprintf(stderr, "[VR] 自己修復: オーバーレイが戻っています\n");
         repairFailing_ = false;
         return OverlayRepair::Ok;
     }
@@ -184,11 +184,11 @@ OverlayRepair VrOverlay::ensureOverlay() {
     if (health == OverlayHealth::Missing) {
         std::snprintf(reason, sizeof(reason), "FindOverlay(%s) -> %s", kDashboardKey, overlayErrorName(findError));
     } else {
-        std::snprintf(reason, sizeof(reason), "FindOverlay(%s) 的句柄不同（自己 %llu，当前 %llu）", kDashboardKey,
+        std::snprintf(reason, sizeof(reason), "FindOverlay(%s) のハンドルが違う（自分 %llu、今 %llu）", kDashboardKey,
                       static_cast<unsigned long long>(dashboardHandle_), static_cast<unsigned long long>(found));
     }
     if (!repairFailing_) {
-        std::fprintf(stderr, "[VR] 自修复: 仪表盘的覆盖层已从 SteamVR 消失（%s）。将重新创建\n",
+        std::fprintf(stderr, "[VR] 自己修復: ダッシュボードのオーバーレイが SteamVR から消えています（%s）。作り直します\n",
                      reason);
     }
     // 古いハンドル（自分のもの）を片付ける。消えている前提なので、エラーは無視する。
@@ -205,7 +205,7 @@ OverlayRepair VrOverlay::ensureOverlay() {
     if (!createDashboardOverlay(message)) {
         // KeyInUse（別のプロセスが同じキーを持っている）などは、相手を消さずに次の確かめで再試行する
         if (!repairFailing_ || message != lastRepairMessage_) {
-            std::fprintf(stderr, "[VR] 自修复: 无法重新创建（%s）。将在下次检查时重试\n", message.c_str());
+            std::fprintf(stderr, "[VR] 自己修復: 作り直せません（%s）。次の確かめで再試行します\n", message.c_str());
         }
         repairFailing_ = true;
         lastRepairMessage_ = message;
@@ -214,39 +214,39 @@ OverlayRepair VrOverlay::ensureOverlay() {
     repairFailing_ = false;
     lastRepairMessage_.clear();
     lastPanelError_.clear();
-    std::fprintf(stderr, "[VR] 自修复: 已重新创建仪表盘的覆盖层\n");
+    std::fprintf(stderr, "[VR] 自己修復: ダッシュボードのオーバーレイを作り直しました\n");
     return OverlayRepair::Repaired;
 }
 
 void VrOverlay::shutdown() {
     if (!connected_) return;
     vr::IVROverlay* overlay = vr::VROverlay();
-    std::fprintf(stderr, "[VR] 开始退出处理\n");
+    std::fprintf(stderr, "[VR] 終了処理を始めます\n");
 
     // 1) テクスチャを外す（コンポジタがこちらの画像を参照しないようにする）
     if (dashboardHandle_ != 0) {
-        logShutdownStep("ClearOverlayTexture(面板)", overlay->ClearOverlayTexture(dashboardHandle_));
-        logShutdownStep("ClearOverlayTexture(缩略图)", overlay->ClearOverlayTexture(thumbnailHandle_));
+        logShutdownStep("ClearOverlayTexture(パネル)", overlay->ClearOverlayTexture(dashboardHandle_));
+        logShutdownStep("ClearOverlayTexture(サムネイル)", overlay->ClearOverlayTexture(thumbnailHandle_));
     }
     // 2) オーバーレイを消す（サムネイルはパネルと一緒に消える）
-    if (dashboardHandle_ != 0) logShutdownStep("DestroyOverlay(面板)", overlay->DestroyOverlay(dashboardHandle_));
+    if (dashboardHandle_ != 0) logShutdownStep("DestroyOverlay(パネル)", overlay->DestroyOverlay(dashboardHandle_));
     dashboardHandle_ = 0;
     thumbnailHandle_ = 0;
 
     // 3) コンポジタが数フレーム回って、外したテクスチャを手放すのを待つ
     std::this_thread::sleep_for(std::chrono::milliseconds(kShutdownWaitMs));
-    std::fprintf(stderr, "[VR] 退出处理已等待 %dms\n", kShutdownWaitMs);
+    std::fprintf(stderr, "[VR] 終了処理 %dms 待ちました\n", kShutdownWaitMs);
 
     // 4) OpenVR を閉じる（Vulkan の画像を壊すのはこの後、という OpenVR の決まり）
     vr::VR_Shutdown();
     connected_ = false;
-    std::fprintf(stderr, "[VR] 退出处理已完成 VR_Shutdown\n");
+    std::fprintf(stderr, "[VR] 終了処理 VR_Shutdown 済み\n");
 
     // 5) Vulkan の画像とデバイスを壊す
     thumbnailTexture_.destroy();
     panelTexture_.destroy();
     vulkan_.destroy();
-    std::fprintf(stderr, "[VR] 退出处理已清理 Vulkan\n");
+    std::fprintf(stderr, "[VR] 終了処理 Vulkan を片付けました\n");
 }
 
 VrEvents VrOverlay::pollEvents() {
@@ -277,17 +277,17 @@ VrEvents VrOverlay::pollEvents() {
                 // ダッシュボードのアイコンにホバーしたときの「閉じる」（VROverlayFlags_EnableControlBarClose）。
                 // SteamVR 自体の終了（VRSystem 側の VREvent_Quit）とは別のイベント
                 case vr::VREvent_OverlayClosed:
-                    std::fprintf(stderr, "[VR] 仪表盘的“关闭”被按下\n");
+                    std::fprintf(stderr, "[VR] ダッシュボードの「閉じる」が押されました\n");
                     result.closeRequested = true;
                     break;
-                case vr::VREvent_OverlayShown: std::fprintf(stderr, "[VR] 面板已打开\n"); break;
-                case vr::VREvent_OverlayHidden: std::fprintf(stderr, "[VR] 面板已关闭\n"); break;
+                case vr::VREvent_OverlayShown: std::fprintf(stderr, "[VR] パネルが開きました\n"); break;
+                case vr::VREvent_OverlayHidden: std::fprintf(stderr, "[VR] パネルが閉じました\n"); break;
                 default: break;
             }
         }
     }
     if (result.quit) {
-        std::fprintf(stderr, "[VR] 收到来自 SteamVR 的退出通知\n");
+        std::fprintf(stderr, "[VR] SteamVR から終了の知らせが来ました\n");
         vr::VRSystem()->AcknowledgeQuit_Exiting();
     }
     return result;
@@ -306,18 +306,18 @@ void VrOverlay::showPanel() {
     if (!connected_ || dashboardHandle_ == 0) return;
     // 戻り値は無い。開けたかは、あとの IsOverlayVisible / VREvent_OverlayShown で分かる
     vr::VROverlay()->ShowDashboard(kDashboardKey);
-    std::fprintf(stderr, "[VR] 已调用 ShowDashboard(%s)\n", kDashboardKey);
+    std::fprintf(stderr, "[VR] ShowDashboard(%s) を呼びました\n", kDashboardKey);
 }
 
 bool VrOverlay::submitThumbnail(const uint8_t* rgba, int size) {
     if (!connected_ || thumbnailHandle_ == 0) return false;
     std::string message;
     if (!thumbnailTexture_.ready() && !thumbnailTexture_.create(vulkan_, size, size, message)) {
-        std::fprintf(stderr, "[Vulkan] 无法创建缩略图纹理: %s\n", message.c_str());
+        std::fprintf(stderr, "[Vulkan] サムネイルのテクスチャを作れません: %s\n", message.c_str());
         return false;
     }
     if (!thumbnailTexture_.update(thumbnailHandle_, rgba, message)) {
-        std::fprintf(stderr, "[VR] 无法发送缩略图: %s\n", message.c_str());
+        std::fprintf(stderr, "[VR] サムネイルを送れません: %s\n", message.c_str());
         return false;
     }
     return true;
@@ -329,7 +329,7 @@ bool VrOverlay::submitPanel(const uint8_t* rgba) {
     const bool ok = panelTexture_.update(dashboardHandle_, rgba, message);
     // 同じエラーを毎回出さない
     if (message != lastPanelError_) {
-        if (!ok) std::fprintf(stderr, "[VR] 无法发送面板: %s\n", message.c_str());
+        if (!ok) std::fprintf(stderr, "[VR] パネルを送れません: %s\n", message.c_str());
         lastPanelError_ = message;
     }
     return ok;
@@ -347,19 +347,19 @@ void VrOverlay::logOverlayState(const char* when) const {
     uint32_t th = 0;
     const vr::EVROverlayError thumbError = overlay->GetOverlayTextureSize(thumbnailHandle_, &tw, &th);
     std::fprintf(stderr,
-                 "[VR] 检查（%s）: FindOverlay(%s) -> %s（同一句柄: %s） 面板图像 %ux%u（%s） "
-                 "缩略图图像 %ux%u（%s） 面板显示中: %s 仪表盘: %s\n",
-                 when, kDashboardKey, overlayErrorName(findError), found == dashboardHandle_ ? "是" : "否", w, h,
+                 "[VR] 確認（%s）: FindOverlay(%s) -> %s（同じハンドル: %s） パネルの画像 %ux%u（%s） "
+                 "サムネイルの画像 %ux%u（%s） パネル表示中: %s ダッシュボード: %s\n",
+                 when, kDashboardKey, overlayErrorName(findError), found == dashboardHandle_ ? "はい" : "いいえ", w, h,
                  overlayErrorName(sizeError), tw, th, overlayErrorName(thumbError),
-                 overlay->IsOverlayVisible(dashboardHandle_) ? "是" : "否",
-                 overlay->IsDashboardVisible() ? "开" : "关");
+                 overlay->IsOverlayVisible(dashboardHandle_) ? "はい" : "いいえ",
+                 overlay->IsDashboardVisible() ? "開" : "閉");
 }
 
 int VrOverlay::probe() {
     vr::EVRInitError error = vr::VRInitError_None;
     vr::VR_Init(&error, vr::VRApplication_Background);
     if (error != vr::VRInitError_None) {
-        std::printf("无法连接 SteamVR: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
+        std::printf("SteamVR につながりません: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
         return 1;
     }
     vr::IVROverlay* overlay = vr::VROverlay();
@@ -367,7 +367,7 @@ int VrOverlay::probe() {
     vr::VROverlayHandle_t handle = vr::k_ulOverlayHandleInvalid;
     const vr::EVROverlayError findError = overlay ? overlay->FindOverlay(kDashboardKey, &handle)
                                                   : vr::VROverlayError_RequestFailed;
-    std::printf("FindOverlay(%s) -> %s\n", kDashboardKey, overlay ? overlayErrorName(findError) : "没有 IVROverlay");
+    std::printf("FindOverlay(%s) -> %s\n", kDashboardKey, overlay ? overlayErrorName(findError) : "IVROverlay なし");
     if (overlay != nullptr && findError == vr::VROverlayError_None) {
         code = 0;
         char name[128] = {};
@@ -376,9 +376,9 @@ int VrOverlay::probe() {
         overlay->GetOverlayFlag(handle, vr::VROverlayFlags_EnableControlBarClose, &closeFlag);
         float widthM = 0.0f;
         overlay->GetOverlayWidthInMeters(handle, &widthM);
-        std::printf("  名称: %s  宽度: %.2fm  关闭按钮: %s  面板显示中: %s  仪表盘: %s\n", name, widthM,
-                    closeFlag ? "有" : "无", overlay->IsOverlayVisible(handle) ? "是" : "否",
-                    overlay->IsDashboardVisible() ? "开" : "关");
+        std::printf("  名前: %s  幅: %.2fm  閉じるボタン: %s  パネル表示中: %s  ダッシュボード: %s\n", name, widthM,
+                    closeFlag ? "あり" : "なし", overlay->IsOverlayVisible(handle) ? "はい" : "いいえ",
+                    overlay->IsDashboardVisible() ? "開" : "閉");
         uint32_t w = 0;
         uint32_t h = 0;
         const vr::EVROverlayError sizeError = overlay->GetOverlayTextureSize(handle, &w, &h);
@@ -394,13 +394,13 @@ int VrOverlay::switchAway(double seconds) {
     vr::EVRInitError error = vr::VRInitError_None;
     vr::VR_Init(&error, vr::VRApplication_Background);
     if (error != vr::VRInitError_None) {
-        std::printf("无法连接 SteamVR: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
+        std::printf("SteamVR につながりません: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
         return 1;
     }
     vr::VR_Shutdown();
     vr::VR_Init(&error, vr::VRApplication_Overlay);
     if (error != vr::VRInitError_None) {
-        std::printf("无法以覆盖层模式连接: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
+        std::printf("オーバーレイ型でつなげません: %s\n", vr::VR_GetVRInitErrorAsEnglishDescription(error));
         return 1;
     }
     vr::IVROverlay* overlay = vr::VROverlay();
@@ -414,9 +414,9 @@ int VrOverlay::switchAway(double seconds) {
         vr::VROverlayHandle_t mic = vr::k_ulOverlayHandleInvalid;
         overlay->FindOverlay(kDashboardKey, &mic);
         const auto micVisible = [&]() {
-            return mic != vr::k_ulOverlayHandleInvalid && overlay->IsOverlayVisible(mic) ? "是" : "否";
+            return mic != vr::k_ulOverlayHandleInvalid && overlay->IsOverlayVisible(mic) ? "はい" : "いいえ";
         };
-        std::printf("切换前: Mic 面板显示中: %s\n", micVisible());
+        std::printf("切り替える前: Mic のパネル表示中: %s\n", micVisible());
         // 画像の無いオーバーレイにはダッシュボードが切り替わらなかったので、アイコンの PNG を入れておく
         // （SetOverlayRaw の共有メモリは使わない。ファイルから読ませる）
         char exe[4096] = {};
@@ -432,8 +432,8 @@ int VrOverlay::switchAway(double seconds) {
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
         overlay->ShowDashboard(kAwayKey);
         std::this_thread::sleep_for(std::chrono::duration<double>(seconds));
-        std::printf("切换后: Mic 面板显示中: %s  临时覆盖层显示中: %s\n", micVisible(),
-                    overlay->IsOverlayVisible(main) ? "是" : "否");
+        std::printf("切り替えた後: Mic のパネル表示中: %s  一時オーバーレイ表示中: %s\n", micVisible(),
+                    overlay->IsOverlayVisible(main) ? "はい" : "いいえ");
         std::printf("DestroyOverlay -> %s\n", overlayErrorName(overlay->DestroyOverlay(main)));
         code = 0;
     }

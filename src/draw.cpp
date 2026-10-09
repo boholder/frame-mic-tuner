@@ -43,7 +43,7 @@ cairo_font_face_t* FontSet::createFace(const std::string& path, bool bold) {
         cairo_font_face_destroy(cairoFace);
         FT_Done_Face(face);
     }
-    std::fprintf(stderr, "[绘制] 无法读取字体 %s，改为查找并使用 Noto Sans CJK JP\n", path.c_str());
+    std::fprintf(stderr, "[描画] フォント %s を読めないので Noto Sans CJK JP を探して使います\n", path.c_str());
     return cairo_toy_font_face_create("Noto Sans CJK JP", CAIRO_FONT_SLANT_NORMAL,
                                       bold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
 }

@@ -141,7 +141,7 @@ CommandResult runCommand(const std::vector<std::string>& argv, int timeoutMs) {
         result.status = result.exitCode == 0 ? CommandResult::Status::Ok : CommandResult::Status::Failed;
         if (result.exitCode == 127 && result.out.empty() && result.err.empty()) {
             result.status = CommandResult::Status::SpawnFailed;
-            result.err = "找不到命令";
+            result.err = "コマンドが見つかりません";
         }
     } else {
         result.status = CommandResult::Status::Failed;
@@ -155,10 +155,10 @@ std::string describeCommand(const std::vector<std::string>& argv, const CommandR
     switch (result.status) {
         case CommandResult::Status::Ok: line += " -> 成功"; break;
         case CommandResult::Status::Failed:
-            line += result.exitCode >= 0 ? " -> 退出码 " + std::to_string(result.exitCode) : " -> 被信号终止";
+            line += result.exitCode >= 0 ? " -> 終了コード " + std::to_string(result.exitCode) : " -> シグナルで終了";
             break;
-        case CommandResult::Status::Timeout: line += " -> 超时已停止"; break;
-        case CommandResult::Status::SpawnFailed: line += " -> 无法启动"; break;
+        case CommandResult::Status::Timeout: line += " -> 時間切れで止めました"; break;
+        case CommandResult::Status::SpawnFailed: line += " -> 起動できません"; break;
     }
     std::string err = result.err;
     while (!err.empty() && (err.back() == '\n' || err.back() == ' ')) err.pop_back();

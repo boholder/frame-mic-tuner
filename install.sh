@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# 在 Steam Frame 上安装或更新 Frame Mic Tuner。请在头显上以普通用户身份运行（不需要 sudo），
-# 可以从下载好的发布包安装（先解压 tar.gz），也可以从克隆下来的仓库安装
-# （后者会进行构建）：
-#   ./install.sh                     需要时构建，然后安装或更新
-#   ./install.sh --autostart         同上，并从此随 SteamVR 一起启动
-#   ./install.sh --uninstall         卸载应用和 WirePlumber 脚本（之后请重启）
-#   ./install.sh --uninstall --purge 还会删除应用的设置和保存的 frame-mic.* 值
+# Install or update Frame Mic Tuner on a Steam Frame. Run it on the headset as the normal user (no sudo
+# needed), either from a downloaded release (extract the tar.gz first) or from a cloned repository
+# (this builds it):
+#   ./install.sh                     build if needed, then install or update
+#   ./install.sh --autostart         same, and also start it together with SteamVR from now on
+#   ./install.sh --uninstall         remove the app and the WirePlumber script (reboot afterwards)
+#   ./install.sh --uninstall --purge also delete the app's settings and the saved frame-mic.* values
 #
-# 本脚本从不重启 PipeWire 或 WirePlumber（游戏过程中这样做会让 SteamVR 和 Steam Link 失去声音），
-# 也从不改动 amixer、/etc 或 root。
-# 新的 WirePlumber 脚本会在下次重启后生效。
+# This script never restarts PipeWire or WirePlumber (doing that while playing leaves SteamVR and
+# Steam Link without sound), and never touches amixer, /etc or root. A new WirePlumber script takes
+# effect after the next reboot.
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
@@ -46,11 +46,11 @@ for arg in "$@"; do
         --uninstall) uninstall=1 ;;
         --purge) purge=1 ;;
         -h|--help) usage; exit 0 ;;
-        *) echo "未知选项: $arg" >&2; usage >&2; exit 2 ;;
+        *) echo "Unknown option: $arg" >&2; usage >&2; exit 2 ;;
     esac
 done
 if [[ $purge -eq 1 && $uninstall -eq 0 ]]; then
-    echo "--purge 只能与 --uninstall 一起使用。" >&2
+    echo "--purge only works together with --uninstall." >&2
     exit 2
 fi
 
@@ -72,23 +72,23 @@ if [[ $uninstall -eq 1 ]]; then
         # Forget the saved switch values. Only these two keys; nothing else in WirePlumber changes.
         wpctl settings --delete frame-mic.echo-cancel >/dev/null 2>&1 || true
         wpctl settings --delete frame-mic.noise-suppression >/dev/null 2>&1 || true
-        echo "已删除 Frame Mic Tuner、它的设置以及保存的 frame-mic.* 值。"
+        echo "Removed Frame Mic Tuner, its settings and the saved frame-mic.* values."
     else
-        echo "已删除 Frame Mic Tuner。它的设置仍保留在 $app_config（加上 --purge 可一并删除）。"
+        echo "Removed Frame Mic Tuner. Its settings are kept in $app_config (add --purge to delete them)."
     fi
     cat <<EOF
 
-WirePlumber 脚本已删除，但在 WirePlumber 下次启动之前仍处于加载状态。
-请在没在游戏时重启头显：之后就会恢复 Valve 原本的麦克风行为
-（应用使用麦克风时，回声消除和噪声抑制都会打开）。
-游戏过程中不要手动重启 PipeWire 或 WirePlumber：SteamVR 和 Steam Link 会失去声音
-（重启 SteamVR 即可恢复）。
+The WirePlumber script is removed but still loaded until the next start of WirePlumber.
+Restart the headset when you're not playing: after that, Valve's original microphone behaviour is back
+(echo cancellation and noise suppression both on while an app uses the mic).
+Don't restart PipeWire or WirePlumber by hand while playing: SteamVR and Steam Link lose their sound
+(restarting SteamVR brings it back).
 EOF
     exit 0
 fi
 
 if [[ "$(uname -m)" != "aarch64" ]]; then
-    echo "这是给 Steam Frame（aarch64）用的，但本机是 $(uname -m)。" >&2
+    echo "This is for the Steam Frame (aarch64), but this machine is $(uname -m)." >&2
     exit 1
 fi
 tools="wpctl systemctl"
@@ -97,7 +97,7 @@ if [[ $from_source -eq 1 ]]; then
 fi
 for tool in $tools; do
     if ! command -v "$tool" >/dev/null 2>&1; then
-        echo "缺少工具: $tool" >&2
+        echo "Missing tool: $tool" >&2
         exit 1
     fi
 done
@@ -154,11 +154,11 @@ strip_spdx() {
 install_if_changed() {
     local source="$1" target="$2"
     if [[ -f "$target" ]] && cmp -s <(strip_spdx "$source") <(strip_spdx "$target"); then
-        echo "WirePlumber: $target 已是最新。"
+        echo "WirePlumber: $target is already up to date."
         return
     fi
     install -Dm644 "$source" "$target"
-    echo "WirePlumber: 已安装 $target"
+    echo "WirePlumber: installed $target"
     wp_changed=1
 }
 
@@ -182,20 +182,20 @@ fi
 
 cat <<EOF
 
-Frame Mic Tuner 已安装：
+Frame Mic Tuner is installed:
   $bin
   $desktop
-  $unit_dir/$unit（随 SteamVR 启动：${autostart_state:-unknown}；可在面板里切换）
-从 SteamVR 仪表盘打开：+（启动程序）> Frame Mic Tuner，然后点“Mic”图标。
+  $unit_dir/$unit (start with SteamVR: ${autostart_state:-unknown}; switch it in the panel)
+Open it from the SteamVR dashboard: + (launch a program) > Frame Mic Tuner, then the "Mic" icon.
 EOF
 if pgrep -x frame-mic-tuner >/dev/null 2>&1; then
-    echo "正在运行的 Frame Mic Tuner 会继续使用旧版本，直到你退出它（仪表盘 > Mic > 退出）或重启 SteamVR。"
+    echo "A running Frame Mic Tuner keeps the old version until you quit it (dashboard > Mic > Quit) or restart SteamVR."
 fi
 if [[ $wp_changed -eq 1 ]]; then
     cat <<EOF
 
-WirePlumber 脚本已安装或已更新。重启头显即可启用。
-游戏过程中不要重启 PipeWire 或 WirePlumber：SteamVR 和 Steam Link 会失去声音
-（重启 SteamVR 即可恢复）。
+The WirePlumber script was installed or changed. Restart the headset to turn it on.
+Don't restart PipeWire or WirePlumber while playing: SteamVR and Steam Link lose their sound
+(restarting SteamVR brings it back).
 EOF
 fi

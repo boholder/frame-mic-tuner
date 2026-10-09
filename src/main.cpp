@@ -156,46 +156,46 @@ void sleepInterruptible(double seconds) {
 /** 使い方を表示する。 */
 void printUsage() {
     std::printf(
-        "用法: frame-mic-tuner [选项]\n"
-        "  （无）                在 SteamVR 仪表盘中显示面板并常驻（没有 SteamVR 时等待）\n"
-        "                        如果已在常驻，则打开那边的面板后退出\n"
-        "  --print               不启动 OpenVR，显示当前值、麦克风是否使用中、信号链路后退出\n"
-        "  --set-echo on|off     切换回声消除后，显示与 --print 相同的内容\n"
-        "  --set-ns on|off       切换噪声抑制后显示\n"
-        "  --set-autostart on|off  切换是否随 SteamVR 一起启动（systemctl --user enable/disable）后显示\n"
-        "  --set-ns-vad N        当场应用噪声抑制的判定严格度（0～99%%）后显示（不保存）\n"
-        "  --set-ns-grace N      当场应用噪声抑制的保持时间（0～1000ms）后显示（不保存）\n"
-        "  --dump-png PATH       不启动 OpenVR，把面板图像写入 PNG 后退出（按当前值绘制）\n"
-        "  --thumbnail-png PATH  把仪表盘的缩略图（与＋图标相同的图）写入 PNG\n"
-        "      --thumbnail-size N  该缩略图的边长（默认 256）\n"
-        "      --language ja|en|zh  用该语言绘制，代替设置中的语言\n"
-        "      --preview-quit    按“再按一次即退出”的状态绘制\n"
-        "      --tab quick|fine  用该标签页（简单 / 精细调整）绘制，代替设置中的标签页\n"
-        "      --fake            不读取实际值，按虚拟状态（扬声器·使用中）绘制。后面的 --fake-* 也一样\n"
-        "      --fake-echo on|off / --fake-ns on|off   虚拟的回声消除·噪声抑制\n"
-        "      --fake-idle       麦克风未使用\n"
-        "      --fake-loading    尚未读取的状态\n"
-        "      --fake-autostart on|off|missing|unknown  自启动状态（missing = 没有单元文件）\n"
-        "      --fake-error read|not-installed|links|write|write-echo|write-ns|autostart  红色失败提示\n"
-        "      --fake-recording  录音中（音量表·经过时间）的外观\n"
-        "      --fake-history N  虚拟历史 N 条（0～5）\n"
-        "      --fake-playing I  把历史第 I 条（0 为最新）设为播放中\n"
-        "      --fake-voice-error record|play  声音检查的失败提示\n"
-        "      --fake-update STATE  版本行的虚拟值（unknown/uptodate/checking/available/manual/installing/\n"
+        "使い方: frame-mic-tuner [オプション]\n"
+        "  （なし）              SteamVR のダッシュボードにパネルを出して常駐する（SteamVR が無ければ待つ）\n"
+        "                        すでに常駐していれば、そちらのパネルを開いて終わる\n"
+        "  --print               OpenVR なしで、今の値・マイク使用中か・つながりを表示して終わる\n"
+        "  --set-echo on|off     エコー除去を切り替えてから --print と同じ表示をする\n"
+        "  --set-ns on|off       ノイズ除去を切り替えてから表示する\n"
+        "  --set-autostart on|off  SteamVR と一緒に起動（systemctl --user enable/disable）を切り替えてから表示する\n"
+        "  --set-ns-vad N        ノイズ除去の判定の厳しさ（0〜99%%）をその場でかけてから表示する（保存はしない）\n"
+        "  --set-ns-grace N      ノイズ除去の余韻（0〜1000ms）をその場でかけてから表示する（保存はしない）\n"
+        "  --dump-png PATH       OpenVR なしでパネルの画像を PNG に書き出して終わる（今の値で描く）\n"
+        "  --thumbnail-png PATH  ダッシュボードのサムネイル（＋のアイコンと同じ絵）を PNG に書き出す\n"
+        "      --thumbnail-size N  そのサムネイルの一辺（既定 256）\n"
+        "      --language ja|en|zh  設定の言語の代わりにこの言語で描く\n"
+        "      --preview-quit    「もう一度押すと終了」の状態で描く\n"
+        "      --tab quick|fine  設定のタブの代わりに、このタブ（かんたん / 細かく調整）で描く\n"
+        "      --fake            実際の値を読まず、ダミーの状態（スピーカー・使用中）で描く。次の --fake-* も同じ\n"
+        "      --fake-echo on|off / --fake-ns on|off   ダミーのエコー除去・ノイズ除去\n"
+        "      --fake-idle       マイク未使用\n"
+        "      --fake-loading    まだ読んでいない状態\n"
+        "      --fake-autostart on|off|missing|unknown  自動起動の状態（missing = ユニットファイルが無い）\n"
+        "      --fake-error read|not-installed|links|write|write-echo|write-ns|autostart  赤い失敗の表示\n"
+        "      --fake-recording  録音中（メーター・経過）の見た目\n"
+        "      --fake-history N  ダミーの履歴を N 件（0〜5）\n"
+        "      --fake-playing I  履歴の I 件目（0 が最新）を再生中にする\n"
+        "      --fake-voice-error record|play  声のチェックの失敗の表示\n"
+        "      --fake-update STATE  版の行のダミー（unknown/uptodate/checking/available/manual/installing/\n"
         "                        installed/checkfailed/installfailed）\n"
-        "      --preview-update-confirm  把“更新”变成确认显示（与 --fake-update available 组合使用）\n"
-        "      --preview-pressed earphone|speaker|record  按下时的外观\n"
-        "      --fake-ns-vad N / --fake-ns-grace N  虚拟的噪声抑制强度（默认 23 / 500）\n"
-        "      --preview-drag-vad N / --preview-drag-grace N  把该滑块拖到 N 的外观\n"
-        "  --test-record [S]     不启动 OpenVR，从默认输入录制 S 秒（默认 3）→ 显示峰值和长度 → 用默认输出播放\n"
-        "                        （录音中和之后也显示 pw-metadata -n filters。音频只存在于内存中）\n"
-        "  --contrast-report     按画面的文字颜色·部件颜色与背景的每种组合，给出 WCAG 对比度与是否通过\n"
-        "  --self-test           不启动 OpenVR，用判定函数（自修复的覆盖层判定·输出读取）试算并输出结果\n"
-        "  --probe-switch-away [S]  确认用：切换到临时仪表盘覆盖层 S 秒（默认 3），让 Mic 面板保持关闭状态\n"
-        "  --debug-record-on-open   确认用（常驻）：面板打开后自动开始录音（用于确认关闭时是否停止的日志）\n"
-        "  --probe               诊断用：以 Background 类型连接 SteamVR，寻找常驻的面板并输出状态\n"
-        "  --version             显示版本后退出\n"
-        "  --config PATH         配置文件（默认 ~/.config/frame-mic-tuner/config.json）\n");
+        "      --preview-update-confirm  「更新する」を確認の表示にする（--fake-update available と組み合わせる）\n"
+        "      --preview-pressed earphone|speaker|record  押している間の見た目\n"
+        "      --fake-ns-vad N / --fake-ns-grace N  ダミーのノイズ除去の強さ（既定 23 / 500）\n"
+        "      --preview-drag-vad N / --preview-drag-grace N  そのバーを N までドラッグしている見た目\n"
+        "  --test-record [S]     OpenVR なしで、既定の入力から S 秒（既定 3）録音 → ピークと長さを表示 → 既定の出力で再生\n"
+        "                        （録音中と後に pw-metadata -n filters も表示する。音声はメモリの中だけ）\n"
+        "  --contrast-report     画面の文字色・部品の色と背景の組み合わせごとに、WCAG のコントラスト比と合否を出す\n"
+        "  --self-test           OpenVR なしで、判定の関数（自己修復のオーバーレイの判定・出力の読み取り）を試して結果を出す\n"
+        "  --probe-switch-away [S]  確認用: 一時的なダッシュボードのオーバーレイに S 秒（既定 3）切り替えて、Mic のパネルを閉じた状態にする\n"
+        "  --debug-record-on-open   確認用（常駐）: パネルが開いたら自動で録音を始める（閉じたら止まることのログ確認用）\n"
+        "  --probe               診断用: SteamVR に Background 型でつなぎ、常駐しているパネルを探して状態を出す\n"
+        "  --version             版を表示して終わる\n"
+        "  --config PATH         設定ファイル（既定 ~/.config/frame-mic-tuner/config.json）\n");
 }
 
 /**
@@ -213,7 +213,7 @@ bool parseOnOff(const std::string& text, bool& value) {
         value = false;
         return true;
     }
-    std::fprintf(stderr, "请用 on 或 off 指定：%s\n", text.c_str());
+    std::fprintf(stderr, "on か off で指定してください: %s\n", text.c_str());
     return false;
 }
 
@@ -250,7 +250,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
             options.language = argv[++i];
             Language check;
             if (!parseLanguage(options.language, check)) {
-                std::fprintf(stderr, "--language 只能是 ja、en 或 zh：%s\n", options.language.c_str());
+                std::fprintf(stderr, "--language は ja / en / zh です: %s\n", options.language.c_str());
                 return false;
             }
         } else if (arg == "--preview-quit") {
@@ -258,7 +258,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
         } else if (arg == "--tab" && hasNext) {
             options.tab = argv[++i];
             if (options.tab != "quick" && options.tab != "fine") {
-                std::fprintf(stderr, "--tab 只能是 quick 或 fine：%s\n", options.tab.c_str());
+                std::fprintf(stderr, "--tab は quick か fine です: %s\n", options.tab.c_str());
                 return false;
             }
         } else if (arg == "--set-ns-vad" && hasNext) {
@@ -303,7 +303,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
             } else if (state == "unknown") {
                 options.fakeAutostart = Autostart::Unknown;
             } else {
-                std::fprintf(stderr, "--fake-autostart 只能是 on / off / missing / unknown：%s\n", state.c_str());
+                std::fprintf(stderr, "--fake-autostart は on / off / missing / unknown です: %s\n", state.c_str());
                 return false;
             }
             options.fake = true;
@@ -324,7 +324,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
             } else if (kind == "autostart") {
                 options.fakeError = MicError::WriteAutostart;
             } else {
-                std::fprintf(stderr, "--fake-error 只能是 read / not-installed / links / write / write-echo / write-ns / autostart：%s\n",
+                std::fprintf(stderr, "--fake-error は read / not-installed / links / write / write-echo / write-ns / autostart です: %s\n",
                              kind.c_str());
                 return false;
             }
@@ -338,7 +338,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
         } else if (arg == "--fake-voice-error" && hasNext) {
             const std::string kind = argv[++i];
             if (kind != "record" && kind != "play") {
-                std::fprintf(stderr, "--fake-voice-error 只能是 record / play：%s\n", kind.c_str());
+                std::fprintf(stderr, "--fake-voice-error は record / play です: %s\n", kind.c_str());
                 return false;
             }
             options.fakeVoiceError = kind == "record" ? VoiceError::Record : VoiceError::Play;
@@ -351,8 +351,8 @@ bool parseOptions(int argc, char** argv, Options& options) {
             for (const char* name : kKnown) known |= options.fakeUpdate == name;
             if (!known) {
                 std::fprintf(stderr,
-                             "--fake-update 只能是 unknown/uptodate/checking/available/manual/installing/installed/"
-                             "checkfailed/installfailed：%s\n",
+                             "--fake-update は unknown/uptodate/checking/available/manual/installing/installed/"
+                             "checkfailed/installfailed です: %s\n",
                              options.fakeUpdate.c_str());
                 return false;
             }
@@ -383,7 +383,7 @@ bool parseOptions(int argc, char** argv, Options& options) {
         } else if (arg == "--help" || arg == "-h") {
             options.mode = Options::Mode::Help;
         } else {
-            std::fprintf(stderr, "未知的参数：%s\n", arg.c_str());
+            std::fprintf(stderr, "知らない引数です: %s\n", arg.c_str());
             return false;
         }
     }
@@ -398,12 +398,12 @@ bool parseOptions(int argc, char** argv, Options& options) {
  */
 const char* autostartName(Autostart autostart) {
     switch (autostart) {
-        case Autostart::Enabled: return "开（enabled）";
-        case Autostart::Disabled: return "关（disabled）";
-        case Autostart::Missing: return "没有单元文件（not-found）";
+        case Autostart::Enabled: return "オン（enabled）";
+        case Autostart::Disabled: return "オフ（disabled）";
+        case Autostart::Missing: return "ユニットファイルなし（not-found）";
         case Autostart::Unknown: break;
     }
-    return "无法读取";
+    return "読めません";
 }
 
 /**
@@ -412,9 +412,9 @@ const char* autostartName(Autostart autostart) {
  * @return 例:「判定の厳しさ 23%・余韻 500ms（ns_capture の id 53）」
  */
 std::string describeNsParams(const NsParams& ns) {
-    if (!ns.nodeKnown) return std::string(kNsNodeName) + " 未找到";
+    if (!ns.nodeKnown) return std::string(kNsNodeName) + " が見つかりません";
     char text[160];
-    std::snprintf(text, sizeof(text), "判定严格度 %s·保持时间 %s（%s 的 id %d）",
+    std::snprintf(text, sizeof(text), "判定の厳しさ %s・余韻 %s（%s の id %d）",
                   ns.vadKnown ? (std::to_string(static_cast<int>(std::lround(ns.vad))) + "%").c_str() : "?",
                   ns.graceKnown ? (std::to_string(static_cast<int>(std::lround(ns.grace))) + "ms").c_str() : "?",
                   kNsNodeName, ns.nodeId);
@@ -426,14 +426,14 @@ std::string describeNsParams(const NsParams& ns) {
  * @param state 状態
  */
 void logState(const MicState& state) {
-    const auto onOff = [](bool known, bool value) { return known ? (value ? "开" : "关") : "?"; };
-    const UiText& text = uiText(Language::Zh);
+    const auto onOff = [](bool known, bool value) { return known ? (value ? "オン" : "オフ") : "?"; };
+    const UiText& text = uiText(Language::Ja);
     const MicError error = state.writeError != MicError::None ? state.writeError : state.readError;
     const NsParams& ns = state.nsParams;
-    std::fprintf(stderr, "[麦克风] 更新显示：回声消除 %s·噪声抑制 %s（%s）·%s·%s·自启动 %s%s%s\n",
+    std::fprintf(stderr, "[マイク] 表示を更新: エコー除去 %s・ノイズ除去 %s（%s）・%s・%s・自動起動 %s%s%s\n",
                  onOff(state.echoKnown, state.echo), onOff(state.nsKnown, state.ns), describeNsParams(ns).c_str(),
-                 !state.linksKnown ? "使用状态未知" : (state.inUse ? "使用中" : "未使用"), describeChain(state).c_str(),
-                 autostartName(state.autostart), error != MicError::None ? "·失败：" : "",
+                 !state.linksKnown ? "使用中か不明" : (state.inUse ? "使用中" : "未使用"), describeChain(state).c_str(),
+                 autostartName(state.autostart), error != MicError::None ? "・失敗: " : "",
                  errorText(error, text).c_str());
 }
 
@@ -442,28 +442,28 @@ void logState(const MicState& state) {
  * @param state 状態
  */
 void printState(const MicState& state) {
-    const auto onOff = [](bool known, bool value) { return known ? (value ? "开（true）" : "关（false）") : "无法读取"; };
-    std::printf("回声消除 (%s)：%s\n", kEchoCancelKey, onOff(state.echoKnown, state.echo));
-    std::printf("噪声抑制 (%s)：%s\n", kNoiseSuppressionKey, onOff(state.nsKnown, state.ns));
-    std::printf("噪声抑制强度：%s\n", describeNsParams(state.nsParams).c_str());
+    const auto onOff = [](bool known, bool value) { return known ? (value ? "オン（true）" : "オフ（false）") : "読めません"; };
+    std::printf("エコー除去 (%s): %s\n", kEchoCancelKey, onOff(state.echoKnown, state.echo));
+    std::printf("ノイズ除去 (%s): %s\n", kNoiseSuppressionKey, onOff(state.nsKnown, state.ns));
+    std::printf("ノイズ除去の強さ: %s\n", describeNsParams(state.nsParams).c_str());
     if (state.echoKnown && state.nsKnown) {
         // プリセット: イヤホン = エコー除去オフ・ノイズ除去オフ、スピーカー = エコー除去オン・ノイズ除去オフ
-        const char* preset = state.ns ? "精细调整的设置（与两个预设都不同）"
-                                      : (state.echo ? "扬声器" : "耳机");
-        std::printf("预设：%s\n", preset);
+        const char* preset = state.ns ? "細かく調整した設定（どちらのプリセットとも違う）"
+                                      : (state.echo ? "スピーカー" : "イヤホン");
+        std::printf("プリセット: %s\n", preset);
     }
-    std::printf("麦克风：%s\n", !state.linksKnown ? "无法读取" : (state.inUse ? "使用中" : "未使用"));
-    std::printf("信号链路：%s\n", describeChain(state).c_str());
+    std::printf("マイク: %s\n", !state.linksKnown ? "読めません" : (state.inUse ? "使用中" : "未使用"));
+    std::printf("つながり: %s\n", describeChain(state).c_str());
     if (!state.users.empty()) {
-        std::printf("正在从麦克风取音的节点：");
+        std::printf("マイクから音を取っているノード:");
         for (const auto& user : state.users) std::printf(" %s", user.c_str());
         std::printf("\n");
     }
-    std::printf("随 SteamVR 一起启动 (%s)：%s\n", kServiceName, autostartName(state.autostart));
-    const UiText& text = uiText(Language::Zh);
-    if (state.readError != MicError::None) std::printf("失败：%s\n", errorText(state.readError, text).c_str());
-    if (state.writeError != MicError::None) std::printf("失败：%s\n", errorText(state.writeError, text).c_str());
-    std::printf("-- pw-link -l 中麦克风的通路 --\n%s", state.rawLinks.c_str());
+    std::printf("SteamVR と一緒に起動 (%s): %s\n", kServiceName, autostartName(state.autostart));
+    const UiText& text = uiText(Language::Ja);
+    if (state.readError != MicError::None) std::printf("失敗: %s\n", errorText(state.readError, text).c_str());
+    if (state.writeError != MicError::None) std::printf("失敗: %s\n", errorText(state.writeError, text).c_str());
+    std::printf("-- pw-link -l のうちマイクの通り道 --\n%s", state.rawLinks.c_str());
 }
 
 /**
@@ -663,15 +663,15 @@ int runDumpPng(const Options& options) {
         if (options.previewUpdateConfirm) panel.armUpdateForPreview();
         panel.render(config, state, fakeVoiceView(options), fakeUpdateStatus(options));
         if (!panel.writePng(options.pngPath)) {
-            std::fprintf(stderr, "无法写出 PNG：%s\n", options.pngPath.c_str());
+            std::fprintf(stderr, "PNG を書き出せませんでした: %s\n", options.pngPath.c_str());
             return 1;
         }
-        std::printf("已写出 PNG：%s（%dx%d）\n", options.pngPath.c_str(), panel.width(), panel.height());
+        std::printf("PNG を書き出しました: %s（%dx%d）\n", options.pngPath.c_str(), panel.width(), panel.height());
     }
     if (!options.thumbnailPngPath.empty()) {
         std::vector<uint8_t> rgba;
         renderThumbnail(fonts, options.thumbnailSize, rgba, options.thumbnailPngPath);
-        std::printf("已写出缩略图：%s（%dx%d）\n", options.thumbnailPngPath.c_str(), options.thumbnailSize,
+        std::printf("サムネイルを書き出しました: %s（%dx%d）\n", options.thumbnailPngPath.c_str(), options.thumbnailSize,
                     options.thumbnailSize);
     }
     return 0;
@@ -695,8 +695,8 @@ void printFilterMetadata(const char* when) {
         }
         pos = end == std::string::npos ? result.out.size() : end;
     }
-    if (line.empty()) line = " （无法读取：" + describeCommand({"pw-metadata", "-n", "filters"}, result) + "）";
-    std::printf("  [%s] pw-metadata -n filters 的 filter.smart.disabled:%s\n", when, line.c_str());
+    if (line.empty()) line = " （読めません: " + describeCommand({"pw-metadata", "-n", "filters"}, result) + "）";
+    std::printf("  [%s] pw-metadata -n filters の filter.smart.disabled:%s\n", when, line.c_str());
 }
 
 /**
@@ -707,11 +707,11 @@ void printFilterMetadata(const char* when) {
  */
 int runTestRecord(const Options& options) {
     const MicState settings = readMicState(false);
-    std::printf("录制时的设置：%s\n", describeChain(settings).c_str());
-    printFilterMetadata("录音前");
+    std::printf("録ったときの設定: %s\n", describeChain(settings).c_str());
+    printFilterMetadata("録音前");
     VoiceCheck voice;
     if (!voice.startRecording(settings)) {
-        std::printf("无法开始录音\n");
+        std::printf("録音を始められませんでした\n");
         return 1;
     }
     const double start = nowSeconds();
@@ -723,30 +723,30 @@ int runTestRecord(const Options& options) {
         voice.update();
         const VoiceView view = voice.view();
         loudest = std::max(loudest, view.levelDb);
-        if (++ticks % 5 == 0) std::printf("  %.1f 秒：音量表 %.1f dBFS\n", view.recordSec, view.levelDb);
+        if (++ticks % 5 == 0) std::printf("  %.1f 秒: メーター %.1f dBFS\n", view.recordSec, view.levelDb);
         if (!checked && nowSeconds() - start > 1.2) {
             checked = true;
-            printFilterMetadata("录音中");
+            printFilterMetadata("録音中");
             const MicState during = readMicState(false);
-            std::printf("  [录音中] 信号链路：%s\n  [录音中] 正在从麦克风取音的节点：", describeChain(during).c_str());
+            std::printf("  [録音中] つながり: %s\n  [録音中] マイクから音を取っているノード:", describeChain(during).c_str());
             for (const auto& user : during.users) std::printf(" %s", user.c_str());
             std::printf("\n");
         }
     }
     voice.stopRecording();
     if (voice.clips().empty()) {
-        std::printf("没有录到声音（太短或失败）\n");
+        std::printf("録れた音がありません（短すぎるか失敗）\n");
         voice.shutdown();
         return 1;
     }
     const VoiceClip& clip = *voice.clips().front();
-    std::printf("录音：%.2f 秒（%zu 个采样·%d Hz·mono int16）·整体峰值 %.1f dBFS·音量表最大值 %.1f dBFS\n",
+    std::printf("録音: %.2f 秒（%zu サンプル・%d Hz・mono int16）・全体のピーク %.1f dBFS・メーターの最大 %.1f dBFS\n",
                 clip.seconds(), clip.samples.size(), kVoiceRate, clip.peakDb, loudest);
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-    printFilterMetadata("录音后 1.5 秒");
+    printFilterMetadata("録音後 1.5 秒");
 
     if (!voice.play(clip.id)) {
-        std::printf("无法开始播放\n");
+        std::printf("再生を始められませんでした\n");
         voice.shutdown();
         return 1;
     }
@@ -757,7 +757,7 @@ int runTestRecord(const Options& options) {
         lastPos = std::max(lastPos, voice.view().playSec);
         voice.update();
     }
-    std::printf("播放：用了 %.2f 秒结束（传入位置 %.2f 秒）\n", nowSeconds() - playStart, lastPos);
+    std::printf("再生: %.2f 秒かかって終わりました（渡した位置 %.2f 秒）\n", nowSeconds() - playStart, lastPos);
     voice.shutdown();
     return 0;
 }
@@ -794,38 +794,38 @@ int runSelfTest() {
     const auto expect = [&](const char* what, bool ok) {
         ++total;
         if (!ok) ++failures;
-        std::printf("%s  %s\n", ok ? "通过  " : "未通过", what);
+        std::printf("%s  %s\n", ok ? "合格  " : "不合格", what);
     };
 
     // 自己修復: FindOverlay の結果から、自分のオーバーレイがまだあるか
-    expect("覆盖层：找到了，且是自己的句柄 → 存在",
+    expect("オーバーレイ: 見つかり、自分のハンドル → ある",
            judgeOverlay(true, 0x1234, 0x1234) == OverlayHealth::Alive);
-    expect("覆盖层：未找到（UnknownOverlay）→ 已消失",
+    expect("オーバーレイ: 見つからない（UnknownOverlay）→ 消えている",
            judgeOverlay(false, 0, 0x1234) == OverlayHealth::Missing);
-    expect("覆盖层：找到了但是别人的句柄 → 键被别的东西持有",
+    expect("オーバーレイ: 見つかるが別のハンドル → 別のものがキーを持っている",
            judgeOverlay(true, 0x9999, 0x1234) == OverlayHealth::Replaced);
-    expect("覆盖层：自己没有句柄（上次重建失败）→ 按已消失处理并重建",
+    expect("オーバーレイ: 自分がハンドルを持っていない（前の作り直しに失敗）→ 消えている扱いで作り直す",
            judgeOverlay(true, 0x9999, 0) == OverlayHealth::Missing);
-    expect("覆盖层：未找到，也没有句柄 → 已消失", judgeOverlay(false, 0, 0) == OverlayHealth::Missing);
+    expect("オーバーレイ: 見つからず、ハンドルも無い → 消えている", judgeOverlay(false, 0, 0) == OverlayHealth::Missing);
 
     // wpctl settings の出力
     bool value = false;
-    expect("wpctl: “Value: true (Saved: true)”→ true",
+    expect("wpctl: 「Value: true (Saved: true)」→ true",
            parseSettingValue("Value: true (Saved: true)\n", value) && value);
-    expect("wpctl: “Setting '...' not found”→ 无法读取",
+    expect("wpctl: 「Setting '...' not found」→ 読めない",
            !parseSettingValue("Setting 'frame-mic.echo-cancel' not found\n", value));
     const std::string list =
         "Settings:\n\n- Id: frame-mic.echo-cancel\n  Value: false\t[Saved: false]\n\n"
         "- Id: frame-mic.noise-suppression\n  Default: false\n  Value: true\t[Saved: true]\n";
     bool echo = true;
     bool ns = false;
-    expect("wpctl: 从列表中读取 回声消除 = false·噪声抑制 = true",
+    expect("wpctl: 一覧からエコー除去 = false・ノイズ除去 = true",
            parseSettingFromList(list, kEchoCancelKey, echo) && !echo &&
                parseSettingFromList(list, kNoiseSuppressionKey, ns) && ns);
 
     // systemctl --user is-enabled の出力
-    expect("systemctl: not-found → 没有单元文件", parseAutostart("not-found\n") == Autostart::Missing);
-    expect("systemctl: enabled → 已启用", parseAutostart("enabled\n") == Autostart::Enabled);
+    expect("systemctl: not-found → ユニットファイルなし", parseAutostart("not-found\n") == Autostart::Missing);
+    expect("systemctl: enabled → 有効", parseAutostart("enabled\n") == Autostart::Enabled);
 
     // pw-link -l の出力（イヤホン: EQ → 出力。フィルターが入っているのでマイク使用中）
     const std::string links =
@@ -835,7 +835,7 @@ int runSelfTest() {
         "  |-> alsa_loopback_stream.alsa_input.platform-sound.HiFi__Mic__source:input_MONO\n";
     MicState state;
     parseLinks(links, state);
-    expect("pw-link: 麦克风 → EQ → 输出、使用中",
+    expect("pw-link: マイク → EQ → 出力、使用中",
            state.linksKnown && state.inUse && state.chain.size() == 1 &&
                state.chain[0].kind == ChainStage::Kind::Eq);
 
@@ -847,10 +847,10 @@ int runSelfTest() {
             {"params": ["noise_suppressor_mono:VAD Threshold (%)", 23.0,
                         "noise_suppressor_mono:VAD Grace Period (ms)", 500.0]}]}}}])json";
     const NsParams params = parseNsDump(dump);
-    expect("pw-dump: ns_capture 的 id 53·23%·500ms",
+    expect("pw-dump: ns_capture の id 53・23%・500ms",
            params.nodeKnown && params.nodeId == 53 && params.vadKnown && params.vad == 23.0 && params.graceKnown &&
                params.grace == 500.0);
-    expect("噪声抑制强度：把超出范围的值收敛（150% → 99%、-5ms → 0ms、512ms → 510ms）",
+    expect("ノイズ除去の強さ: 範囲外を丸める（150% → 99%、-5ms → 0ms、512ms → 510ms）",
            clampNsVad(150) == 99.0 && clampNsGrace(-5) == 0.0 && clampNsGrace(512) == 510.0);
 
     // 設定ファイル: タブ（と言語・ノイズ除去の強さ）を保存して読み直すと同じになる（一時ファイルで試して消す）
@@ -869,15 +869,15 @@ int runSelfTest() {
         std::vector<std::string> warnings;
         Config loaded;
         ok = ok && saveConfig(path, saved, error) && loadConfig(path, loaded, warnings, error);
-        expect("配置文件：保存标签页“精细调整”·English·30%/600ms 再读取后相同",
+        expect("設定ファイル: タブ「細かく調整」・English・30%/600ms を保存して読み直すと同じ",
                ok && loaded.tab == PanelTab::Fine && loaded.language == Language::En && loaded.hasNsParams &&
                    loaded.nsVad == 30 && loaded.nsGrace == 600 && warnings.empty());
         saved.tab = PanelTab::Quick;
         ok = saveConfig(path, saved, error) && loadConfig(path, loaded, warnings, error);
-        expect("配置文件：保存标签页“简单”再读取后相同", ok && loaded.tab == PanelTab::Quick);
+        expect("設定ファイル: タブ「かんたん」を保存して読み直すと同じ", ok && loaded.tab == PanelTab::Quick);
         ::unlink(path);
         Config fresh;
-        expect("配置文件：没有标签页时为“简单”", fresh.tab == PanelTab::Quick);
+        expect("設定ファイル: タブが無いときは「かんたん」", fresh.tab == PanelTab::Quick);
     }
 
     // バーのドラッグ: 細かく調整のタブで判定の厳しさのバーをつかんで動かし、タブを切り替える（= ドラッグを終わらせる）と、
@@ -904,17 +904,17 @@ int runSelfTest() {
         double vad = 0.0;
         double grace = 0.0;
         const bool finished = finishDrag(panel, state, vad, grace);
-        expect("拖动：按下轨道即开始拖动", found && hit.action == PanelAction::NsVadSlider && draggingBefore);
-        expect("拖动：用切换标签页结束拖动时，返回最后的值（向右移动后的 60% 以上）和当前的保持时间",
+        expect("ドラッグ: 溝を押すとドラッグが始まる", found && hit.action == PanelAction::NsVadSlider && draggingBefore);
+        expect("ドラッグ: タブの切り替えで終わらせると、最後の値（右へ動かした 60% 以上）と今の余韻が返る",
                finished && vad >= 60 && vad <= kNsVadMax && grace == kNsGraceDefault);
-        expect("拖动：结束之后不再处于拖动状态", !panel.dragging());
+        expect("ドラッグ: 終わらせたあとはドラッグしていない", !panel.dragging());
         double again = 0.0;
-        expect("拖动：没有在拖动时什么都不返回", !finishDrag(panel, state, again, again));
+        expect("ドラッグ: ドラッグしていなければ何も返さない", !finishDrag(panel, state, again, again));
         config.tab = PanelTab::Quick;
         panel.render(config, state, VoiceView());
         double qx = 0.0;
         double qy = 0.0;
-        expect("标签页：简单标签页下不绘制滑块", !panel.trackCenter(PanelAction::NsVadSlider, qx, qy));
+        expect("タブ: かんたんのタブではバーを描かない", !panel.trackCenter(PanelAction::NsVadSlider, qx, qy));
     }
 
     // 更新の帯: 「更新する」の 1 回目は確認の表示（「やめる」が出る）だけ、「やめる」で元に戻る。確認中の 2 回目で更新する
@@ -942,19 +942,19 @@ int runSelfTest() {
         panel.pointerUp();
         panel.render(config, state, VoiceView(), update);
         const bool cancelGone = !panel.buttonCenter(PanelAction::UpdateCancel, x, y);
-        expect("更新提示条：“更新”第一次不返回任何操作，只显示“取消”",
+        expect("更新の帯: 「更新する」の 1 回目は何も返さず「やめる」を出す",
                noCancelFirst && first.action == PanelAction::None && cancelShown);
-        expect("更新提示条：按“取消”后确认消失", cancel.action == PanelAction::UpdateCancel && cancelGone);
+        expect("更新の帯: 「やめる」を押すと確認が消える", cancel.action == PanelAction::UpdateCancel && cancelGone);
         panel.buttonCenter(PanelAction::UpdateInstall, x, y);
         panel.pointerDown(x, y, 0.2);
         panel.pointerUp();
         panel.render(config, state, VoiceView(), update);
         panel.buttonCenter(PanelAction::UpdateInstall, x, y);
         const PanelHit second = panel.pointerDown(x, y, 0.3);
-        expect("更新提示条：确认中再按一次“更新”即开始更新", second.action == PanelAction::UpdateInstall);
+        expect("更新の帯: 確認中にもう一度「更新する」を押すと更新する", second.action == PanelAction::UpdateInstall);
     }
 
-    std::printf("%d 项中有 %d 项未通过\n", total, failures);
+    std::printf("%d 件中 %d 件が不合格\n", total, failures);
     return failures == 0 ? 0 : 1;
 }
 
@@ -1000,13 +1000,13 @@ bool acquireInstanceLock(int& lockFd, pid_t& holderPid) {
     const std::string path = lockFilePath();
     const int fd = ::open(path.c_str(), O_RDWR | O_CREAT | O_CLOEXEC, 0600);
     if (fd < 0) {
-        std::fprintf(stderr, "[启动] 无法打开锁文件 %s，因此不检查重复启动，直接启动\n", path.c_str());
+        std::fprintf(stderr, "[起動] ロックファイル %s を開けないので、二重起動の確認をせずに起動します\n", path.c_str());
         return true;
     }
     if (::flock(fd, LOCK_EX | LOCK_NB) == 0) {
         const std::string pid = std::to_string(::getpid()) + "\n";
         if (::ftruncate(fd, 0) != 0 || ::pwrite(fd, pid.data(), pid.size(), 0) < 0) {
-            std::fprintf(stderr, "[启动] 无法把 PID 写入锁文件\n");
+            std::fprintf(stderr, "[起動] ロックファイルに PID を書けませんでした\n");
         }
         lockFd = fd;
         return true;
@@ -1063,37 +1063,41 @@ void handleAction(PanelHit hit, Config& config, const std::string& configPath, M
         case PanelAction::TabFine: return;
         case PanelAction::EchoOn:
         case PanelAction::EchoOff:
-            std::fprintf(stderr, "[操作] 回声消除 %s\n", action == PanelAction::EchoOn ? "开" : "关");
+            std::fprintf(stderr, "[操作] エコー除去 %s\n", action == PanelAction::EchoOn ? "オン" : "オフ");
             worker.request({MicCommand::Kind::SetEcho, action == PanelAction::EchoOn});
             return;
         case PanelAction::NsOn:
         case PanelAction::NsOff:
-            std::fprintf(stderr, "[操作] 噪声抑制 %s\n", action == PanelAction::NsOn ? "开" : "关");
+            std::fprintf(stderr, "[操作] ノイズ除去 %s\n", action == PanelAction::NsOn ? "オン" : "オフ");
             worker.request({MicCommand::Kind::SetNs, action == PanelAction::NsOn});
             return;
         case PanelAction::AutostartOn:
         case PanelAction::AutostartOff:
-            std::fprintf(stderr, "[操作] 随 SteamVR 一起启动 %s\n", action == PanelAction::AutostartOn ? "开" : "关");
+            std::fprintf(stderr, "[操作] SteamVR と一緒に起動 %s\n", action == PanelAction::AutostartOn ? "オン" : "オフ");
             worker.request({MicCommand::Kind::SetAutostart, action == PanelAction::AutostartOn});
             return;
         case PanelAction::LanguageJa:
         case PanelAction::LanguageEn:
         case PanelAction::LanguageZh: {
-            const Language language = action == PanelAction::LanguageJa
-                                          ? Language::Ja
-                                          : (action == PanelAction::LanguageEn ? Language::En : Language::Zh);
+            Language language;
+            switch (action) {
+                case PanelAction::LanguageJa: language = Language::Ja; break;
+                case PanelAction::LanguageEn: language = Language::En; break;
+                case PanelAction::LanguageZh: language = Language::Zh; break;
+                default: return;
+            }
             if (language == config.language) return;
             config.language = language;
             std::string error;
-            if (!saveConfig(configPath, config, error)) std::fprintf(stderr, "[设置] 保存失败：%s\n", error.c_str());
+            if (!saveConfig(configPath, config, error)) std::fprintf(stderr, "[設定] 保存に失敗: %s\n", error.c_str());
             return;
         }
         case PanelAction::Record:
             if (voice.recording()) {
-                std::fprintf(stderr, "[操作] 停止录音\n");
+                std::fprintf(stderr, "[操作] 録音を止める\n");
                 voice.stopRecording();
             } else {
-                std::fprintf(stderr, "[操作] 录音\n");
+                std::fprintf(stderr, "[操作] 録音\n");
                 voice.startRecording(state);
             }
             return;
@@ -1101,10 +1105,10 @@ void handleAction(PanelHit hit, Config& config, const std::string& configPath, M
             if (hit.index < 0 || hit.index >= static_cast<int>(view.clips.size())) return;
             const uint64_t id = view.clips[hit.index]->id;
             if (voice.playingId() == id) {
-                std::fprintf(stderr, "[操作] 停止播放\n");
+                std::fprintf(stderr, "[操作] 再生を止める\n");
                 voice.stopPlayback();
             } else {
-                std::fprintf(stderr, "[操作] 播放第 %d 条\n", hit.index + 1);
+                std::fprintf(stderr, "[操作] %d 件目を再生\n", hit.index + 1);
                 voice.play(id);
             }
             return;
@@ -1139,16 +1143,16 @@ int runOverlay(const Options& options) {
         // systemd（Restart=always）から起動されたのに常駐がいるときは、5 秒ごとにパネルが開き続けないよう
         // 知らせを送らずに、起動し直されない終了コードで静かに終わる
         if (startedByOwnService()) {
-            std::fprintf(stderr, "[启动] 已经在常驻（PID %d）。本次是从服务启动，所以什么都不做直接退出\n",
+            std::fprintf(stderr, "[起動] すでに常駐しています（PID %d）。サービスからの起動なので何もせずに終わります\n",
                          static_cast<int>(holderPid));
             return kExitCodeUserQuit;
         }
         if (holderPid > 0 && ::kill(holderPid, SIGUSR1) == 0) {
-            std::fprintf(stderr, "[启动] 已经在常驻（PID %d）。打开面板后退出\n",
+            std::fprintf(stderr, "[起動] すでに常駐しています（PID %d）。パネルを開いて終わります\n",
                          static_cast<int>(holderPid));
             return 0;
         }
-        std::fprintf(stderr, "[启动] 似乎已经在常驻，但没能发送通知（PID %d）\n",
+        std::fprintf(stderr, "[起動] すでに常駐しているようですが、知らせを送れませんでした（PID %d）\n",
                      static_cast<int>(holderPid));
         return 1;
     }
@@ -1180,13 +1184,13 @@ int runOverlay(const Options& options) {
     const auto handleUpdateAction = [&](PanelAction action) {
         switch (action) {
             case PanelAction::UpdateCheckNow:
-                std::fprintf(stderr, "[更新] 开始检查\n");
+                std::fprintf(stderr, "[更新] 確認します\n");
                 updater.checkNow();
                 return;
             case PanelAction::UpdateInstall:
             case PanelAction::UpdateRetry:
-                std::fprintf(stderr, "[更新] 开始更新\n");
-                if (!updater.install()) std::fprintf(stderr, "[更新] 无法开始\n");
+                std::fprintf(stderr, "[更新] 更新を始めます\n");
+                if (!updater.install()) std::fprintf(stderr, "[更新] 始められませんでした\n");
                 return;
             case PanelAction::UpdateDismiss:
                 updater.dismiss();
@@ -1204,16 +1208,16 @@ int runOverlay(const Options& options) {
         if (result == VrOverlay::ConnectResult::Ok) break;
         if (message != lastMessage) {
             if (result == VrOverlay::ConnectResult::NotRunning) {
-                std::fprintf(stderr, "[VR] SteamVR 尚未启动，因此等待（每 3 秒重试）\n");
+                std::fprintf(stderr, "[VR] SteamVR が起動していないので待ちます（3 秒おきに再試行）\n");
             } else {
-                std::fprintf(stderr, "[VR] 连接失败：%s（3 秒后重试）\n", message.c_str());
+                std::fprintf(stderr, "[VR] 接続に失敗: %s（3 秒後に再試行）\n", message.c_str());
             }
             lastMessage = message;
         }
         sleepInterruptible(3.0);
         if (gShowRequested) {
             gShowRequested = 0;
-            std::fprintf(stderr, "[启动] 收到了打开面板的通知，但尚未连接到 SteamVR\n");
+            std::fprintf(stderr, "[起動] パネルを開く知らせが来ましたが、SteamVR につながっていません\n");
         }
     }
     if (gStopRequested) {
@@ -1221,7 +1225,7 @@ int runOverlay(const Options& options) {
         if (lockFd >= 0) ::close(lockFd);
         return 0;
     }
-    std::fprintf(stderr, "[VR] 已连接到 SteamVR\n");
+    std::fprintf(stderr, "[VR] SteamVR につながりました\n");
     MicState state;
     uint64_t drawnVersion = worker.snapshot(state);
     {
@@ -1231,7 +1235,7 @@ int runOverlay(const Options& options) {
         // パネルにも最初の 1 枚（読み込み中）を入れておく（初めて選ばれたとき、画像が無い瞬間を作らない）
         panel.render(config, state, VoiceView(), updater.status());
         vr.submitPanel(panel.toRgba().data());
-        vr.logOverlayState("刚连接后");
+        vr.logOverlayState("接続直後");
     }
 
     VoiceView voiceView;
@@ -1249,8 +1253,8 @@ int runOverlay(const Options& options) {
      */
     const auto applyPreset = [&](PanelAction action) {
         const bool speaker = action == PanelAction::Speaker;
-        std::fprintf(stderr, "[操作] %s\n", speaker ? "扬声器（回声消除开·噪声抑制关）"
-                                                     : "耳机（回声消除关·噪声抑制关）");
+        std::fprintf(stderr, "[操作] %s\n", speaker ? "スピーカー（エコー除去オン・ノイズ除去オフ）"
+                                                     : "イヤホン（エコー除去オフ・ノイズ除去オフ）");
         presetTicket = worker.request({MicCommand::Kind::SetPreset, speaker});
         panel.holdPreset(action, nowSeconds() + 8.0);  // 書き込みが詰まっても、8 秒で実際の値の表示に戻す
     };
@@ -1279,9 +1283,9 @@ int runOverlay(const Options& options) {
         config.nsGrace = grace;
         std::string error;
         if (saveConfig(options.configPath, config, error)) {
-            std::fprintf(stderr, "[噪声抑制] 已保存判定严格度 %.0f%%·保持时间 %.0fms\n", vad, grace);
+            std::fprintf(stderr, "[ノイズ除去] 判定の厳しさ %.0f%%・余韻 %.0fms を保存しました\n", vad, grace);
         } else {
-            std::fprintf(stderr, "[设置] 保存失败：%s\n", error.c_str());
+            std::fprintf(stderr, "[設定] 保存に失敗: %s\n", error.c_str());
         }
     };
     /**
@@ -1301,7 +1305,7 @@ int runOverlay(const Options& options) {
             case PanelAction::NsGraceMinus: sendNsParams(vad, grace - kNsGraceStep, true); return true;
             case PanelAction::NsGracePlus: sendNsParams(vad, grace + kNsGraceStep, true); return true;
             case PanelAction::NsReset:
-                std::fprintf(stderr, "[操作] 把噪声抑制强度恢复默认\n");
+                std::fprintf(stderr, "[操作] ノイズ除去の強さを標準に戻す\n");
                 sendNsParams(kNsVadDefault, kNsGraceDefault, true);
                 return true;
             default: return false;
@@ -1330,9 +1334,9 @@ int runOverlay(const Options& options) {
         if (finishDrag(panel, state, vad, grace)) sendNsParams(vad, grace, true);
         if (config.tab == tab) return;
         config.tab = tab;
-        std::fprintf(stderr, "[操作] 标签页：%s\n", tab == PanelTab::Quick ? "简单" : "精细调整");
+        std::fprintf(stderr, "[操作] タブ: %s\n", tab == PanelTab::Quick ? "かんたん" : "細かく調整");
         std::string error;
-        if (!saveConfig(options.configPath, config, error)) std::fprintf(stderr, "[设置] 保存失败：%s\n", error.c_str());
+        if (!saveConfig(options.configPath, config, error)) std::fprintf(stderr, "[設定] 保存に失敗: %s\n", error.c_str());
     };
     bool dirty = true;
     bool wasVisible = false;
@@ -1353,13 +1357,13 @@ int runOverlay(const Options& options) {
         drawnUpdateRevision = updater.revision();
         panel.render(config, state, voiceView, updater.status());
         vr.submitPanel(panel.toRgba().data());
-        vr.logOverlayState("重建之后");
+        vr.logOverlayState("作り直した後");
         dirty = true;
     };
     while (!gStopRequested && !userQuit) {
         if (gShowRequested) {
             gShowRequested = 0;
-            std::fprintf(stderr, "[启动] 收到第二次启动的通知，打开面板\n");
+            std::fprintf(stderr, "[起動] 2 つ目の起動から知らせが来たので、パネルを開きます\n");
             checkOverlayNow();  // 開く前に、オーバーレイが消えていないか確かめる（消えていれば作り直してから開く）
             vr.showPanel();
         }
@@ -1370,12 +1374,12 @@ int runOverlay(const Options& options) {
         // （VREvent_OverlayClosed）はユーザーの終了なので、「終了」と同じく終了コード 3
         if (events.quit) break;
         if (events.closeRequested) {
-            std::fprintf(stderr, "[VR] 因仪表盘的“关闭”而退出\n");
+            std::fprintf(stderr, "[VR] ダッシュボードの「閉じる」で終了します\n");
             userQuit = true;
             break;
         }
         if (!vr.steamVrAlive()) {
-            std::fprintf(stderr, "[VR] vrserver 已消失，因此退出\n");
+            std::fprintf(stderr, "[VR] vrserver がいなくなったので終了します\n");
             break;
         }
 
@@ -1388,7 +1392,7 @@ int runOverlay(const Options& options) {
         worker.setActive(visible);
         // パネルが閉じたら、録音はすぐ止める（見えないところで録らない）。再生も止めて、PipeWire のストリームを片付ける
         if (!visible && wasVisible) {
-            if (voice.busy()) std::fprintf(stderr, "[声音] 面板已关闭，因此停止录音和播放\n");
+            if (voice.busy()) std::fprintf(stderr, "[声] パネルが閉じたので、録音・再生を止めます\n");
             voice.shutdown();
             // バーをドラッグしたまま閉じたときも、最後の値を送って保存する
             double vad = 0.0;
@@ -1396,7 +1400,7 @@ int runOverlay(const Options& options) {
             if (finishDrag(panel, state, vad, grace)) sendNsParams(vad, grace, true);
         }
         if (options.debugRecordOnOpen && visible && !wasVisible) {
-            std::fprintf(stderr, "[声音] 确认用：面板已打开，因此开始录音\n");
+            std::fprintf(stderr, "[声] 確認用: パネルが開いたので録音を始めます\n");
             voice.startRecording(state);
         }
         dirty |= voice.update();
@@ -1407,7 +1411,7 @@ int runOverlay(const Options& options) {
                 case PointerInput::Type::Down: {
                     const PanelHit hit = panel.pointerDown(input.x, input.y, nowSeconds());
                     if (hit.action == PanelAction::Quit) {
-                        std::fprintf(stderr, "[VR] 因面板的“退出”而退出\n");
+                        std::fprintf(stderr, "[VR] パネルの「終了」で終了します\n");
                         userQuit = true;
                     } else if (hit.action == PanelAction::Earphone || hit.action == PanelAction::Speaker) {
                         applyPreset(hit.action);
@@ -1457,7 +1461,7 @@ int runOverlay(const Options& options) {
             dirty = false;
             if (firstSubmit) {
                 firstSubmit = false;
-                vr.logOverlayState("首次绘制面板之后");
+                vr.logOverlayState("初めてパネルを描いた後");
             }
         }
         wasVisible = visible;
@@ -1470,7 +1474,7 @@ int runOverlay(const Options& options) {
     voice.shutdown();  // 録音・再生を止める（録った音はメモリごと消える）
     vr.shutdown();
     worker.stop();
-    std::fprintf(stderr, "[VR] 已退出\n");
+    std::fprintf(stderr, "[VR] 終了しました\n");
     if (lockFd >= 0) ::close(lockFd);
     // ユーザーが終了したときは、systemd（Restart=always）に起動し直させないよう決まった終了コードにする
     return userQuit ? kExitCodeUserQuit : 0;

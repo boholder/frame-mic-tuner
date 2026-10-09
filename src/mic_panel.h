@@ -31,7 +31,7 @@ enum class PanelAction {
     Play,          ///< 履歴の再生・停止（index = 履歴の何件目か。新しい順）
     LanguageJa,
     LanguageEn,
-    LanguageZh,    ///< 简体中文
+    LanguageZh,
     AutostartOn,   ///< SteamVR と一緒に起動: オン
     AutostartOff,  ///< SteamVR と一緒に起動: オフ
     Quit,          ///< 終了（2 回目の押下で確定したときだけ返る）
@@ -318,21 +318,21 @@ private:
     void drawUpdateRow(const Pen& pen, const UiText& t, const frame_updater::UpdateStatus& update, double y);
 
     /**
-     * 把若干选项排成一条胶囊，给选中的一段涂色（滑动式）。
-     * @param pen 绘制的工具
+     * 2 つの選択肢を 1 本のピルに並べ、選択中の側に塗りを置く（スライド式）。
+     * @param pen 描画の道具
      * @param x 左
      * @param y 上
-     * @param w 宽
-     * @param h 高
-     * @param labels 各段的文案
-     * @param actions 各段的操作
-     * @param count 段数
-     * @param selected 选中的一段（0 起。判断不了时为 -1）
-     * @param size 文字大小
-     * @param usable 是否可以按
+     * @param w 幅
+     * @param h 高さ
+     * @param labels 左右の文言
+     * @param actions 左右の操作
+     * @param actionCount 操作選択肢の数
+     * @param selected 選択中の側（0 / 1、分からなければ -1）
+     * @param size 文字の大きさ
+     * @param usable 押せるか
      */
     void drawSegmented(const Pen& pen, double x, double y, double w, double h, const std::string* labels,
-                       const PanelAction* actions, int count, int selected, double size, bool usable = true);
+                       const PanelAction* actions, int actionCount, int selected, double size, bool usable = true);
 };
 
 /**
