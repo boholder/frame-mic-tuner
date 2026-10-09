@@ -29,21 +29,14 @@ std::string steamLanguage() {
 }
 
 /**
- * ロケールの環境変数（LC_ALL → LC_MESSAGES → LANG の順で最初に空でないもの）が日本語か。
- * @return 日本語なら true
+ * ロケールの環境変数（LC_ALL → LC_MESSAGES → LANG の順で最初に空でないもの）が言語コードで始まるか。
+ * @param languagePrefix 言語コード
+ * @return 一致するなら true
  */
-bool localeIsJapanese() {
+bool localeEnvVarsAreSetTo(const char* languagePrefix) {
     for (const char* name : {"LC_ALL", "LC_MESSAGES", "LANG"}) {
         const char* value = std::getenv(name);
-        if (value != nullptr && value[0] != '\0') return std::string(value).rfind("ja", 0) == 0;
-    }
-    return false;
-}
-
-bool localeIsChinese() {
-    for (const char* name : {"LC_ALL", "LC_MESSAGES", "LANG"}) {
-        const char* value = std::getenv(name);
-        if (value != nullptr && value[0] != '\0') return std::string(value).rfind("zh", 0) == 0;
+        if (value != nullptr && value[0] != '\0') return std::string(value).rfind(languagePrefix, 0) == 0;
     }
     return false;
 }
@@ -59,8 +52,8 @@ Language detectSystemLanguage() {
         if (steam == "schinese" || steam == "tchinese" || steam == "chinese") return Language::Zh;
         return Language::En;
     }
-    if (localeIsJapanese()) return Language::Ja;
-    if (localeIsChinese()) return Language::Zh;
+    if (localeEnvVarsAreSetTo("ja")) return Language::Ja;
+    if (localeEnvVarsAreSetTo("zh")) return Language::Zh;
     return Language::En;
 }
 
@@ -175,13 +168,13 @@ const UiText kEnglish = {
 const UiText kChinese = {
     "麦克风", "使用中", "未使用", "加载中…",
     "耳机", "扬声器",
-    "细小的声音也能传到", "消除扬声器串入麦克风的声音",
-    "回声消除", "消除扬声器的声音",
-    "噪声抑制", "连嘴部等细小声音也一并消除",
+    "细小声音也会被收音", "消除麦克风收到的头戴扬声器的声音",
+    "回声消除", "消除麦克风收到的头戴扬声器的声音",
+    "噪声抑制", "消除细小声音，输出会变沉闷",
     "开", "关",
     "信号链路", "麦克风", "音质校正", "回声消除", "噪声抑制", "输出到应用",
     "未在使用，处理已暂停", "无法读取信号链路",
-    "声音检查", "录下应用收到的声音，对比试听",
+    "声音检查", "录下麦克风收音，对比试听",
     "录音", "停止", "录音中", "秒", "%.1f 秒 · 剩余 %.1f 秒",
     "按下“录音”最多录制 10 秒", "还没有录音",
     "＋噪声抑制", "设置未知",
@@ -192,20 +185,20 @@ const UiText kChinese = {
     "读取失败（wpctl）", "切换组件尚未安装（运行 ./install.sh 后重启）",
     "信号链路读取失败（pw-link）", "切换失败（wpctl）", "自启动切换失败（systemctl）",
     "无法开始录音（PipeWire）", "无法播放（PipeWire）",
-    "判定严格度", "越低，非人声越容易通过", "保持时间", "说完后继续放行声音的时间",
+    "判定严格度", "越低，非人声越容易通过", "保持时间", "说完后继续收音的时间",
     "关闭期间不生效", "恢复默认",
     "无法修改噪声抑制强度（pw-cli）",
-    "你在哪里听声音？", "选择后会应用推荐设置",
-    "耳机 / 头戴式耳机", "Frame 扬声器",
+    "听起来怎么样？", "应用推荐设置",
+    "使用耳机", "使用自带扬声器",
     "回声消除 关", "回声消除 开",
     "精细调整",
     "当前使用精细调整的设置", "噪声抑制 关",
     "回声消除切换失败（wpctl）", "噪声抑制切换失败（wpctl）",
     "简单", "查看精细调整 →", "默认 23% · 500ms（SteamOS 的值）",
 
-    "检查新版本", "启动时以及每天一次，到 GitHub 检查是否有新版本",
+    "检查新版本", "启动时以及每天一次，向 GitHub 检查是否有新版本",
     "已是最新版本（%s）", "正在检查新版本…", "有新版本 %s 可用",
-    "更新", "此版本无法从这里安装。请到 GitHub 手动更新", "发布页面：",
+    "更新", "此版本无法自动安装。请到 GitHub 手动更新", "发布页面：",
     "要更新到 %s 吗？", "将下载并替换文件。完成后退出并重新启动，即可使用新版本",
     "更新", "取消",
     "更新中：%s", "已安装 %s。退出并重新启动，即可使用新版本",

@@ -516,8 +516,8 @@ void MicPanel::setPointerForPreview(PanelHit hover, PanelHit pressed) {
 }
 
 void MicPanel::drawSegmented(const Pen& pen, double x, double y, double w, double h, const std::string* labels,
-                             const PanelAction* actions, int actionCount, int selected, double size, bool usable) {
-    if (actionCount <= 0) return;
+                             const PanelAction* actions, int count, int selected, double size, bool usable) {
+    if (count <= 0) return;
     cairo_t* cr = pen.cr;
     const double r = h / 2;
     // 地のピル。押せるときは枠（3:1 以上）で部品の形を見せる。押せないときは枠なし
@@ -527,8 +527,8 @@ void MicPanel::drawSegmented(const Pen& pen, double x, double y, double w, doubl
     if (usable) strokeRounded(pen, x, y, w, h, r, kBorder, 2);
 
     const double inset = 5;
-    const double segment = (w - inset * 2) / actionCount;
-    for (int i = 0; i < actionCount; ++i) {
+    const double segment = (w - inset * 2) / count;
+    for (int i = 0; i < count; ++i) {
         const double sx = x + inset + segment * i;
         const double sy = y + inset;
         const double sh = h - inset * 2;

@@ -326,13 +326,13 @@ private:
      * @param h 高さ
      * @param labels 左右の文言
      * @param actions 左右の操作
-     * @param actionCount 操作選択肢の数
+     * @param count 選択肢の数
      * @param selected 選択中の側（0 / 1、分からなければ -1）
      * @param size 文字の大きさ
      * @param usable 押せるか
      */
     void drawSegmented(const Pen& pen, double x, double y, double w, double h, const std::string* labels,
-                       const PanelAction* actions, int actionCount, int selected, double size, bool usable = true);
+                       const PanelAction* actions, int count, int selected, double size, bool usable = true);
 };
 
 /**
